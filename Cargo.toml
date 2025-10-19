@@ -11,6 +11,8 @@ serde = { version = "1", features = ["derive"]}
 serde_json = "1"
 dicebag = "0.3"
 rpgassist = "0.1"
+log = "0.4"
+env_logger = "0.11"
 
 [badges]
 maintenance = { status = "experimental"}
