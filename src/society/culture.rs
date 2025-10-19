@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::{racial::race::Race, society::environment::NativeEnvironment};
 
 /// Culture level types for internal matcharoo.
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub enum CultureLevelType {
     Primitive, Nomad, Barbarian, Civilized, Decadent
 }
