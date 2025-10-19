@@ -1,6 +1,8 @@
 //! 758: Nobility
 //! 871: Special Titles for Nobility
 //! 
+use std::fmt::Display;
+
 use dicebag::DiceExt;
 use serde::{Deserialize, Serialize};
 
@@ -13,8 +15,31 @@ use crate::society::culture::{CultureLevelType, Level};
 pub struct NobleNPC {
     pub gender: Gender,
     pub culture: Level,
-    //pub wealth: Wealth,
+    //TODO pub wealth: Wealth,
     pub title: Title,
+}
+
+impl NobleNPC {
+    /// Generate a barebones throwaway noble NPC which is to be used maybe for a mere notion
+    /// and does not have much of any use beyond that.
+    pub fn new(culture_type: Option<&CultureLevelType>) -> Self {
+        let culture_type = if let Some(ct) = culture_type.cloned() { ct } else {
+            match 1.d20() {
+                ..=1 => CultureLevelType::Primitive,
+                ..=5 => CultureLevelType::Nomad,
+                ..=10 => CultureLevelType::Barbarian,
+                ..=17 => CultureLevelType::Civilized,
+                _ => CultureLevelType::Decadent
+            }
+        };
+
+        Self {
+            gender: Gender::new(None),
+            culture: Level::from(culture_type.clone()),
+            //TODO wealth: Wealth::new(...),
+            title: Title::new(&culture_type),
+        }
+    }
 }
 
 /// A full blown nobility descriptor.
@@ -55,6 +80,32 @@ pub enum Title {
     King,
     HighKing,
     Emperor
+}
+
+impl Display for Title {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            Self::Archduke => "Archduke",
+            Self::Baron => "Baron",
+            Self::Baronet => "Baronet",
+            Self::Chieftain => "Chieftain",
+            Self::Count => "Count",
+            Self::Duke => "Duke",
+            Self::Earl => "Earl",
+            Self::Emperor => "Emperor",
+            Self::Hetman => "hetman",
+            Self::HighKing => "High King",
+            Self::Jarl => "Jarl",
+            Self::Kahn => "Kahn",
+            Self::King => "King",
+            Self::Knight => "Sir",
+            Self::Marquis => "Marquis",
+            Self::Prince {..} |
+            Self::RoyalPrince => "Prince",
+            Self::Subchieftain => "Subchieftain",
+            Self::Viscount => "Viscount",
+        })
+    }
 }
 
 impl Title {
