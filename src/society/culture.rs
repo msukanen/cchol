@@ -3,7 +3,7 @@ use dicebag::DiceExt;
 use rpgassist::modifier::HasModifier;
 use serde::{Deserialize, Serialize};
 
-use crate::{racial::race::Race, society::environment::NativeEnvironment};
+use crate::{modifier::CuMod, racial::race::Race, society::environment::NativeEnvironment};
 
 /// Culture level types for internal matcharoo.
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
@@ -23,6 +23,12 @@ impl From<Level> for CultureLevelType {
     }
 }
 
+impl From<&Level> for CultureLevelType {
+    fn from(value: &Level) -> Self {
+        Self::from(value.clone())
+    }
+}
+
 /// Various culture levels.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize, Clone, Copy)]
 pub enum Level {
@@ -33,16 +39,21 @@ pub enum Level {
     Decadent
 }
 
-impl HasModifier for Level {
-    /// CuMod
-    fn modifier(&self) -> i32 {
+impl CuMod for CultureLevelType {
+    fn cumod(&self) -> i32 {
         match self {
             Self::Primitive => -3,
             Self::Nomad => 0,
-            Self::Barbarian(_) => 2,
-            Self::Civilized(_) => 4,
+            Self::Barbarian => 2,
+            Self::Civilized => 4,
             Self::Decadent => 7
         }
+    }
+}
+
+impl CuMod for Level {
+    fn cumod(&self) -> i32 {
+        CultureLevelType::from(self).cumod()
     }
 }
 
