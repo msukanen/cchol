@@ -3,7 +3,7 @@ use dicebag::DiceExt;
 use rpgassist::modifier::HasModifier;
 use serde::{Deserialize, Serialize};
 
-use crate::{modifier::{CuMod, SolMod}, society::{culture::CultureLevelType, nobility::Nobility}};
+use crate::{modifier::{CuMod, SolMod, SurvivalMod}, society::{culture::CultureLevelType, nobility::Nobility}};
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, PartialOrd)]
 pub enum WealthLevel {
@@ -52,9 +52,10 @@ impl WealthLevel {
 
         mk_level(culture_type.cumod(), nobility)
     }
+}
 
-    /// Get associated survival skill modifier.
-    pub fn survival_mod(&self) -> i32 {
+impl SurvivalMod for WealthLevel {
+    fn survmod(&self) -> i32 {
         match self {
             Self::Destitute { survival_mod } => *survival_mod,
             Self::Poor        =>  1,

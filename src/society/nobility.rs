@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use rpgassist::{gender::Gender, modifier::HasModifier};
 
-use crate::{modifier::CuMod, society::culture::{CultureLevelType, Level}};
+use crate::{modifier::{CuMod, TiMod}, society::culture::{CultureLevelType, Level}};
 
 /// A struct to haul around a barebones Noble NPC.
 #[derive(Debug, Clone)]
@@ -374,5 +374,11 @@ impl Nobility {
     /// See if we should proceed making a Noble or not.
     pub(crate) fn is_eligible_r(culture_type: &CultureLevelType) -> bool {
         1.d100() + culture_type.cumod() >= 99
+    }
+}
+
+impl TiMod for Nobility {
+    fn timod(&self) -> i32 {
+        self.timod
     }
 }
