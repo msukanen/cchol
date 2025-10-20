@@ -1,6 +1,5 @@
 //! 102: Culture
 use dicebag::DiceExt;
-use rpgassist::modifier::HasModifier;
 use serde::{Deserialize, Serialize};
 
 use crate::{modifier::CuMod, racial::race::Race, society::environment::NativeEnvironment};
