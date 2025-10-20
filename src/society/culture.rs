@@ -2,7 +2,7 @@
 use dicebag::DiceExt;
 use serde::{Deserialize, Serialize};
 
-use crate::{modifier::CuMod, racial::race::Race, society::environment::NativeEnvironment};
+use crate::{modifier::{CuMod, SurvivalModNatEnv}, racial::race::Race, society::environment::NativeEnvironment};
 
 /// Culture level types for internal matcharoo.
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
@@ -125,6 +125,34 @@ impl From<(CultureLevelType, NativeEnvironment)> for Level {
             CultureLevelType::Barbarian => Self::Barbarian(NativeEnvironment::new(Some(value.1))),
             CultureLevelType::Civilized => Self::Civilized(NativeEnvironment::new(Some(value.1))),
             CultureLevelType::Decadent => Self::Decadent
+        }
+    }
+}
+
+impl SurvivalModNatEnv for Level {
+    fn survmod_in_natenv(&self, native_env: &NativeEnvironment) -> i32 {
+        match self {
+            Self::Primitive => match native_env {
+                NativeEnvironment::Wilderness => 5, _=> 1,
+            },
+
+            Self::Nomad => match native_env {
+                NativeEnvironment::Wilderness => 5, _=> 1,
+            },
+
+            Self::Barbarian(e) => match native_env {
+                _ if native_env == e => 5,
+                _ => 1
+            },
+
+            Self::Civilized(e) => match native_env {
+                _ if native_env == e => 2,
+                _ => 0
+            },
+
+            Self::Decadent => match native_env {
+                NativeEnvironment::Urban => 3, _=> 1
+            }
         }
     }
 }
