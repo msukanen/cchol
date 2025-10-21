@@ -123,18 +123,32 @@ impl Race {
             ..=4 => Self::Elf,
             ..=8 => Self::Dwarf,
             ..=11 => Self::Halfling,
-            ..=15 => {// half elf
-                let raised_by = (1_i32.d2() - 1) as u8;
-                Self::Hybrid { raised_by, halves: (Box::new(Race::Human), Box::new(Race::Elf)) }
-            },
+            ..=15 => Self::mk_humanhybrid(Race::Elf),
             ..=16 => Self::new_beastman(),
             17 => Self::new_reptile(),
             18 => Self::Orc,
-            _ => {// half orc
-                let raised_by = (1_i32.d2() - 1) as u8;
-                Self::Hybrid { raised_by, halves: (Box::new(Race::Human), Box::new(Race::Orc)) }
-            },
+            _ => Self::mk_humanhybrid(Race::Orc),
         }
+    }
+
+    fn mk_humanhybrid(other: Race) -> Self {
+        let raised_by = (1_i32.d2() - 1) as u8;
+        Self::Hybrid { raised_by, halves: (Box::new(Race::Human), Box::new(other)) }
+    }
+
+    /// Readjust given gender to conform with race's requirements. Some races have
+    /// strictly fixed gender as it is.
+    pub fn readjust_gender(&self, gender: Gender) -> Gender {
+        let new_gender = match self {
+            Self::Faun => Gender::Female,
+            Self::Goatman |
+            Self::Satyr => Gender::Male,
+            _ => gender.clone()
+        };
+        if new_gender.ne(&gender) {
+            log::info!("Race enforced genderbend from '{:?}' to '{:?}'.", gender, new_gender)
+        }
+        new_gender
     }
 
     /// Generate a random beastman race.
@@ -176,6 +190,38 @@ impl Race {
             Self::Orc      => Some(Gender::Male),
             _              => unimplemented!("Not implemented for Gender::rnd_gender({:?})!", self)
             })
+        }
+    }
+}
+
+impl From<&str> for Race {
+    fn from(value: &str) -> Self {
+        match value.to_lowercase().as_str() {
+            "centaur" => Race::Centaur,
+            "dragonman" => Race::Dragonman,
+            "dwarf" => Race::Dwarf,
+            "goatman" => Race::Goatman,
+            "elf" => Race::Elf,
+            "faun" => Race::Faun,
+            "halfelf" => Race::mk_humanhybrid(Race::Elf),
+            "halfling" => Race::Halfling,
+            "halforc" => Race::mk_humanhybrid(Race::Orc),
+            "human" => Race::Human,
+            "minotaur" => Race::Minotaur,
+            "reptileman" => Race::Reptileman,
+            "satyr" => Race::Satyr,
+            "serpentman" => Race::Serpentman,
+            _ => unimplemented!("Race '{value}' has not been implemented. It might be in the future, but for now…")
+        }
+    }
+}
+
+impl From<Option<String>> for Race {
+    fn from(value: Option<String>) -> Self {
+        if let Some(racename) = value {
+            Self::from(racename.as_str())
+        } else {
+            Self::new()
         }
     }
 }
