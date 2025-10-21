@@ -1,4 +1,4 @@
-use cchol::player::PlayerCharacter;
+use cchol_lib::player::PlayerCharacter;
 use rpgassist::gender::Gender;
 
 /// Simple CLI thingy.
