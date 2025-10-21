@@ -9,6 +9,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 cchol-lib = { path = "../cchol-lib"}
 rpgassist = "0.1"
+clap = { version = "4.5", features = ["derive"]}
 
 [badges]
 maintenance = { status = "experimental"}
