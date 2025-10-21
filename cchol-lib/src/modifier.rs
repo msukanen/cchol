@@ -15,3 +15,6 @@ pub use survivalmod::SurvivalModNatEnv;
 // TiMod
 pub mod timod;
 pub use timod::TiMod;
+// WealthMod
+pub mod wealthmod;
+pub use wealthmod::WealthMod;
