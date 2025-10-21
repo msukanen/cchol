@@ -2,7 +2,7 @@
 use dicebag::DiceExt;
 use serde::{Deserialize, Serialize};
 
-use crate::{modifier::{CuMod, SurvivalModNatEnv}, racial::race::Race, society::environment::NativeEnvironment};
+use crate::{modifier::{CuMod, LitModType, SurvivalModNatEnv}, racial::race::Race, skill::literacy::{HasLiteracyBenefit, PotentialLanguage}, society::environment::NativeEnvironment};
 
 /// Culture level types for internal matcharoo.
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
@@ -153,6 +153,35 @@ impl SurvivalModNatEnv for Level {
             Self::Decadent => match native_env {
                 NativeEnvironment::Urban => 3, _=> 1
             }
+        }
+    }
+}
+
+impl HasLiteracyBenefit for CultureLevelType {
+    fn literacy(&self) -> Vec<PotentialLanguage> {
+        match self {
+            Self::Primitive => vec![
+                PotentialLanguage::new("Foreign language", LitModType::Additive(5))
+            ],
+
+            Self::Nomad => vec![
+                PotentialLanguage::new("Native pictographs", LitModType::FixedOverride(100)),
+                PotentialLanguage::new("Foreign pictographs", LitModType::Additive(10)),
+                PotentialLanguage::new("Foreign language", LitModType::Additive(10)),
+            ],
+
+            Self::Barbarian => vec![
+                PotentialLanguage::new("Native language", LitModType::Additive(10)),
+            ],
+
+            Self::Civilized => vec![
+                PotentialLanguage::new("Native language", LitModType::Additive(30)),
+            ],
+
+            Self::Decadent => vec![
+                PotentialLanguage::new("Native language", LitModType::Additive(20)),
+                PotentialLanguage::new("Foreign language", LitModType::Additive(10))
+            ]
         }
     }
 }
