@@ -14,5 +14,11 @@ rpgassist = "0.1"
 log = "0.4"
 env_logger = "0.11"
 
+[dev-dependencies]
+clap = "4.5"
+
 [badges]
 maintenance = { status = "experimental"}
+
+[[example]]
+name = "ccholcli"
