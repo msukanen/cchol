@@ -1,7 +1,7 @@
-use std::ops::{Add, AddAssign, SubAssign};
+use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 /// **LitMod** types.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum LitModType {
     /// Freely adds up with other modifiers.
     Additive(i32),
@@ -63,6 +63,23 @@ impl Add for LitModType {
     }
 }
 
+impl Sub for LitModType {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        match self {
+            Self::Additive(a) => match rhs {
+                Self::Additive(b) => Self::Additive(a - b),
+                _ => rhs
+            },
+
+            Self::FixedOverride(a) => match rhs {
+                Self::FixedOverride(b) => Self::FixedOverride(if a < b {a} else {b}),
+                _ => self
+            }
+        }
+    }
+}
+
 impl Add<i32> for LitModType {
     type Output = Self;
     fn add(self, rhs: i32) -> Self::Output {
@@ -78,6 +95,16 @@ impl AddAssign<i32> for LitModType {
         match self {
             Self::Additive(a) |
             Self::FixedOverride(a) => *a += rhs
+        }
+    }
+}
+
+impl Sub<i32> for LitModType {
+    type Output = Self;
+    fn sub(self, rhs: i32) -> Self::Output {
+        match self {
+            Self::Additive(a) => Self::Additive(a - rhs),
+            Self::FixedOverride(a) => Self::FixedOverride(a - rhs)
         }
     }
 }
