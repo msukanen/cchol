@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use rpgassist::{gender::Gender, modifier::HasModifier};
 
-use crate::{modifier::{CuMod, TiMod}, society::culture::{CultureLevelType, Level}};
+use crate::{modifier::{CuMod, LitMod, LitModType, TiMod}, society::culture::{CultureLevelType, Level}};
 
 /// A struct to haul around a barebones Noble NPC.
 #[derive(Debug, Clone)]
@@ -380,5 +380,12 @@ impl Nobility {
 impl TiMod for Nobility {
     fn timod(&self) -> i32 {
         self.timod
+    }
+}
+
+impl LitMod for Nobility {
+    fn litmod(&self) -> LitModType {
+        // Nobles have +30% literacy chance over the base cultural one.
+        LitModType::Additive(30)
     }
 }
