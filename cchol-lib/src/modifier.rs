@@ -1,6 +1,9 @@
 // CuMod
 pub mod cumod;
 pub use cumod::CuMod;
+// LegitMod
+pub mod legitmod;
+pub use legitmod::LegitMod;
 // LitMod
 pub mod litmod;
 pub use litmod::LitMod;
