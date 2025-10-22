@@ -43,7 +43,10 @@ impl WealthLevel {
     /// 
     /// Generally used internally by e.g. [SocialStatus::new()][`crate::society::SocialStatus::new`],
     /// but can be called as-is for simpler matters.
-    pub fn new(culture_type: &CultureLevelType, nobility: Option<&Nobility>) -> Self {
+    /// 
+    /// # Args
+    /// `c`— some [CuMod] source.
+    pub fn new(c: &impl CuMod, nobility: Option<&Nobility>) -> Self {
         fn mk_level(cumod: i32, nobility: Option<&Nobility>) -> WealthLevel {
             match 1.d100() + cumod {
                 ..=12 => WealthLevel::Destitute { survival_mod: 1.d2() },
@@ -65,7 +68,7 @@ impl WealthLevel {
             }
         }
 
-        mk_level(culture_type.cumod(), nobility)
+        mk_level(c.cumod(), nobility)
     }
 
     /// Step wealth level up by one rank, if possible.

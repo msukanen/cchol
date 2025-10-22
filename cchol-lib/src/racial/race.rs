@@ -3,7 +3,7 @@ use dicebag::DiceExt;
 use rpgassist::gender::Gender;
 use serde::{Deserialize, Serialize};
 
-use crate::society::culture::{CultureLevelType, Level};
+use crate::society::culture::{CultureLevelType, Culture};
 
 /// Various (playable) races.
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
@@ -95,11 +95,11 @@ impl Race {
     /// shift [nomads][`Level::Nomad`] into [primitives][`Level::Primitive`]
     /// and more [civilized][`Level::Civilized`] into [decadency][`Level::Decadent`].
     ///
-    pub fn culture_shift_if_needed(&self, culture: Level) -> Level {
+    pub(crate) fn culture_shift_if_needed(&self, culture: Culture) -> Culture {
         if self.is_reptilian() {
             match CultureLevelType::from(culture.clone()) {
-                CultureLevelType::Nomad => Level::Primitive,
-                CultureLevelType::Civilized => Level::Decadent,
+                CultureLevelType::Nomad => Culture::Primitive,
+                CultureLevelType::Civilized => Culture::Decadent,
                 _ => culture
             }
         } else {

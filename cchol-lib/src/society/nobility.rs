@@ -8,13 +8,13 @@ use serde::{Deserialize, Serialize};
 
 use rpgassist::{gender::Gender, modifier::HasModifier};
 
-use crate::{modifier::{CuMod, LitMod, LitModType, TiMod}, society::culture::{CultureLevelType, Level}};
+use crate::{modifier::{CuMod, LitMod, LitModType, TiMod}, society::culture::{CultureLevelType, Culture}};
 
 /// A struct to haul around a barebones Noble NPC.
 #[derive(Debug, Clone)]
 pub struct NobleNPC {
     pub gender: Gender,
-    pub culture: Level,
+    pub culture: Culture,
     //TODO pub wealth: Wealth,
     pub title: Title,
 }
@@ -22,22 +22,25 @@ pub struct NobleNPC {
 impl NobleNPC {
     /// Generate a barebones throwaway noble NPC which is to be used maybe for a mere notion
     /// and does not have much of any use beyond that.
-    pub fn new(culture_type: Option<&CultureLevelType>) -> Self {
-        let culture_type = if let Some(ct) = culture_type.cloned() { ct } else {
+    /// 
+    /// # Args
+    /// `opt_c`—some (optional) [CuMod] source.
+    pub fn new(opt_c: Option<&impl CuMod>) -> Self {
+        let cumod = if let Some(c) = opt_c { c.cumod() } else {
             match 1.d20() {
                 ..=1 => CultureLevelType::Primitive,
                 ..=5 => CultureLevelType::Nomad,
                 ..=10 => CultureLevelType::Barbarian,
                 ..=17 => CultureLevelType::Civilized,
                 _ => CultureLevelType::Decadent
-            }
+            }.cumod()
         };
 
         Self {
             gender: Gender::new(None),
-            culture: Level::from(culture_type.clone()),
+            culture: Culture::from(CultureLevelType::from(cumod)),
             //TODO wealth: Wealth::new(...),
-            title: Title::new(&culture_type),
+            title: Title::new(&CultureLevelType::from(cumod)),
         }
     }
 }
@@ -110,8 +113,11 @@ impl Display for Title {
 
 impl Title {
     /// Generate a random noble title based on given [culture type][CultureLevelType].
-    pub fn new(culture_type: &CultureLevelType) -> Self {
-        match culture_type {
+    /// 
+    /// # Args
+    /// `c`— some [CuMod] source.
+    pub fn new(c: &impl CuMod) -> Self {
+        match c.as_clt() {
             CultureLevelType::Primitive =>
                 match 1.d100() {
                     ..=1 => Self::HighKing,
@@ -136,7 +142,7 @@ impl Title {
                     ..=60 => Self::Jarl,
                     ..=70 => Self::Subchieftain,
                     ..=75 => Self::Baron,
-                    ..=80 => Self::mk_prince(culture_type),
+                    ..=80 => Self::mk_prince(c),
                     _ => Self::Hetman
                 },
 
@@ -153,28 +159,35 @@ impl Title {
                     ..=60 => if 1.d2() == 1 {Self::Count} else {Self::Earl},
                     ..=75 => Self::Baron,
                     ..=78 => Self::Baronet,
-                    ..=90 => Self::mk_prince(culture_type),
+                    ..=90 => Self::mk_prince(c),
                     _ => Self::Knight
                 }
         }
     }
 
-    fn mk_prince(culture_type: &CultureLevelType) -> Self {
-        let parent_title = Self::new_prince_parent(culture_type);
+    /// Generate a prince.
+    /// 
+    /// # Args
+    /// `c`— some [CuMod] source.
+    fn mk_prince(c: &impl CuMod) -> Self {
+        let parent_title = Self::new_prince_parent(c);
         let fraction_owned = if let Some(_) = parent_title { 1.d10() as f64 * 0.1 } else { 1.0 };
         Self::Prince { parent_title, fraction_owned }
     }
 
     /// Generate (optional) parents' title for a prince.
-    fn new_prince_parent(culture_type: &CultureLevelType) -> Option<Box<Self>> {
+    /// 
+    /// # Args
+    /// `c`— some [CuMod] source.
+    fn new_prince_parent(c: &impl CuMod) -> Option<Box<Self>> {
         // 1..20 = archduke equivalent, but 21+ parent's title matters instead.
         if 1.d100() > 20 {
-            let mut parent = Self::new(culture_type);
+            let mut parent = Self::new(c);
             loop {
                 match parent {
                     Self::Prince {..} => {
                         log::debug!("Parent would've been a prince(ss) — redoing…");
-                        parent = Self::new(culture_type);
+                        parent = Self::new(c);
                     },
                     _ => break None
                 }
@@ -282,6 +295,9 @@ impl Title {
 }
 
 /// Generate solid land title(s) vec.
+/// 
+/// # Args
+/// `count`— number of title(s) to generate.
 fn mk_land_titles_vec(count: i32) -> Vec<String> {
     let mut titles = vec![];
     for _ in 0..=count {
@@ -348,7 +364,7 @@ const LAND_TITLE_PART3: [&'static str; 20] = [
     "Waves",
 ];
 
-/// Generate single land title.
+/// Generate a single land title.
 fn mk_land_title() -> String {
     let part1 = LAND_TITLE_PART1[1.d20()-1];
     let r = 1.d(10 + LAND_TITLE_PART2.len());
@@ -361,8 +377,12 @@ fn mk_land_title() -> String {
 }
 
 impl Nobility {
-    pub fn new(culture_type: &CultureLevelType) -> Self {
-        let title = Title::new(culture_type);
+    /// Generate random nobility.
+    /// 
+    /// # Args
+    /// `c`— some [CuMod] source.
+    pub fn new(c: &impl CuMod) -> Self {
+        let title = Title::new(c);
         let timod = title.modifier();
         let land_titles = title.mk_land_titles();
         let land_holdings = title.mk_land_holdings();
@@ -372,8 +392,11 @@ impl Nobility {
 
 
     /// See if we should proceed making a Noble or not.
-    pub(crate) fn is_eligible_r(culture_type: &CultureLevelType) -> bool {
-        1.d100() + culture_type.cumod() >= 99
+    /// 
+    /// # Args
+    /// `c`— some [CuMod] source.
+    pub(crate) fn is_eligible_r(c: &impl CuMod) -> bool {
+        1.d100() + c.cumod() >= 99
     }
 }
 

@@ -2,7 +2,7 @@ use dicebag::DiceExt;
 use rpgassist::gender::{Gender, HasGender};
 use serde::{Deserialize, Serialize};
 
-use crate::{modifier::CuMod, society::culture::CultureLevelType};
+use crate::modifier::CuMod;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum CousinRelationDistance {
@@ -42,7 +42,6 @@ impl HasGender for FamilyMember {
             Self::Father {..}  |
             Self::Uncle {..}  => Gender::Male,
             Self::Cousin { gender,.. } => *gender,
-            _ => Gender::Unspecified
         }
     }
 }
@@ -71,8 +70,12 @@ pub enum Family {
     Orphanage,
 }
 
-pub fn generate_family(culture_type: &CultureLevelType) -> Family {
-    match 1.d20() + culture_type.cumod() {
+/// Generate random family, or lack of such.
+/// 
+/// # Args
+/// `c`— some [CuMod] source.
+pub fn generate_family(c: &impl CuMod) -> Family {
+    match 1.d20() + c.cumod() {
         ..=8 => Family::Parents,
         ..=12 => Family::Extended {
             grandparents: {

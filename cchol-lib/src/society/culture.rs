@@ -10,27 +10,27 @@ pub enum CultureLevelType {
     Primitive, Nomad, Barbarian, Civilized, Decadent
 }
 
-impl From<Level> for CultureLevelType {
-    fn from(value: Level) -> Self {
+impl From<Culture> for CultureLevelType {
+    fn from(value: Culture) -> Self {
         match value {
-            Level::Primitive => Self::Primitive,
-            Level::Nomad => Self::Nomad,
-            Level::Barbarian(_) => Self::Barbarian,
-            Level::Civilized(_) => Self::Civilized,
-            Level::Decadent => Self::Decadent
+            Culture::Primitive => Self::Primitive,
+            Culture::Nomad => Self::Nomad,
+            Culture::Barbarian(_) => Self::Barbarian,
+            Culture::Civilized(_) => Self::Civilized,
+            Culture::Decadent => Self::Decadent
         }
     }
 }
 
-impl From<&Level> for CultureLevelType {
-    fn from(value: &Level) -> Self {
+impl From<&Culture> for CultureLevelType {
+    fn from(value: &Culture) -> Self {
         Self::from(value.clone())
     }
 }
 
 /// Various culture levels.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize, Clone, Copy)]
-pub enum Level {
+pub enum Culture {
     Primitive,
     Nomad,
     Barbarian(NativeEnvironment),
@@ -38,29 +38,48 @@ pub enum Level {
     Decadent
 }
 
+const CUMOD_PRIMITIVE: i32 = -3;
+const CUMOD_NOMAD: i32     =  0;
+const CUMOD_BARBARIAN: i32 =  2;
+const CUMOD_CIVILIZED: i32 =  4;
+const CUMOD_DECADENT: i32  =  7;
+
 impl CuMod for CultureLevelType {
     fn cumod(&self) -> i32 {
         match self {
-            Self::Primitive => -3,
-            Self::Nomad => 0,
-            Self::Barbarian => 2,
-            Self::Civilized => 4,
-            Self::Decadent => 7
+            Self::Primitive => CUMOD_PRIMITIVE,
+            Self::Nomad => CUMOD_NOMAD,
+            Self::Barbarian => CUMOD_BARBARIAN,
+            Self::Civilized => CUMOD_CIVILIZED,
+            Self::Decadent => CUMOD_DECADENT
         }
     }
 }
 
-impl CuMod for Level {
+// WARNING: a rather brittle but necessary way to derive CultureLevelType from i32 …
+impl From<i32> for CultureLevelType {
+    fn from(value: i32) -> Self {
+        match value {
+            _ if value <= CUMOD_PRIMITIVE => Self::Primitive,
+            _ if value <= CUMOD_NOMAD => Self::Nomad,
+            _ if value <= CUMOD_BARBARIAN => Self::Barbarian,
+            _ if value <= CUMOD_CIVILIZED => Self::Civilized,
+            _ => Self::Decadent
+        }
+    }
+}
+
+impl CuMod for Culture {
     fn cumod(&self) -> i32 {
         CultureLevelType::from(self).cumod()
     }
 }
 
-impl Level {
+impl Culture {
     /// Generate random culture level; [`race`][Race] (if given) dictates maximum culture level, etc.
     /// 
     /// # Params
-    /// * `race` — (optional) some [Race].
+    /// * `race`— (optional) some [Race].
     pub fn new(race: Option<&Race>) -> Self {
         let mut culture = match 1.d10() {
             ..=1 => Self::Primitive,
@@ -73,7 +92,7 @@ impl Level {
         if let Some(race) = race {
             if let Some(max_culture) = race.max_culture() {
                 if max_culture < culture.into() {
-                    culture = Level::from(max_culture)
+                    culture = Culture::from(max_culture)
                 }
             }
             culture = race.culture_shift_if_needed(culture)
@@ -92,13 +111,13 @@ impl Level {
     }
 }
 
-impl PartialEq<CultureLevelType> for Level {
+impl PartialEq<CultureLevelType> for Culture {
     fn eq(&self, other: &CultureLevelType) -> bool {
         CultureLevelType::from(*self) == *other
     }
 }
 
-impl From<CultureLevelType> for Level {
+impl From<CultureLevelType> for Culture {
     /// Generate [culture level][Level] from `value`. Some randomness is bound to happen with
     /// [native environment][NativeEnvironment] for
     /// [barbarian][CultureLevelType::Barbarian] and
@@ -115,7 +134,7 @@ impl From<CultureLevelType> for Level {
     }
 }
 
-impl From<(CultureLevelType, NativeEnvironment)> for Level {
+impl From<(CultureLevelType, NativeEnvironment)> for Culture {
     /// Generate [culture level][Level] from `value.0` while `value.1` holds on to
     /// [native environment][NativeEnvironment] bias (which might or might not be used/needed).
     fn from(value: (CultureLevelType, NativeEnvironment)) -> Self {
@@ -129,7 +148,7 @@ impl From<(CultureLevelType, NativeEnvironment)> for Level {
     }
 }
 
-impl SurvivalModNatEnv for Level {
+impl SurvivalModNatEnv for Culture {
     fn survmod_in_natenv(&self, native_env: &NativeEnvironment) -> i32 {
         match self {
             Self::Primitive => match native_env {
@@ -188,12 +207,12 @@ impl HasLiteracyBenefit for CultureLevelType {
 
 #[cfg(test)]
 mod culture_tests {
-    use crate::{racial::race::Race, society::{culture::{CultureLevelType, Level}, environment::NativeEnvironment}};
+    use crate::{racial::race::Race, society::{culture::{CultureLevelType, Culture}, environment::NativeEnvironment}};
 
     #[test]
     fn reptileman_shift_nomad_down() {
         let r = Race::Reptileman;
-        let culture = Level::Nomad;
+        let culture = Culture::Nomad;
         let culture = r.culture_shift_if_needed(culture);
         assert_eq!(CultureLevelType::Primitive, culture.into());
     }
@@ -201,7 +220,7 @@ mod culture_tests {
     #[test]
     fn reptileman_shift_civilized_up() {
         let r = Race::Reptileman;
-        let culture = Level::Civilized(NativeEnvironment::Urban);
+        let culture = Culture::Civilized(NativeEnvironment::Urban);
         let culture = r.culture_shift_if_needed(culture);
         assert_eq!(CultureLevelType::Decadent, culture.into());
     }
