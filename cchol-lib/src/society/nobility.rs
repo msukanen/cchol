@@ -26,7 +26,7 @@ impl NobleNPC {
     /// # Args
     /// `opt_c`—some (optional) [CuMod] source.
     pub fn new(opt_c: Option<&impl CuMod>) -> Self {
-        let cumod = if let Some(c) = opt_c { c.cumod() } else {
+        let cumod = if let Some(cumod_src) = opt_c { cumod_src.cumod() } else {
             match 1.d20() {
                 ..=1 => CultureLevelType::Primitive,
                 ..=5 => CultureLevelType::Nomad,
@@ -115,9 +115,9 @@ impl Title {
     /// Generate a random noble title based on given [culture type][CultureLevelType].
     /// 
     /// # Args
-    /// `c`— some [CuMod] source.
-    pub fn new(c: &impl CuMod) -> Self {
-        match c.as_clt() {
+    /// `cumod_src`— some [CuMod] source.
+    pub fn new(cumod_src: &impl CuMod) -> Self {
+        match cumod_src.as_clt() {
             CultureLevelType::Primitive =>
                 match 1.d100() {
                     ..=1 => Self::HighKing,
@@ -142,7 +142,7 @@ impl Title {
                     ..=60 => Self::Jarl,
                     ..=70 => Self::Subchieftain,
                     ..=75 => Self::Baron,
-                    ..=80 => Self::mk_prince(c),
+                    ..=80 => Self::mk_prince(cumod_src),
                     _ => Self::Hetman
                 },
 
@@ -159,7 +159,7 @@ impl Title {
                     ..=60 => if 1.d2() == 1 {Self::Count} else {Self::Earl},
                     ..=75 => Self::Baron,
                     ..=78 => Self::Baronet,
-                    ..=90 => Self::mk_prince(c),
+                    ..=90 => Self::mk_prince(cumod_src),
                     _ => Self::Knight
                 }
         }
@@ -168,9 +168,9 @@ impl Title {
     /// Generate a prince.
     /// 
     /// # Args
-    /// `c`— some [CuMod] source.
-    fn mk_prince(c: &impl CuMod) -> Self {
-        let parent_title = Self::new_prince_parent(c);
+    /// `cumod_src`— some [CuMod] source.
+    fn mk_prince(cumod_src: &impl CuMod) -> Self {
+        let parent_title = Self::new_prince_parent(cumod_src);
         let fraction_owned = if let Some(_) = parent_title { 1.d10() as f64 * 0.1 } else { 1.0 };
         Self::Prince { parent_title, fraction_owned }
     }
@@ -178,16 +178,16 @@ impl Title {
     /// Generate (optional) parents' title for a prince.
     /// 
     /// # Args
-    /// `c`— some [CuMod] source.
-    fn new_prince_parent(c: &impl CuMod) -> Option<Box<Self>> {
+    /// `cumod_src`— some [CuMod] source.
+    fn new_prince_parent(cumod_src: &impl CuMod) -> Option<Box<Self>> {
         // 1..20 = archduke equivalent, but 21+ parent's title matters instead.
         if 1.d100() > 20 {
-            let mut parent = Self::new(c);
+            let mut parent = Self::new(cumod_src);
             loop {
                 match parent {
                     Self::Prince {..} => {
                         log::debug!("Parent would've been a prince(ss) — redoing…");
-                        parent = Self::new(c);
+                        parent = Self::new(cumod_src);
                     },
                     _ => break None
                 }
@@ -380,9 +380,9 @@ impl Nobility {
     /// Generate random nobility.
     /// 
     /// # Args
-    /// `c`— some [CuMod] source.
-    pub fn new(c: &impl CuMod) -> Self {
-        let title = Title::new(c);
+    /// `cumod_src`— some [CuMod] source.
+    pub fn new(cumod_src: &impl CuMod) -> Self {
+        let title = Title::new(cumod_src);
         let timod = title.modifier();
         let land_titles = title.mk_land_titles();
         let land_holdings = title.mk_land_holdings();
@@ -394,9 +394,9 @@ impl Nobility {
     /// See if we should proceed making a Noble or not.
     /// 
     /// # Args
-    /// `c`— some [CuMod] source.
-    pub(crate) fn is_eligible_r(c: &impl CuMod) -> bool {
-        1.d100() + c.cumod() >= 99
+    /// `cumod_src`— some [CuMod] source.
+    pub(crate) fn is_eligible_r(cumod_src: &impl CuMod) -> bool {
+        1.d100() + cumod_src.cumod() >= 99
     }
 }
 

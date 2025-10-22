@@ -1,5 +1,5 @@
 //! 103: Social Status
-use crate::{modifier::{CuMod, SolMod, SurvivalMod, TiMod}, society::{culture::CultureLevelType, nobility::Nobility, wealth::WealthLevel}};
+use crate::{modifier::{CuMod, SolMod, SurvivalMod, TiMod}, society::{nobility::Nobility, wealth::WealthLevel}};
 
 pub struct SocialStatus {
     pub wealth: WealthLevel,
@@ -16,10 +16,10 @@ impl SocialStatus {
     /// Generate random, culture appropriate, social status.
     /// 
     /// # Args
-    /// `c`— some [CuMod] source.
-    pub fn new(c: &impl CuMod) -> Self {
-        let nobility = if Nobility::is_eligible_r(c) {Some(Nobility::new(c))} else {None};
-        let wealth = WealthLevel::new(c, nobility.as_ref());
+    /// `cumod_src`— some [CuMod] source.
+    pub fn new(cumod_src: &impl CuMod) -> Self {
+        let nobility = if Nobility::is_eligible_r(cumod_src) {Some(Nobility::new(cumod_src))} else {None};
+        let wealth = WealthLevel::new(cumod_src, nobility.as_ref());
 
         Self { wealth, nobility }
     }

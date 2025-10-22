@@ -73,9 +73,9 @@ pub enum Family {
 /// Generate random family, or lack of such.
 /// 
 /// # Args
-/// `c`— some [CuMod] source.
-pub fn generate_family(c: &impl CuMod) -> Family {
-    match 1.d20() + c.cumod() {
+/// `cumod_src`— some [CuMod] source.
+pub fn generate_family(cumod_src: &impl CuMod) -> Family {
+    match 1.d20() + cumod_src.cumod() {
         ..=8 => Family::Parents,
         ..=12 => Family::Extended {
             grandparents: {

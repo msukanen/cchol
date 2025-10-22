@@ -31,11 +31,11 @@ impl LegitMod for IllegitimacyReason {
 /// Birth is considered legit if `None` is returned as a reason.
 /// 
 /// # Args
-/// `c`— some [CuMod] source.
-pub fn determine_birth_illegitimacy(c: &impl CuMod) -> Option<IllegitimacyReason> {
+/// `cumod_src`— some [CuMod] source.
+pub fn determine_birth_illegitimacy(cumod_src: &impl CuMod) -> Option<IllegitimacyReason> {
     // Generate a culturally biased illegitimacy reason.
-    fn mk_illegitimacy_reason(c: &impl CuMod) -> IllegitimacyReason {
-        match 1.d20() + c.cumod() {
+    fn mk_illegitimacy_reason(cumod_src: &impl CuMod) -> IllegitimacyReason {
+        match 1.d20() + cumod_src.cumod() {
             ..=12 => IllegitimacyReason::R1(1.d4()),
             ..=14 => IllegitimacyReason::R2 { legit_mod: 1.d4(), father_known: 1.d100() < 16 },
             ..=23 => IllegitimacyReason::R3 { legit_mod: 1.d4(), father_known: 1.d100() < 51 },
@@ -43,8 +43,8 @@ pub fn determine_birth_illegitimacy(c: &impl CuMod) -> Option<IllegitimacyReason
         }
     }
 
-    match c.as_clt() {
-        CultureLevelType::Primitive => if 1.d20() == 20 { Some(mk_illegitimacy_reason(c))} else { None },
-        _ => if 1.d20() + c.cumod() > 19 { Some(mk_illegitimacy_reason(c))} else { None },
+    match cumod_src.as_clt() {
+        CultureLevelType::Primitive => if 1.d20() == 20 { Some(mk_illegitimacy_reason(cumod_src))} else { None },
+        _ => if 1.d20() + cumod_src.cumod() > 19 { Some(mk_illegitimacy_reason(cumod_src))} else { None },
     }
 }

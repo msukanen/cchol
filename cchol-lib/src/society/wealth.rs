@@ -3,7 +3,7 @@ use dicebag::DiceExt;
 use rpgassist::modifier::HasModifier;
 use serde::{Deserialize, Serialize};
 
-use crate::{modifier::{CuMod, SolMod, SurvivalMod, WealthMod}, society::{culture::CultureLevelType, nobility::Nobility}};
+use crate::{modifier::{CuMod, SolMod, SurvivalMod, WealthMod}, society::nobility::Nobility};
 
 /// Being 'wealthy' comes with distinct levels of 'wealthy'.
 #[derive(Debug, Deserialize, Serialize, PartialEq, PartialOrd, Eq, Ord)]
@@ -45,8 +45,8 @@ impl WealthLevel {
     /// but can be called as-is for simpler matters.
     /// 
     /// # Args
-    /// `c`— some [CuMod] source.
-    pub fn new(c: &impl CuMod, nobility: Option<&Nobility>) -> Self {
+    /// `cumod_src`— some [CuMod] source.
+    pub fn new(cumod_src: &impl CuMod, nobility: Option<&Nobility>) -> Self {
         fn mk_level(cumod: i32, nobility: Option<&Nobility>) -> WealthLevel {
             match 1.d100() + cumod {
                 ..=12 => WealthLevel::Destitute { survival_mod: 1.d2() },
@@ -68,7 +68,7 @@ impl WealthLevel {
             }
         }
 
-        mk_level(c.cumod(), nobility)
+        mk_level(cumod_src.cumod(), nobility)
     }
 
     /// Step wealth level up by one rank, if possible.
