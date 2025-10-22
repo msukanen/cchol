@@ -1,4 +1,4 @@
 //! WealthMod — wealth modifier.
 pub trait WealthMod {
-    fn wmod(&self) -> i32;
+    fn wmod(&self) -> f64;
 }
