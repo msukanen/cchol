@@ -1,3 +1,6 @@
+// BiMod
+pub mod bimod;
+pub use bimod::BiMod;
 // CuMod
 pub mod cumod;
 pub use cumod::CuMod;
