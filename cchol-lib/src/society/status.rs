@@ -1,6 +1,9 @@
 //! 103: Social Status
+use serde::{Deserialize, Serialize};
+
 use crate::{modifier::{CuMod, SolMod, SurvivalMod, TiMod}, society::{nobility::Nobility, wealth::WealthLevel}};
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SocialStatus {
     pub wealth: WealthLevel,
     pub nobility: Option<Nobility>,
