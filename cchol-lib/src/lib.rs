@@ -1,6 +1,7 @@
 pub mod misc;
 pub mod modifier;
 pub mod named;
+pub mod places;
 pub mod player;
 pub mod racial;
 pub mod skill;
