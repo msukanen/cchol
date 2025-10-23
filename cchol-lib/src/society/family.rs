@@ -2,7 +2,7 @@ use dicebag::DiceExt;
 use rpgassist::gender::{Gender, HasGender};
 use serde::{Deserialize, Serialize};
 
-use crate::modifier::CuMod;
+use crate::{modifier::CuMod, society::birth::BirthLegitimacy};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum CousinRelationDistance {
@@ -30,18 +30,22 @@ pub enum FamilyMember {
     Father {grand_rank: AncestryDistance, related_via: Gender},
     Aunt {grand_rank: AncestryDistance, related_via: Gender},
     Uncle {grand_rank: AncestryDistance, related_via: Gender},
-    Cousin {distance: CousinRelationDistance, gender: Gender}
-    //TODO: Guardian
+    Cousin {distance: CousinRelationDistance, gender: Gender},
+    //TODO: Guardian,
+    Sibling {gender: Gender, birth_legit: bool},
 }
 
 impl HasGender for FamilyMember {
     fn gender(&self) -> rpgassist::gender::Gender {
         match self {
-            Self::Aunt {..}    |
+            Self::Aunt {..}   |
             Self::Mother {..} => Gender::Female,
-            Self::Father {..}  |
+            
+            Self::Father {..} |
             Self::Uncle {..}  => Gender::Male,
-            Self::Cousin { gender,.. } => *gender,
+            
+            Self::Cousin { gender,.. } |
+            Self::Sibling { gender,..} => *gender,
         }
     }
 }
@@ -127,4 +131,39 @@ pub fn generate_family(cumod_src: &impl CuMod) -> Family {
         ..=24 => Family::NoneKnown,
         _ => Family::Orphanage
     }
+}
+
+/// Determine siblings, if any. Siblings are generally unknown in case where the character's
+/// birth was not "legitimate".
+/// 
+/// # Args
+/// `birth_legit`— optional birth illegitimacy.
+pub fn determine_siblings(birth_legit: &BirthLegitimacy) -> Option<Vec<FamilyMember>> {
+    if birth_legit.is_legitimate() {
+        return None
+    }
+
+    let mut sibs = vec![];
+    let mut illegit_count = 0;
+    let mut count = 0;
+    let count = loop {
+        match 1.d20() {
+            ..=2 => break count,
+            ..=9 => count += 1.d3(),
+            ..=15 => count += 1.d3() + 1,
+            ..=17 => count += 1.d4() + 2,
+            ..=19 => count += 2.d4(),
+            _ => illegit_count += 1.d3()
+        }
+    };
+
+    for _ in 0..count {
+        sibs.push(FamilyMember::Sibling { gender: Gender::new(None), birth_legit: true });
+    }
+
+    for _ in 0..illegit_count {
+        sibs.push(FamilyMember::Sibling { gender: Gender::new(None), birth_legit: false });
+    }
+
+    Some(sibs)
 }
