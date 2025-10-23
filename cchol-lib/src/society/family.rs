@@ -1,3 +1,5 @@
+//! 106: Family
+//! 107: Siblings
 use dicebag::DiceExt;
 use rpgassist::gender::{Gender, HasGender};
 use serde::{Deserialize, Serialize};

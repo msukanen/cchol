@@ -1,5 +1,6 @@
 //! 104: Birth
-
+//! 105: Illegitimate Births
+//! 108: Birth Order
 use dicebag::DiceExt;
 use serde::{Deserialize, Serialize};
 
