@@ -1,4 +1,4 @@
-use crate::society::environment::NativeEnvironment;
+use crate::social::environment::NativeEnvironment;
 
 pub trait SurvivalMod {
     /// Get general survival mod.

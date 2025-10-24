@@ -3,7 +3,7 @@ use dicebag::DiceExt;
 use rpgassist::gender::Gender;
 use serde::{Deserialize, Serialize};
 
-use crate::society::family::{AncestryDistance, CousinRelationDistance};
+use crate::social::family::{AncestryDistance, CousinRelationDistance};
 
 /// Some relatives.
 #[derive(Debug, Deserialize, Serialize, Clone)]

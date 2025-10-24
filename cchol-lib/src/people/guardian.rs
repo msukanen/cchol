@@ -3,7 +3,7 @@
 use dicebag::DiceExt;
 use serde::{Deserialize, Serialize};
 
-use crate::{misc::{benefit::{Benefit, BenefitType}, HasBenefits}, modifier::CuMod, people::{adventurers::Adventurer, monster::Monster, relatives::Relation}, racial::race::Race, society::{family::{generate_family, Family}, religion::Deity}};
+use crate::{misc::{benefit::{Benefit, BenefitType}, HasBenefits}, modifier::CuMod, people::{adventurers::Adventurer, monster::Monster, relatives::Relation}, racial::race::Race, social::{family::{generate_family, Family}, religion::Deity}};
 
 /// Some guardians.
 #[derive(Debug, Deserialize, Serialize, Clone)]

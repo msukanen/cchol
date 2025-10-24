@@ -1,7 +1,7 @@
 use rpgassist::gender::Gender;
 use serde::{Deserialize, Serialize};
 
-use crate::{misc::time_of_year::TimeOfBirth, modifier::{CuMod, SolMod}, named::IsNamed, places::PlaceOfBirth, racial::race::Race, society::{birth::{determine_birth_legitimacy, determine_birth_order, determine_date_of_birth, BirthLegitimacy, BirthOrder}, culture::Culture, family::{determine_siblings, FamilyMember}, status::SocialStatus}};
+use crate::{misc::time_of_year::TimeOfBirth, modifier::{CuMod, SolMod}, named::IsNamed, places::PlaceOfBirth, racial::race::Race, social::{birth::{determine_birth_legitimacy, determine_birth_order, determine_date_of_birth, BirthLegitimacy, BirthOrder}, culture::Culture, family::{determine_siblings, FamilyMember}, status::SocialStatus}};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PlayerCharacter {

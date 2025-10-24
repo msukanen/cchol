@@ -3,7 +3,7 @@ use dicebag::DiceExt;
 use rpgassist::modifier::HasModifier;
 use serde::{Deserialize, Serialize};
 
-use crate::{modifier::{CuMod, SolMod, SurvivalMod, WealthMod}, society::nobility::Nobility};
+use crate::{modifier::{CuMod, SolMod, SurvivalMod, WealthMod}, social::nobility::Nobility};
 
 /// Being 'wealthy' comes with distinct levels of 'wealthy'.
 #[derive(Debug, Deserialize, Serialize, PartialEq, PartialOrd, Eq, Ord)]

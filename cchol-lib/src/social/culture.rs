@@ -2,7 +2,7 @@
 use dicebag::DiceExt;
 use serde::{Deserialize, Serialize};
 
-use crate::{modifier::{CuMod, LitModType, SurvivalModNatEnv}, racial::race::Race, skill::literacy::{HasLiteracyBenefit, PotentialLanguage}, society::environment::NativeEnvironment};
+use crate::{modifier::{CuMod, LitModType, SurvivalModNatEnv}, racial::race::Race, skill::literacy::{HasLiteracyBenefit, PotentialLanguage}, social::environment::NativeEnvironment};
 
 /// Culture level types for internal matcharoo.
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
@@ -207,7 +207,7 @@ impl HasLiteracyBenefit for CultureLevelType {
 
 #[cfg(test)]
 mod culture_tests {
-    use crate::{racial::race::Race, society::{culture::{CultureLevelType, Culture}, environment::NativeEnvironment}};
+    use crate::{racial::race::Race, social::{culture::{CultureLevelType, Culture}, environment::NativeEnvironment}};
 
     #[test]
     fn reptileman_shift_nomad_down() {

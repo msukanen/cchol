@@ -6,4 +6,4 @@ pub mod places;
 pub mod player;
 pub mod racial;
 pub mod skill;
-pub mod society;
+pub mod social;

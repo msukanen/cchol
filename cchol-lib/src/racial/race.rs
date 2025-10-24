@@ -3,7 +3,7 @@ use dicebag::DiceExt;
 use rpgassist::gender::Gender;
 use serde::{Deserialize, Serialize};
 
-use crate::society::culture::{CultureLevelType, Culture};
+use crate::social::culture::{CultureLevelType, Culture};
 
 /// Various (playable) races.
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]

@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use rpgassist::{gender::Gender, modifier::HasModifier};
 
-use crate::{modifier::{CuMod, LitMod, LitModType, TiMod}, society::culture::{CultureLevelType, Culture}};
+use crate::{modifier::{CuMod, LitMod, LitModType, TiMod}, social::culture::{CultureLevelType, Culture}};
 
 /// A struct to haul around a barebones Noble NPC.
 #[derive(Debug, Clone)]

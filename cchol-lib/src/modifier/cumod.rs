@@ -1,4 +1,4 @@
-use crate::society::culture::CultureLevelType;
+use crate::social::culture::CultureLevelType;
 
 pub trait CuMod {
     fn cumod(&self) -> i32;

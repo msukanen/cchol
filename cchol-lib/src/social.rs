@@ -5,4 +5,5 @@ pub mod family;
 pub mod nobility;
 pub mod religion;
 pub mod status;
+pub mod traits;
 pub mod wealth;

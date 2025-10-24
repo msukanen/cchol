@@ -4,7 +4,7 @@ use dicebag::DiceExt;
 use rpgassist::gender::{Gender, HasGender};
 use serde::{Deserialize, Serialize};
 
-use crate::{modifier::CuMod, people::guardian::Guardian, society::birth::BirthLegitimacy};
+use crate::{modifier::CuMod, people::guardian::Guardian, social::birth::BirthLegitimacy};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum CousinRelationDistance {
