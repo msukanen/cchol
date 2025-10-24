@@ -1,8 +1,9 @@
 //! 110: Place of Birth
+//! 111: Exotic Birth Locations
 use dicebag::DiceExt;
 use serde::{Deserialize, Serialize};
 
-use crate::{misc::time_period::TimePeriod, modifier::LegitMod, racial::race::Race};
+use crate::{misc::time_period::TimePeriod, modifier::{BiMod, LegitMod}, racial::race::Race};
 
 /// Some places of birth.
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -83,6 +84,47 @@ impl ExoticPlaceOfBirth {
             18 => Self::OnShipAtSea,
             19 => Self::InPrisonCell { mother_imprisoned: 1.d3() == 1 },
             _ => Self::InWizardLab
+        }
+    }
+}
+
+impl BiMod for PlaceOfBirth {
+    fn bimod(&self) -> i32 {
+        match self {
+            Self::InFamilyHome => -5,
+            Self::InHospitalOrHealerGuild => -7,
+            Self::InCarriage => 1,
+            Self::InCommonBarn => 1,
+            Self::InForeignLand(p) => 2 + p.bimod(),
+            Self::InCave => 5,
+            Self::InMiddleOfField => 1,
+            Self::InForest => 2,
+            Self::Exotic(e) => e.bimod()
+        }
+    }
+}
+
+impl BiMod for ExoticPlaceOfBirth {
+    fn bimod(&self) -> i32 {
+        match self {
+            Self::AnotherPlaneOfReality => 15,
+            Self::AnotherTimePeriod { .. } => 10,
+            Self::Combined(a, b) => 5 + a.bimod() + b.bimod(),
+            Self::InAlley => 5,
+            Self::InBrothel { .. } => 2,
+            Self::InNonhumansHome { .. } => 2,
+            Self::InPalaceOfCountryRuler => 5,
+            Self::InPalaceOfGreatEvil => 15,
+            Self::InPalaceOfLocalRuler => 2,
+            Self::InPrisonCell { .. } => 9,
+            Self::InSewers => 10,
+            Self::InTavern => 2,
+            Self::InTempleOfEvil => 20,
+            Self::InTempleOfGood => 15,
+            Self::InThievesDen => 5,
+            Self::InWizardLab => 20,
+            Self::OnBattlefield { .. } => 8,
+            Self::OnShipAtSea => 2
         }
     }
 }
