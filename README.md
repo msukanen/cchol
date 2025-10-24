@@ -18,6 +18,7 @@ Central Casting, Heroes of Legend based RPG character background generator.
 * 751 (combined with 101)
 * 753
 * 754 - needs 978#754
+* 756
 * 758
 * 865 - covered by 'rpgassist'
 * 866 - covered by 'rpgassist'
