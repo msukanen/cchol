@@ -21,6 +21,15 @@ impl BirthLegitimacy {
     }
 }
 
+impl LegitMod for BirthLegitimacy {
+    fn legitmod(&self) -> i32 {
+        match self {
+            Self::Legitimate => 0,
+            Self::Illegitimate(r) => r.legitmod()
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 /// Some illegitimacy reasons.
 //TODO: flesh out actually verbose.
