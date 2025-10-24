@@ -14,6 +14,7 @@ pub struct PlayerCharacter {
     siblings: Option<Vec<FamilyMember>>,
     birth_order: Option<BirthOrder>,
     time_of_birth: TimeOfBirth,
+    place_of_birth: PlaceOfBirth,
 }
 
 impl IsNamed for PlayerCharacter {
@@ -49,6 +50,7 @@ impl PlayerCharacter {
             birth_legit,
             siblings, birth_order,
             time_of_birth,
+            place_of_birth,
         }
     }
 }
