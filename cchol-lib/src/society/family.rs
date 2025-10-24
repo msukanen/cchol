@@ -4,7 +4,7 @@ use dicebag::DiceExt;
 use rpgassist::gender::{Gender, HasGender};
 use serde::{Deserialize, Serialize};
 
-use crate::{modifier::CuMod, society::birth::BirthLegitimacy};
+use crate::{modifier::CuMod, people::guardian::Guardian, society::birth::BirthLegitimacy};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum CousinRelationDistance {
@@ -17,8 +17,9 @@ pub enum CousinRelationDistance {
 pub enum AncestryDistance {
     Descendant,
     ChildOf,
-    // SiblingOfParent is largely relevant only for FamilyMember::Aunt/Uncle.
+    /// SiblingOfParent is largely relevant only for FamilyMember::Aunt/Uncle.
     SiblingOfParent,
+    /// Grand is equivalent with 'great', e.g. with Great Aunt.
     Grand,
     GreatGrand,
     GreatGreatGrand,
@@ -33,7 +34,6 @@ pub enum FamilyMember {
     Aunt {grand_rank: AncestryDistance, related_via: Gender},
     Uncle {grand_rank: AncestryDistance, related_via: Gender},
     Cousin {distance: CousinRelationDistance, gender: Gender},
-    //TODO: Guardian,
     Sibling {gender: Gender, birth_legit: bool},
 }
 
@@ -69,7 +69,7 @@ pub enum Family {
     Uncle {related_via: Gender},
     Mother,
     Father,
-    //TODO: Guardian
+    Guardian(Guardian),
     // None known: left to fend for self.
     NoneKnown,
     // None known: raised in an orphanage.
@@ -80,8 +80,17 @@ pub enum Family {
 /// 
 /// # Args
 /// `cumod_src`— some [CuMod] source.
-pub fn generate_family(cumod_src: &impl CuMod) -> Family {
-    match 1.d20() + cumod_src.cumod() {
+/// `family_only`— whether to roll just "real family".
+pub(crate) fn generate_family(cumod_src: &impl CuMod, family_only: bool) -> Family {
+    // Roll until we get an acceptable result.
+    let roll = loop {
+        let roll = 1.d20() + cumod_src.cumod();
+        if (family_only && roll < 20) || !family_only {
+            break roll
+        }
+    };
+    
+    match roll {
         ..=8 => Family::Parents,
         ..=12 => Family::Extended {
             grandparents: {
@@ -116,6 +125,7 @@ pub fn generate_family(cumod_src: &impl CuMod) -> Family {
                 cs
             }
         },
+        
         13 => Family::Grandparents { related_via: Gender::new(None) },
         14 => Family::Grandparent { gender: Gender::new(None), related_via: Gender::new(None) },
         15 => Family::AuntAndUncle { related_via: Gender::new(None) },
@@ -127,9 +137,15 @@ pub fn generate_family(cumod_src: &impl CuMod) -> Family {
                 Family::Aunt { related_via }
             }
         },
+        
         ..=18 => Family::Mother,
         19 => Family::Father,
-        //TODO: Guardian as '20'
+        20 => if 1.d20() < 9 {
+            Family::Guardian(Guardian::new(cumod_src))
+        } else {
+            Family::Guardian(Guardian::Family(Box::new(generate_family(cumod_src, true))))
+        },
+
         ..=24 => Family::NoneKnown,
         _ => Family::Orphanage
     }

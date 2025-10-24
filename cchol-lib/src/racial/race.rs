@@ -28,6 +28,8 @@ pub enum Race {
     Serpentman,
     Dragonman,
     Orc,
+    /// A special case to indicate "same as the character's" race.
+    SameAsPC,
 }
 
 impl Race {
