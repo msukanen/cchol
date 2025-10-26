@@ -8,12 +8,13 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 serde = { version = "1", features = ["derive"]}
-serde_json = "1"
+serde_jsonc = "1"
 dicebag = "0.3"
 rpgassist = "0.1"
 log = "0.4"
 env_logger = "0.11"
-either = "1"
+lazy_static = "1.5"
+hash_with = "0.1"
 
 [badges]
 maintenance = { status = "experimental"}

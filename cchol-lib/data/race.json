@@ -1,0 +1,12 @@
+[
+    {
+        "name": "human"
+    },
+    {
+        "name": "elf"
+    },
+    {
+        "name": "dwarf",
+        "max_culture": "Civilized"
+    }
+]

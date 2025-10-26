@@ -1,227 +1,166 @@
 //! 102: Culture
+use std::{fs::{self}, ops::RangeInclusive};
+
 use dicebag::DiceExt;
-use serde::{Deserialize, Serialize};
+use lazy_static::lazy_static;
+use serde::Deserialize;
 
-use crate::{modifier::{CuMod, LitModType, SurvivalModNatEnv}, racial::race::Race, skill::literacy::{HasLiteracyBenefit, PotentialLanguage}, social::environment::NativeEnvironment};
+use crate::{skill::native_env::{IsNativeOf, NativeOf}, traits::HasRollRange, Named, serialize::deserialize_cr_range};
 
-/// Culture level types for internal matcharoo.
-#[derive(Debug, PartialEq, PartialOrd, Clone)]
-pub enum CultureLevelType {
-    Primitive, Nomad, Barbarian, Civilized, Decadent
-}
+fn validate_culture_ranges(cultures: &Vec<Culture>) {
+    let mut ranges: Vec<&RangeInclusive<i32>> = cultures
+        .iter()
+        .map(|c| c.roll_range())
+        .collect();
+    
+    ranges.sort_by(|a,b| a.start().cmp(b.start()));
+    
+    if ranges.is_empty() {
+        panic!("DATA VALIDATION: CULTURES list is empty. Cannot validate ranges.");
+    }
 
-impl From<Culture> for CultureLevelType {
-    fn from(value: Culture) -> Self {
-        match value {
-            Culture::Primitive => Self::Primitive,
-            Culture::Nomad => Self::Nomad,
-            Culture::Barbarian(_) => Self::Barbarian,
-            Culture::Civilized(_) => Self::Civilized,
-            Culture::Decadent => Self::Decadent
+    if *ranges[0].start() != 1 {
+        panic!("DATA VALIDATION: Culture roll table must start at 1. Found {:#?}", ranges[0]);
+    }
+
+    // Check for gaps/overlaps
+    for w in ranges.windows(2) {
+        let c = w[0];
+        let n = w[1];
+        let expected_next_start = *c.end() + 1;
+        if *n.start() != expected_next_start {
+            panic!("DATA VALIDATION: Gap or overlap in Culture roll table!\nFound {:#?}, followed by {:#?}", c, n);
         }
     }
+
+    log::debug!("Culture ranges successfully validated: 1..={}", *ranges.last().unwrap().end());
 }
 
-impl From<&Culture> for CultureLevelType {
-    fn from(value: &Culture) -> Self {
-        Self::from(value.clone())
-    }
+static CULTURE_FILE: &'static str = "./data/culture.json";
+lazy_static! {
+    pub(crate) static ref CULTURES: Vec<Culture> = {
+        let cultures = serde_jsonc::from_str::<Vec<Culture>>(
+            &fs::read_to_string(CULTURE_FILE).expect(
+                format!("We got '{}', but could not read from it… What gives?", CULTURE_FILE).as_str()
+            )
+        ).expect("JSON failure");
+
+        validate_culture_ranges(&cultures);
+
+        cultures
+    };
+    pub(crate) static ref CULTURE_DICE: usize = {
+        CULTURES.iter()
+            .map(|c| *c.roll_range().end())
+            .max()
+            .expect("CULTURES list is empty?!")
+            as usize
+    };
 }
 
-/// Various culture levels.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize, Clone, Copy)]
-pub enum Culture {
-    Primitive,
-    Nomad,
-    Barbarian(NativeEnvironment),
-    Civilized(NativeEnvironment),
-    Decadent
+/// A trait for anything that acts (or routes) a CuMod.
+pub trait CuMod {
+    /// Get the effective [CuMod].
+    fn cumod(&self) -> i32;
 }
 
-const CUMOD_PRIMITIVE: i32 = -3;
-const CUMOD_NOMAD: i32     =  0;
-const CUMOD_BARBARIAN: i32 =  2;
-const CUMOD_CIVILIZED: i32 =  4;
-const CUMOD_DECADENT: i32  =  7;
-
-impl CuMod for CultureLevelType {
-    fn cumod(&self) -> i32 {
-        match self {
-            Self::Primitive => CUMOD_PRIMITIVE,
-            Self::Nomad => CUMOD_NOMAD,
-            Self::Barbarian => CUMOD_BARBARIAN,
-            Self::Civilized => CUMOD_CIVILIZED,
-            Self::Decadent => CUMOD_DECADENT
-        }
-    }
-}
-
-// WARNING: a rather brittle but necessary way to derive CultureLevelType from i32 …
-impl From<i32> for CultureLevelType {
-    fn from(value: i32) -> Self {
-        match value {
-            _ if value <= CUMOD_PRIMITIVE => Self::Primitive,
-            _ if value <= CUMOD_NOMAD => Self::Nomad,
-            _ if value <= CUMOD_BARBARIAN => Self::Barbarian,
-            _ if value <= CUMOD_CIVILIZED => Self::Civilized,
-            _ => Self::Decadent
-        }
-    }
+/// Culture dwells here.
+#[derive(Debug, Deserialize, Clone)]
+pub struct Culture {
+    name: String,
+    cumod: i32,
+    /// Culture's native environment(s).
+    native_of: NativeOf,
+    /// CAUTION: range of roll results for randomly generating this particular [Culture].
+    #[serde(
+        rename = "_cr_range",
+        deserialize_with = "deserialize_cr_range"
+    )]
+    _cr_range: std::ops::RangeInclusive<i32>,
 }
 
 impl CuMod for Culture {
     fn cumod(&self) -> i32 {
-        CultureLevelType::from(self).cumod()
+        self.cumod
+    }
+}
+
+impl Named for Culture {
+    fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl IsNativeOf for Culture {
+    /// Get the [Culture]'s primary [native environment][NativeOf].
+    fn native_of(&self) -> NativeOf {
+        self.native_of.primary()
+    }
+}
+
+impl HasRollRange for Culture {
+    fn roll_range(&self) -> &std::ops::RangeInclusive<i32> {
+        &self._cr_range
     }
 }
 
 impl Culture {
-    /// Generate random culture level; [`race`][Race] (if given) dictates maximum culture level, etc.
-    /// 
-    /// # Params
-    /// * `race`— (optional) some [Race].
-    pub fn new(race: Option<&Race>) -> Self {
-        let mut culture = match 1.d10() {
-            ..=1 => Self::Primitive,
-            2|3 => Self::Nomad,
-            4..=6 => Self::Barbarian(NativeEnvironment::new(Some(NativeEnvironment::Wilderness))),
-            7..=9 => Self::Civilized(NativeEnvironment::new(Some(NativeEnvironment::Urban))),
-            _ => Self::Decadent
-        };
+    pub fn random() -> Self {
+        let roll = 1.d(*CULTURE_DICE);
+        for c in CULTURES.iter() {
+            if c.roll_range().contains(&roll) {
+                return c.clone();
+            }
+        }
         
-        if let Some(race) = race {
-            if let Some(max_culture) = race.max_culture() {
-                if max_culture < culture.into() {
-                    culture = Culture::from(max_culture)
-                }
-            }
-            culture = race.culture_shift_if_needed(culture)
-        }
-        culture
-    }
-
-    /// Get culture's [native environment][NativeEnvironment].
-    pub fn native_env(&self) -> NativeEnvironment {
-        match self {
-            Self::Barbarian(e) |
-            Self::Civilized(e) => *e,
-            Self::Decadent => NativeEnvironment::Urban,
-            _ => NativeEnvironment::Wilderness
-        }
-    }
-}
-
-impl PartialEq<CultureLevelType> for Culture {
-    fn eq(&self, other: &CultureLevelType) -> bool {
-        CultureLevelType::from(*self) == *other
-    }
-}
-
-impl From<CultureLevelType> for Culture {
-    /// Generate [culture level][Level] from `value`. Some randomness is bound to happen with
-    /// [native environment][NativeEnvironment] for
-    /// [barbarian][CultureLevelType::Barbarian] and
-    /// [civilized][CultureLevelType::Civilized].
-    fn from(value: CultureLevelType) -> Self {
-        match value {
-            CultureLevelType::Primitive => Self::Primitive,
-            CultureLevelType::Nomad => Self::Nomad,
-            // Bias is "hard coded" for Barbies and Civies as [From] doesn't let us have many params …
-            CultureLevelType::Barbarian => Self::Barbarian(NativeEnvironment::new(Some(NativeEnvironment::Wilderness))),
-            CultureLevelType::Civilized => Self::Civilized(NativeEnvironment::new(Some(NativeEnvironment::Urban))),
-            CultureLevelType::Decadent => Self::Decadent
-        }
-    }
-}
-
-impl From<(CultureLevelType, NativeEnvironment)> for Culture {
-    /// Generate [culture level][Level] from `value.0` while `value.1` holds on to
-    /// [native environment][NativeEnvironment] bias (which might or might not be used/needed).
-    fn from(value: (CultureLevelType, NativeEnvironment)) -> Self {
-        match value.0 {
-            CultureLevelType::Primitive => Self::Primitive,
-            CultureLevelType::Nomad => Self::Nomad,
-            CultureLevelType::Barbarian => Self::Barbarian(NativeEnvironment::new(Some(value.1))),
-            CultureLevelType::Civilized => Self::Civilized(NativeEnvironment::new(Some(value.1))),
-            CultureLevelType::Decadent => Self::Decadent
-        }
-    }
-}
-
-impl SurvivalModNatEnv for Culture {
-    fn survmod_in_natenv(&self, native_env: &NativeEnvironment) -> i32 {
-        match self {
-            Self::Primitive => match native_env {
-                NativeEnvironment::Wilderness => 5, _=> 1,
-            },
-
-            Self::Nomad => match native_env {
-                NativeEnvironment::Wilderness => 5, _=> 1,
-            },
-
-            Self::Barbarian(e) => match native_env {
-                _ if native_env == e => 5,
-                _ => 1
-            },
-
-            Self::Civilized(e) => match native_env {
-                _ if native_env == e => 2,
-                _ => 0
-            },
-
-            Self::Decadent => match native_env {
-                NativeEnvironment::Urban => 3, _=> 1
-            }
-        }
-    }
-}
-
-impl HasLiteracyBenefit for CultureLevelType {
-    fn literacy(&self) -> Vec<PotentialLanguage> {
-        match self {
-            Self::Primitive => vec![
-                PotentialLanguage::new("Foreign language", LitModType::Additive(5))
-            ],
-
-            Self::Nomad => vec![
-                PotentialLanguage::new("Native pictographs", LitModType::FixedOverride(100)),
-                PotentialLanguage::new("Foreign pictographs", LitModType::Additive(10)),
-                PotentialLanguage::new("Foreign language", LitModType::Additive(10)),
-            ],
-
-            Self::Barbarian => vec![
-                PotentialLanguage::new("Native language", LitModType::Additive(10)),
-            ],
-
-            Self::Civilized => vec![
-                PotentialLanguage::new("Native language", LitModType::Additive(30)),
-            ],
-
-            Self::Decadent => vec![
-                PotentialLanguage::new("Native language", LitModType::Additive(20)),
-                PotentialLanguage::new("Foreign language", LitModType::Additive(10))
-            ]
-        }
+        // Should not happen, but…
+        panic!("Roll of {roll} didn't catch ANY Culture?!")
     }
 }
 
 #[cfg(test)]
 mod culture_tests {
-    use crate::{racial::race::Race, social::{culture::{CultureLevelType, Culture}, environment::NativeEnvironment}};
+    use super::*;
 
     #[test]
-    fn reptileman_shift_nomad_down() {
-        let r = Race::Reptileman;
-        let culture = Culture::Nomad;
-        let culture = r.culture_shift_if_needed(culture);
-        assert_eq!(CultureLevelType::Primitive, culture.into());
+    fn simple_read_from_json() {
+        let prjson = r#"{
+            "name": "Primitive",
+            "cumod": -3,
+            "native_of": "Wilderness",
+            "_cr_range": 1
+        }"#;
+        let prc: Culture = serde_jsonc::from_str(prjson).unwrap();
+        assert_eq!("Primitive", prc.name());
+        assert_eq!(-3, prc.cumod());
+        assert_eq!(NativeOf::Wilderness, prc.native_of());
     }
 
     #[test]
-    fn reptileman_shift_civilized_up() {
-        let r = Race::Reptileman;
-        let culture = Culture::Civilized(NativeEnvironment::Urban);
-        let culture = r.culture_shift_if_needed(culture);
-        assert_eq!(CultureLevelType::Decadent, culture.into());
+    fn complex_read_from_json() {
+        let prjson = r#"{
+            "name": "Barbarian",
+            "cumod": 2,
+            "native_of": {
+                "primary": "wilderness",
+                "secondary": "urban"
+            },
+            "_cr_range": [2,3]
+        }"#;
+        let prc: Culture = serde_jsonc::from_str(prjson).unwrap();
+        assert_eq!("Barbarian", prc.name());
+        assert_eq!(2, prc.cumod());
+        assert_eq!(NativeOf::Wilderness, prc.native_of());
+        assert_eq!(NativeOf::Urban, prc.native_of().opposite());
+    }
+
+    #[test]
+    fn dryrun_load_file() {
+        assert_eq!(10, *CULTURE_DICE);
+        assert_eq!(5, CULTURES.len());
+        (0..=1000).for_each(|_| {
+            let c = Culture::random();
+            assert!(["Primitive","Barbarian","Nomad","Civilized","Decadent"].contains(&c.name()));
+        });
     }
 }

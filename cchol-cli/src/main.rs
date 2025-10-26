@@ -1,4 +1,3 @@
-use cchol_lib::{player::PlayerCharacter, racial::race::Race};
 use clap::Parser;
 use rpgassist::gender::Gender;
 
@@ -17,7 +16,7 @@ struct Cli {
 }
 
 /// Simple CLI thingy.
-fn main() {
+fn main() {/*
     let _ = env_logger::try_init();
     let args = Cli::parse();
     let race = Race::from(args.race);
@@ -25,4 +24,4 @@ fn main() {
 
     println!("Generating stuff for {}; {:?}, {:?}", args.name, gender, race);
     //let p = PlayerCharacter::new("MJS", Some(Gender::Male), None);
-}
+ */}
