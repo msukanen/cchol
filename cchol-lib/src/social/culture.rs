@@ -5,7 +5,7 @@ use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 
-use crate::{skill::native_env::{IsNativeOf, NativeOf}, traits::HasRollRange, Named, serialize::deserialize_cr_range};
+use crate::{default_roll_range_def, serialize::deserialize_cr_range, skill::native_env::{IsNativeOf, NativeOf}, traits::HasRollRange, IsNamed};
 
 fn validate_culture_ranges(cultures: &Vec<Culture>) {
     let mut ranges: Vec<&RangeInclusive<i32>> = cultures
@@ -36,26 +36,28 @@ fn validate_culture_ranges(cultures: &Vec<Culture>) {
     log::debug!("Culture ranges successfully validated: 1..={}", *ranges.last().unwrap().end());
 }
 
+/// FYI: all data files oughta reside within `./data/`.
 static CULTURE_FILE: &'static str = "./data/culture.json";
 lazy_static! {
+    /// Cultures!
     pub(crate) static ref CULTURES: Vec<Culture> = {
         let cultures = serde_jsonc::from_str::<Vec<Culture>>(
-            &fs::read_to_string(CULTURE_FILE).expect(
-                format!("We got '{}', but could not read from it… What gives?", CULTURE_FILE).as_str()
-            )
+            &fs::read_to_string(CULTURE_FILE)
+                .expect(format!("No '{}' found?!", CULTURE_FILE).as_str())
         ).expect("JSON failure");
 
         validate_culture_ranges(&cultures);
 
         cultures
     };
-    pub(crate) static ref CULTURE_DICE: usize = {
-        CULTURES.iter()
-            .map(|c| *c.roll_range().end())
-            .max()
-            .expect("CULTURES list is empty?!")
-            as usize
-    };
+
+    /// Dice type to use for [Culture] [random][Culture::random]'izing.
+    static ref CULTURE_DICE: usize = crate::create_dice_size!(CULTURES);
+
+    /// Default max [Culture] for e.g. [Race][crate::racial::Race]'s checks.
+    pub(crate) static ref CULTURE_DEFAULT_MAX: &'static Culture = &CULTURES.iter()
+        .find(|c| c._default_max == true)
+        .expect("No default max Culture defined!");
 }
 
 /// A trait for anything that acts (or routes) a CuMod.
@@ -77,6 +79,8 @@ pub struct Culture {
         deserialize_with = "deserialize_cr_range"
     )]
     _cr_range: std::ops::RangeInclusive<i32>,
+    #[serde(default)]
+    _default_max: bool,
 }
 
 impl CuMod for Culture {
@@ -85,7 +89,7 @@ impl CuMod for Culture {
     }
 }
 
-impl Named for Culture {
+impl IsNamed for Culture {
     fn name(&self) -> &str {
         &self.name
     }
@@ -98,27 +102,56 @@ impl IsNativeOf for Culture {
     }
 }
 
-impl HasRollRange for Culture {
-    fn roll_range(&self) -> &std::ops::RangeInclusive<i32> {
-        &self._cr_range
-    }
-}
+default_roll_range_def!(Culture);
 
 impl Culture {
-    pub fn random() -> Self {
-        let roll = 1.d(*CULTURE_DICE);
-        for c in CULTURES.iter() {
-            if c.roll_range().contains(&roll) {
-                return c.clone();
+    /// Generate a random [Culture] entry which respects given max.
+    pub fn random<C: CuMod>(max_culture_mod: &C) -> Culture {
+        let max_cumod = max_culture_mod.cumod();
+        loop {
+            let candidate = Self::random_unbiased();
+            if candidate.cumod() <= max_cumod {
+                #[cfg(test)]{
+                    log::debug!("Candidate {:?} accepted", candidate.name())
+                }
+                if let NativeOf::Choice { primary, secondary } = &candidate.native_of {
+                    // To spice things up a bit, potentially swap primary/secondary…
+                    if 1.d3() == 1 {
+                        return Self { native_of: NativeOf::Choice { primary: secondary.clone(), secondary: primary.clone() }, ..candidate.clone() }
+                    }
+                }
+                
+                return candidate.clone();
+            }
+            #[cfg(test)] {
+                log::debug!("Entry exceeded max_cumod, rerolling...")
             }
         }
-        
-        // Should not happen, but…
-        panic!("Roll of {roll} didn't catch ANY Culture?!")
+    }
+
+    /// Generate a random [Culture] entry.
+    pub fn random_unbiased() -> &'static Culture {
+        let roll = 1.d(*CULTURE_DICE);
+        CULTURES.iter()
+                .find(|c| c.roll_range().contains(&roll))
+                .unwrap_or_else(|| panic!("Roll of {roll} didn't catch ANY Culture?!"))
+    }
+
+    pub fn is_civilized(&self) -> bool {
+        self.name().to_ascii_lowercase() == "civilized"
+    }
+
+    pub fn is_nomad(&self) -> bool {
+        self.name().to_ascii_lowercase() == "nomad"
     }
 }
 
 #[cfg(test)]
+/// Note that these tests work correctly with the shipped data files.
+/// Altering the data files too much may or may not break one or the other test case...
+/// 
+/// Notably the tests rely on presence of "Primitive", "Nomad", "Barbarian", "Civilized", and "Decadent",
+/// of which "Decadent" oughta be the pinnacle max in what comes to culture levels.
 mod culture_tests {
     use super::*;
 
@@ -159,8 +192,29 @@ mod culture_tests {
         assert_eq!(10, *CULTURE_DICE);
         assert_eq!(5, CULTURES.len());
         (0..=1000).for_each(|_| {
-            let c = Culture::random();
+            let c = Culture::random_unbiased();
             assert!(["Primitive","Barbarian","Nomad","Civilized","Decadent"].contains(&c.name()));
         });
+    }
+
+    #[test]
+    fn default_max_is_decadent() {
+        assert_eq!("Decadent", CULTURE_DEFAULT_MAX.name());
+    }
+
+    #[test]
+    fn culture_random_respects_max() {
+        let rounds = 1001;
+        let _ = env_logger::try_init();
+        let maxc = CULTURES.iter().find(|c| c.name() == "Barbarian").unwrap();
+        let mut suitable_found = 0;
+        (0..rounds).for_each(|_| {
+            let c = Culture::random(maxc);
+            assert!(c.cumod() <= maxc.cumod());
+            if c.cumod() <= maxc.cumod() {
+                suitable_found += 1;
+            }
+        });
+        assert_eq!(rounds, suitable_found);
     }
 }
