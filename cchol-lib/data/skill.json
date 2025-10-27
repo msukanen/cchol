@@ -1,0 +1,70 @@
+// NOTE: skills "annotated" with "/*876*/" are mandatory to remain as-is for their usage is hard-coded…
+[
+    {/*876*/"name": "Social Dancing", "description": "Both formal and informal dancing."},
+    {/*876*/"name": "Professional Gambling", "description": "Professional gambling of all sorts; incl. card games, etc."},
+    {/*876*/"name": "Pick Pockets", "description": "Picking other peoples' pockets for potential valuables."},
+    {/*876*/"name": "Gourmet Cooking", "description": "Specialized gourmet chef skill."},
+    {/*876*/"name": "Sexual Seduction", "description": "Sexual seduction by various means…"},
+    {/*876*/"name": "Skiing", "description": "Skiing; slalom, crosscountry, etc."},
+    {/*876*/"name": "Skating", "description": "Skating; figure skating or otherwise."},
+    {/*876*/"name": "Mountaineering", "description": "Scaling mountains without falling, hopefully."},
+    {/*876*/"name": "Opposite Hand Weapon Use", "description": "Skill to utilize a weapon with 'wrong hand' efficiently."},
+    {/*876*/"name": "Mathematical Skill", "description": "Scientific math beyond basic calculus."},
+    {/*876*/"name": "Model Making", "description": "Make (semi-)realistic miniatures of things."},
+    {/*876*/"name": "Inventing", "description": "Come up with all sorts of useful and useless contraptions."},
+    
+    // 876-8:
+    {/*876*/"name": "Art: Painting", "description": "Creating artistic works with e.g. oils, watercolors, acrylics, etc."},
+    {/*876*/"name": "Art: Drawing", "description": "Drawing all kinds of things with pen, coal, etc."},
+    {/*876*/"name": "Art: Sculpting", "description": "Carving or building figures out of stone, wood, snow, etc."},
+    {/*876*/"name": "Art: Jeweller", "description": "Creating beautiful jewelry of all sorts."},
+    {/*876*/"name": "Art: Architecture", "description": "Designing and identifying architectures."},
+    
+    // 876-9:
+    {/*876*/"name": "Music: Play Common Instrument", "description": "Play some common instrument without causing too much earbleed."},
+    {/*876*/"name": "Music: Sing", "description": "Singing in general…"},
+    {/*876*/"name": "Music: Songwriter", "description": "Making songs, from lyrics to music with it or the other way round."},
+    {/*876*/"name": "Music: Musical Theatre", "description": "Acting and singing on a stage."},
+    {/*876*/"name": "Make/repair Musical Instruments", "description": "Ditto - you make (or try to repair) various sorts of musical instruments."},
+    {/*876*/"name": "Music: Play Exotic Instrument", "description": "Play some (for your culture) exotic/almost-unheard-of instrument of wonder."},
+    {/*876*/"name": "Music: Play-by-Ear", "description": "An uncanny ability to replicate music/song right after hearing it."},
+    
+    // 876-10:
+    {/*876*/"name": "Sewing", "description": "Sewing."},
+    {/*876*/"name": "Weaving", "description": "Weaving."},
+    {/*876*/"name": "Tapestry Design", "description": "Designing tapestries."},
+    {/*876*/"name": "Embroidery", "description": "Decorating textiles."},
+    {/*876*/"name": "Knitting", "description": "Everyone needs a new pair of socks now and then, or a pullover…"},
+
+    // 876-16:
+    {/*876*/"name": "Acting", "description": "All the world's a stage…"},
+    {/*876*/"name": "Artistic Dancing", "description": "Ballet, etc."},
+    {/*876*/"name": "Oration", "description": "Dynamic public speaking."},
+    {/*876*/"name": "Story-telling", "description": "Telling stories - making up new stories or rehearsing old sagas."},
+    // 876-16-5 would be 876-9 choice
+    {/*876*/"name": "Disguise", "description": "Appear as someone else."},
+    // 876-16-7 would be 876-17 choice
+    {/*876*/"name": "Voice Impersonation", "description": "Mimic someone else's voice."},
+    {/*876*/"name": "Juggling", "description": "Ditto - juggling."},
+
+    // 876-17:
+    {/*876*/"name": "Aerial Acrobatics", "description": "Flying trapeze, et al."},
+    {/*876*/"name": "Tight-rope Walking", "description": "Ditto - tight-rope walking."},
+    {/*876*/"name": "Animal Training", "description": "Training lions or other exotic animals."},
+    {/*876*/"name": "Clowning", "description": "Acting like a clown you are!"},
+    // 876-17-5 would be 876-9 choice
+    // 876-17-6 = Disguise above
+    {/*876*/"name": "Horsemanship", "description": "Riding and tricks while at it."},
+
+    // 876-18:
+    {/*876*/"name": "Astronomy", "description": "Stargazing among other skies related stuff."},
+    {/*876*/"name": "Astrology", "description": "Fortune telling. Sometimes you even guess right…"},
+    {/*876*/"name": "Calligraphy", "description": "Formal or fancy penmanship."},
+    {/*876*/"name": "Lassoing", "description": "Lassoing with a lariat, etc."},
+    {/*876*/"name": "Wine Tasting", "description": "Identify wines, possibly their origin, etc."},
+    {/*876*/"name": "Sailing: Small Craft", "description": "Sailing smaller-than-ship boats."},
+    {/*876*/"name": "Haggling", "description": "Haggling, bargaining with merchants, etc."},
+    {/*876*/"name": "Diplomacy", "description": "Ditto - being diplomatic. Includes negotiating."},
+    {/*876*/"name": "Prestidigitation", "description": "Simple (or not-so-simple) magic tricks."},
+    {/*876*/"name": "Imitate Monster Noises", "description": "Creepy, spooky, monstrous noises… Occasionally useful?"}
+]

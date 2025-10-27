@@ -27,7 +27,8 @@
         "name": "Decadent",
         "cumod": 7,
         "native_of": "Urban",
-        "_cr_range": 10
+        "_cr_range": 10,
+        "_default_max": true
     }
     //,{"name": "Out of Bounds non-Culture","cumod":666,"native_of":"Urban","_cr_range":999}
 ]
