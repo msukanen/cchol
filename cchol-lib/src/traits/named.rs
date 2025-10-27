@@ -1,3 +1,3 @@
-pub trait Named {
+pub trait IsNamed {
     fn name(&self) -> &str;
 }
