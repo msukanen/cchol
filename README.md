@@ -2,24 +2,9 @@
 
 Central Casting, Heroes of Legend based RPG character background generator.
 
-## More or less finished tables
+## Compiling
 
-* 101
-* 102 - missing benefits
-* 103 - missing benefits
-* 104
-* 105
-* 106
-* 107
-* 108
-* 109
-* 110
-* 111
-* 751 (combined with 101)
-* 753
-* 754 - needs 978#754
-* 756
-* 758
-* 865 - covered by 'rpgassist'
-* 866 - covered by 'rpgassist'
-* 871
+```bash
+cargo test data_integrity
+cargo build [--release]
+```
