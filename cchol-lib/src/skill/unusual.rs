@@ -1,3 +1,4 @@
+//! 876: Unusual Skills
 use std::collections::HashMap;
 use paste::paste;
 
