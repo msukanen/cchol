@@ -4,28 +4,33 @@
         "cumod": -3,
         "native_of": "Wilderness",
         "_cr_range": 1,
-        "provides_skills": [["Survival: Wilderness", 5], ["Survival: Urban", 1]]
+        "provides_skills": [["Survival: Wilderness", 5], ["Survival: Urban", 1]],
+        "literacy_chance": [["Other Culture", 5]]
     },
     {
         "name": "Nomad",
         "cumod": 0,
         "native_of": "Wilderness",
         "_cr_range": [2,3],
-        "provides_skills": [["Survival: Wilderness", 4], ["Survival: Urban", 1]]
+        "provides_skills": [["Survival: Wilderness", 4], ["Survival: Urban", 1]],
+        // All nomads can read their native pictographs etc., but not all can draw/write them (properly).
+        "literacy_chance": [["Native (W)", 20], ["Other Culture", 10]]
     },
     {
         "name": "Barbarian",
         "cumod": 2,
         "native_of": { "primary": "Wilderness", "secondary": "Urban" },
         "_cr_range": [4,6],
-        "provides_skills": [["Survival: <NativeOf>", 5], ["Survival: <NativeOf.opposite>", 1]]
+        "provides_skills": [["Survival: <NativeOf>", 5], ["Survival: <NativeOf.opposite>", 1]],
+        "literacy_chance": [["Native", 10]]
     },
     {
         "name": "Civilized",
         "cumod": 4,
         "native_of": { "primary": "Urban", "secondary": "Wilderness" },
         "_cr_range": [7,9],
-        "provides_skills": [["Survival: <NativeOf>", 2]]
+        "provides_skills": [["Survival: <NativeOf>", 2]],
+        "literacy_chance": [["Native", 30]]
     },
     {
         "name": "Decadent",
@@ -33,7 +38,8 @@
         "native_of": "Urban",
         "_cr_range": 10,
         "_default_max": true,
-        "provides_skills": [["Survival: Urban", 3], ["Survival: Wilderness", 1]]
+        "provides_skills": [["Survival: Urban", 3], ["Survival: Wilderness", 1]],
+        "literacy_chance": [["Native", 20], ["Foreign", 10]]
     }
     //---[ TEST DATA ]---------------------------------------------------------
     // ,{"name": "Out of Bounds non-Culture","cumod":666,"native_of":"Urban","_cr_range":999}

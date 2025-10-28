@@ -71,5 +71,12 @@
 
     // Other skills outside 876:
     {/*102*/"name": "Survival: Wilderness", "description": "Surviving in the great wilds - find food, water and shelter."},
-    {/*102*/"name": "Survival: Urban", "description": "Skills required to 'survive' in urban environment - from dodging dodgy gangs to finding the best pizzerias…"}
+    {/*102*/"name": "Survival: Urban", "description": "Skills required to 'survive' in urban environment - from dodging dodgy gangs to finding the best pizzerias…"},
+
+    // Literacy skills, mainly 103/102.
+    {/*102*/"name": "Language: Native", "description": "Command of one's native language (in written, glyph, etc. format)."},
+    {/*102*/"name": "Language: Native (W)", "description": "Command of one's native language - \"reading\" it is ~100%, but writing/drawing not quite so…"},
+    {/*102*/"name": "Language: Other Culture", "description": "Command of another culture's language (in written, glyph, etc. format)."},
+    {/*102*/"name": "Language: Foreign", "description": "Command of a foreign language (in written, glyph, etc. format)."},
+    {/*102*/"name": "Language: Alien", "description": "Command of an utterly alien-to-humankind language (in written, glyph, etc. format)."}
 ]
