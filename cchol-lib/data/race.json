@@ -7,72 +7,90 @@
     },
     {
         "name": "elf",
-        "_cr_range": [3361,3840]
+        "_cr_range": [3361,3840],
+        "racial_events": "Elf"
     },
     {
         "name": "dwarf",
         "max_culture": "Civilized",
-        "_cr_range": [3841,4080]
+        "_cr_range": [3841,4080],
+        "racial_events": "Dwarf"
     },
     {
         "name": "halfling",
         "max_culture": "Civilized",
-        "_cr_range": [4081,4320]
+        "_cr_range": [4081,4320],
+        "racial_events": "Halfling"
     },
     {
         "name": "half elf",
-        "_cr_range": [4321,4560]
+        "_cr_range": [4321,4560],
+        "hybrid_events": "Elf"
     },
     // 20 sub 1..3 1d8
     {
         "name": "centaur",
         "_cr_range": [4561,4578],
-        "max_culture": "Civilized"
+        "max_culture": "Civilized",
+        "racial_events": "Monster"
     },
     {
         "name": "faun",
         "_cr_range": [4579,4596],
-        "max_culture": "Nomad"
+        "max_culture": "Nomad",
+        "racial_events": "Monster"
     },
     {
         "name": "satyr",
         "_cr_range": [4597,4605],
-        "max_culture": "Barbarian"
+        "max_culture": "Barbarian",
+        "racial_events": "Monster"
     },
     {
         "name": "goatman",
         "_cr_range": [4606,4614],
-        "max_culture": "Barbarian"
+        "max_culture": "Barbarian",
+        "racial_events": "Monster"
     },
     {
         "name": "minotaur",
         "_cr_range": [4615,4632],
-        "max_culture": "Barbarian"
+        "max_culture": "Barbarian",
+        "racial_events": "Monster"
     },
     // 20 sub 4..5 1d6
     {
         "name": "reptileman",
         "_cr_range": [4633,4656],
         "shift_nomad_down": true,
-        "shift_civilized_up": true
+        "shift_civilized_up": true,
+        "racial_events": "Monster"
     },
     {
         "name": "serpentman",
-        "_cr_range": [4657,4672]
+        "_cr_range": [4657,4672],
+        "shift_nomad_down": true,
+        "shift_civilized_up": true,
+        "racial_events": "Monster"
     },
     {
         "name": "dragonman",
-        "_cr_range": [4673,4680]
+        "_cr_range": [4673,4680],
+        "shift_nomad_down": true,
+        "shift_civilized_up": true,
+        "racial_events": "Monster"
     },
     // 20 sub 6
     {
         "name": "orc",
         "_cr_range": [4681,4704],
-        "max_culture": "Barbarian"
+        "max_culture": "Barbarian",
+        "racial_events": "Monster"
     },
     // 20 sub 7..10
     {
         "name": "half orc",
-        "_cr_range": [4705,4800]
+        "_cr_range": [4705,4800],
+        "hybrid_events": "Monster"
     }
 ]
