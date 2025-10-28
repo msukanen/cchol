@@ -34,4 +34,34 @@ mod race_tests {
         let c = r.shift_culture_if_needed(c);
         assert!(c.is_civilized())
     }
+
+    mod racial_event_tests {
+        use cchol_lib::events::RacialEvent;
+
+        use super::*;
+
+        #[test]
+        fn human_has_no_special_events() {
+            let r = Race::from("human");
+            let e = r.has_racial_events(true);
+            assert!(e.is_none());
+        }
+
+        #[test]
+        fn nonhumans_have_special_events() {
+            let nhs: [(&str,RacialEvent);4] = [
+                ("elf", RacialEvent::Elf),
+                ("dwarf", RacialEvent::Dwarf),
+                ("halfling", RacialEvent::Halfling),
+                ("orc", RacialEvent::Monster)];
+            nhs.iter().for_each(|(r, e)| {
+                let r = Race::from(r);
+                let evt = r.has_racial_events(false);
+                let Some(evt) = evt else {
+                    panic!("No racial event for '{}'?!", r.name())
+                };
+                assert_eq!(*e, evt);
+            });
+        }
+    }
 }

@@ -4,7 +4,7 @@ use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use serde::{de, Deserialize, Deserializer};
 
-use crate::{default_roll_range_def, serialize::deserialize_cr_range, social::culture::{CuMod, Culture, CULTURES, CULTURE_DEFAULT_MAX}, traits::HasRollRange, IsNamed};
+use crate::{IsNamed, default_roll_range_def, events::RacialEvent, serialize::deserialize_cr_range, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}, traits::HasRollRange};
 
 static RACE_FILE: &'static str = "./data/race.json";
 lazy_static! {
@@ -67,10 +67,13 @@ pub struct Race {
         deserialize_with = "deserialize_cr_range"
     )]
     _cr_range: std::ops::RangeInclusive<i32>,
+    #[serde(default)] hybrid: bool,
     /// INIT-ONLY flag for being a default race when non-random is requested...
     #[serde(default)] _default: Option<bool>,
     #[serde(default)] shift_nomad_down: bool,
     #[serde(default)] shift_civilized_up: bool,
+    #[serde(default)] racial_events: Option<RacialEvent>,
+    #[serde(default)] hybrid_events: Option<RacialEvent>,
 }
 
 default_roll_range_def!(Race);
@@ -134,5 +137,25 @@ impl Race {
         RACES.iter()
             .find(|r| r.name().to_lowercase() == value.to_lowercase())
             .expect(format!("No race called '{}' found!", value).as_str())
+    }
+
+    /// See if the [Race] is a human+other hybrid.
+    pub fn is_hybrid(&self) -> bool {
+        self.hybrid
+    }
+
+    /// Get [RacialEvents] table, if any.
+    pub fn has_racial_events(&self, raised_by_humans: bool) -> Option<RacialEvent> {
+        if let Some(e) = &self.racial_events {
+            return Some(e.clone())
+        }
+
+        if !raised_by_humans {
+            if let Some(e) = &self.hybrid_events {
+                return Some(e.clone())
+            }
+        }
+
+        None
     }
 }
