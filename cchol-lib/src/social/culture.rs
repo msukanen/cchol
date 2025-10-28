@@ -5,7 +5,7 @@ use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 
-use crate::{default_roll_range_def, serialize::deserialize_cr_range, skill::native_env::{IsNativeOf, NativeOf}, traits::HasRollRange, IsNamed};
+use crate::{IsNamed, default_roll_range_def, serialize::deserialize_cr_range, skill::{IsLiteracySource, LitMod, native_env::{IsNativeOf, NativeOf}}, traits::HasRollRange};
 
 fn validate_culture_ranges(cultures: &Vec<Culture>) {
     let mut ranges: Vec<&RangeInclusive<i32>> = cultures
@@ -81,6 +81,7 @@ pub struct Culture {
     _cr_range: std::ops::RangeInclusive<i32>,
     #[serde(default)] _default_max: bool,
     #[serde(default)] provides_skills: Option<Vec<(String, i32)>>,
+    #[serde(default)] literacy_chance: Option<Vec<(String, i32)>>,
 }
 
 impl PartialEq for Culture {
@@ -169,6 +170,12 @@ impl Culture {
     /// Get a list of skills the [Culture] provides, if any.
     pub fn provides_skills(&self) -> Option<&Vec<(String, i32)>> {
         self.provides_skills.as_ref()
+    }
+}
+
+impl IsLiteracySource for Culture {
+    fn literacy_skills(&self) -> Vec<(String, i32)> {
+        self.literacy_chance.as_ref().cloned().unwrap_or_default()
     }
 }
 
