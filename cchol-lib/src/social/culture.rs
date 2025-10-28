@@ -79,8 +79,8 @@ pub struct Culture {
         deserialize_with = "deserialize_cr_range"
     )]
     _cr_range: std::ops::RangeInclusive<i32>,
-    #[serde(default)]
-    _default_max: bool,
+    #[serde(default)] _default_max: bool,
+    #[serde(default)] provides_skills: Option<Vec<(String, i32)>>,
 }
 
 impl PartialEq for Culture {
@@ -165,6 +165,11 @@ impl Culture {
             .find(|c| c.name().to_lowercase() == value.to_lowercase())
             .expect(format!("No culture called '{}' found!", value).as_str())
     }
+
+    /// Get a list of skills the [Culture] provides, if any.
+    pub fn provides_skills(&self) -> Option<&Vec<(String, i32)>> {
+        self.provides_skills.as_ref()
+    }
 }
 
 #[cfg(test)]
@@ -177,7 +182,7 @@ mod culture_tests {
     use super::*;
 
     #[test]
-    fn simple_read_from_json() {
+    fn simple_cr_range_read_from_json() {
         let prjson = r#"{
             "name": "Primitive",
             "cumod": -3,
@@ -191,7 +196,7 @@ mod culture_tests {
     }
 
     #[test]
-    fn complex_read_from_json() {
+    fn complex_cr_range_read_from_json() {
         let prjson = r#"{
             "name": "Barbarian",
             "cumod": 2,
@@ -227,7 +232,7 @@ mod culture_tests {
     fn culture_random_respects_max() {
         let rounds = 1001;
         let _ = env_logger::try_init();
-        let maxc = CULTURES.iter().find(|c| c.name() == "Barbarian").unwrap();
+        let maxc = Culture::from("barbarian");
         let mut suitable_found = 0;
         (0..rounds).for_each(|_| {
             let c = Culture::random(maxc);
