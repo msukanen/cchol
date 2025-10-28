@@ -57,6 +57,13 @@ impl From<SkillBase> for Skill {
     }
 }
 
+impl From<&str> for Skill {
+    /// Derive a [Rank-0][Rank] [Skill] from the given `value`, routing query via [SkillBase].
+    fn from(value: &str) -> Self {
+        Self::from(SkillBase::from(value))
+    }
+}
+
 impl AddAssign<i32> for Skill {
     // just re-routing +=
     fn add_assign(&mut self, rhs: i32) {
@@ -85,9 +92,7 @@ impl From<(SkillBase, Rank)> for Skill {
     }
 }
 
-impl IsSkill for Skill {
-    
-}
+impl IsSkill for Skill {}
 
 impl IsNamed for Skill {
     fn name(&self) -> &str {

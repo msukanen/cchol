@@ -2,7 +2,15 @@
 //! 
 //! Wilderness is a very vague term, applicable for almost anything non-Urban…
 //! 
+use std::fmt::Display;
+
+use rpgassist::ranking::rank::IsRanked;
 use serde::{de, Deserialize, Serialize};
+
+use crate::skill::{Skill, SkillBase};
+
+pub static NATIVE_ENV_URBAN_SKILL_NAME:&'static str = "Survival: Urban";
+pub static NATIVE_ENV_WILDS_SKILL_NAME:&'static str = "Survival: Wilderness";
 
 /// Some native environments.
 #[derive(Debug, Serialize, PartialEq, Eq, Clone)]
@@ -16,6 +24,19 @@ pub enum NativeOf {
         /// …and occasionally here too.
         secondary: Box<NativeOf>,
     },
+}
+
+impl Display for NativeOf {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Urban => write!(f, "urban"),
+            Self::Wilderness => write!(f, "wilderness"),
+            Self::Choice {
+                primary,
+                secondary
+            } => write!(f, "{}|{}", primary, secondary)
+        }
+    }
 }
 
 /// A trait for anything where [NativeOf] is of any concern.
@@ -82,5 +103,20 @@ impl NativeOf {
             Self::Wilderness => Self::Urban,
             Self::Choice { primary, .. } => primary.opposite()
         }
+    }
+
+    /// Return a [Skill] representation of this [NativeOf].
+    pub fn as_skill(&self, ranked: &impl IsRanked) -> Skill {
+        // Skill name has to be properly set…
+        let skill_name = match self {
+            Self::Urban => NATIVE_ENV_URBAN_SKILL_NAME,
+            Self::Wilderness => NATIVE_ENV_WILDS_SKILL_NAME,
+            Self::Choice { primary,..} => return primary.as_skill(ranked)
+        };
+        
+        Skill::from((
+            SkillBase::from(skill_name),
+            ranked.rank().clone()
+        ))
     }
 }

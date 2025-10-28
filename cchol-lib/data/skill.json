@@ -1,4 +1,5 @@
-// NOTE: skills "annotated" with "/*876*/" are mandatory to remain as-is for their usage is hard-coded…
+// NOTE: skills "annotated" with e.g. "/*876*/" (or any 3-digit number)
+// are mandatory to remain as-is for their usage is hard-coded …
 [
     {/*876*/"name": "Social Dancing", "description": "Both formal and informal dancing."},
     {/*876*/"name": "Professional Gambling", "description": "Professional gambling of all sorts; incl. card games, etc."},
@@ -66,5 +67,9 @@
     {/*876*/"name": "Haggling", "description": "Haggling, bargaining with merchants, etc."},
     {/*876*/"name": "Diplomacy", "description": "Ditto - being diplomatic. Includes negotiating."},
     {/*876*/"name": "Prestidigitation", "description": "Simple (or not-so-simple) magic tricks."},
-    {/*876*/"name": "Imitate Monster Noises", "description": "Creepy, spooky, monstrous noises… Occasionally useful?"}
+    {/*876*/"name": "Imitate Monster Noises", "description": "Creepy, spooky, monstrous noises… Occasionally useful?"},
+
+    // Other skills outside 876:
+    {/*102*/"name": "Survival: Wilderness", "description": "Surviving in the great wilds - find food, water and shelter."},
+    {/*102*/"name": "Survival: Urban", "description": "Skills required to 'survive' in urban environment - from dodging dodgy gangs to finding the best pizzerias…"}
 ]
