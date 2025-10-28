@@ -9,6 +9,9 @@ use crate::{traits::HasDescription, IsNamed};
 pub mod native_env;
 mod unusual;
 pub use unusual::generate_unusual_skills;
+mod literacy;
+pub use literacy::LitMod;
+pub use literacy::IsLiteracySource;
 
 pub trait IsSkill : IsRanked + IsNamed + HasDescription {}
 
