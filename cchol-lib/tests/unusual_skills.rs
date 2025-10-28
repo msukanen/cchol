@@ -1,4 +1,4 @@
-use cchol_lib::{skill::generate_unusual_skills, *};
+use cchol_lib::skill::generate_unusual_skills;
 
 #[test]
 fn unusual_skill_generation() {
