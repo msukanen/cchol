@@ -83,6 +83,18 @@ pub struct Culture {
     _default_max: bool,
 }
 
+impl PartialEq for Culture {
+    fn eq(&self, other: &Self) -> bool {
+        self.cumod == other.cumod
+    }
+}
+
+impl PartialOrd for Culture {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.cumod.partial_cmp(&other.cumod)
+    }
+}
+
 impl CuMod for Culture {
     fn cumod(&self) -> i32 {
         self.cumod
@@ -143,6 +155,15 @@ impl Culture {
 
     pub fn is_nomad(&self) -> bool {
         self.name().to_ascii_lowercase() == "nomad"
+    }
+
+    /// Get [Culture] by name.
+    /// 
+    /// **FYI:** we *intentionally* panic if `value` is not found.
+    pub fn from(value: &str) -> &'static Self {
+        CULTURES.iter()
+            .find(|c| c.name().to_lowercase() == value.to_lowercase())
+            .expect(format!("No culture called '{}' found!", value).as_str())
     }
 }
 
