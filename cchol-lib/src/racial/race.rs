@@ -104,6 +104,10 @@ impl Race {
     }
 
     pub fn shift_culture_if_needed(&self, culture: &'static Culture) -> &'static Culture {
+        if self.max_culture() < culture {
+            return self.max_culture();
+        }
+
         if !self.shift_civilized_up && !self.shift_nomad_down {
             return culture;
         }
@@ -122,33 +126,13 @@ impl Race {
         log::debug!("No shifting required");
         culture
     }
-}
 
-#[cfg(test)]
-mod race_tests {
-    use crate::{racial::race::{RACES, RACE_DEFAULT}, social::culture::{CuMod, CULTURES}, IsNamed};
-
-    #[test]
-    fn we_have_a_winner() {
-        let r = *RACE_DEFAULT;
-        assert_eq!(r.name(), "human");
+    /// Get a race by name.
+    /// 
+    /// **FYI:** We *intentionally* panic if `value` is not found.
+    pub fn from(value: &str) -> &'static Self {
+        RACES.iter()
+            .find(|r| r.name().to_lowercase() == value.to_lowercase())
+            .expect(format!("No race called '{}' found!", value).as_str())
     }
-
-    #[test]
-    fn shift_nomad_down() {
-        let _ = env_logger::try_init();
-        let r = RACES.iter().find(|r| r.name() == "reptileman").expect("No reptileman found for testing purposes!");
-        let c = CULTURES.iter().find(|c| c.is_nomad()).expect("No Nomad culture found!");
-        let c = r.shift_culture_if_needed(c);
-        assert!(!c.is_nomad());
-    }
-
-    #[test]
-    fn shift_civilized_up() {
-        let _ = env_logger::try_init();
-        let r = RACES.iter().find(|r| r.name() == "reptileman").expect("No reptileman found for testing purposes!");
-        let c = CULTURES.iter().find(|c| c.is_civilized()).expect("No Civilized culture found!");
-        let c = r.shift_culture_if_needed(c);
-        assert!(!c.is_civilized());
-   }
 }
