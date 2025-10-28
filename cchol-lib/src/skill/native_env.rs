@@ -83,7 +83,7 @@ impl NativeOf {
     /// Get primary [NativeOf].
     pub fn primary(&self) -> NativeOf {
         match self {
-            Self::Choice { primary,..} => *primary.clone(),
+            Self::Choice { primary,..} => primary.primary(),
             _ => self.clone()
         }
     }
@@ -118,5 +118,12 @@ impl NativeOf {
             SkillBase::from(skill_name),
             ranked.rank().clone()
         ))
+    }
+
+    /// Replace e.g. <NativeOf> with the actual environment name.
+    pub fn skill_placeholder_replace(&self, source: &str) -> String {
+        source
+            .replace("<NativeOf>", self.primary().to_string().as_str())
+            .replace("<NativeOf.opposite>", self.opposite().to_string().as_str())
     }
 }
