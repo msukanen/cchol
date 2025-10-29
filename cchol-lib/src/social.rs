@@ -1,3 +1,9 @@
 pub mod culture;
+pub mod nobility;
 pub mod status;
-pub use status::SolMod;
+pub mod wealth;
+
+/// A trait for anything and everything that delivers **SolMod**.
+pub trait SolMod {
+    fn solmod(&self) -> i32;
+}

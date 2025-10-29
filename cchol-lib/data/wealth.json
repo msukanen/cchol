@@ -1,0 +1,39 @@
+[
+    {
+        "name": "Destitute",
+        "solmod": -3,
+        "survival_mod": [1,2],
+        "starting$": 0.25,
+        "_cr_range": { "upto": 12 }
+    },
+    {
+        "name": "Poor",
+        "solmod": -1,
+        "survival_mod": 1,
+        "starting$": 0.5,
+        "_cr_range": [13,40]
+    },
+    {
+        "name": "Comfortable",
+        "alias": "Average",
+        "_cr_range": [41,84]
+    },
+    //FYI: _cr_range 85 is reserved as an arbitrary "reroll w/o CuMod" gap.
+    {
+        "name": "Well-to-Do",
+        "solmod": 2,
+        "survival_mod": -1,
+        "_cr_range": [86,94]
+    },
+    {
+        "name": "Wealthy",
+        "solmod": 4,
+        "survival_mod": [-1,2],
+        "_cr_range": [95,98]
+    },
+    {
+        "name": "Extremely Wealthy",
+        "solmod": 8,
+        "survival_mod": [-1,2]
+    }
+]
