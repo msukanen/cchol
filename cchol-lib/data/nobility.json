@@ -1,0 +1,223 @@
+// Noble titles...
+[
+    {
+        "culture": ["Civilized", "Decadent"],
+        "name": ["Emperor", "Empress"],
+        "timod": 60,
+        "land_titles": {"range": [4,7]},
+        "land_holdings": 100,
+        "land_size": [1,20,{"mul":10}],
+        "_cr_range": 1
+    },
+    {
+        "culture": ["Primitive", "Barbarian"],
+        "name": ["High King", "High Queen"],
+        "timod": [5, 10],
+        "land_titles": [1,6],
+        "land_holdings": 85,
+        "land_size": [1,20,{"mul":5}],
+        "_cr_range": [1,2]
+    },
+    {
+        "culture": "Barbarian",
+        "name": ["King", "Queen"],
+        "timod": 39,
+        "land_titles": {"range": [2,5]},
+        "land_holdings": 100,
+        "land_size": [1,10,{"mul":10}],
+        "_cr_range": [3,15]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["King", "Queen"],
+        "timod": 39,
+        "land_titles": {"range": [2,5]},
+        "land_holdings": 100,
+        "land_size": [1,10,{"mul":10}],
+        "_cr_range": [2,5]
+    },
+    {
+        "culture": "Nomad",
+        "name": "Kahn",
+        "timod": [5,8],
+        "land_titles": [1,6],
+        "land_holdings": 30,
+        "land_size": [1,10,{"mul":5}],
+        "_cr_range": [1,10]
+    },
+    {
+        "culture": "Barbarian",
+        "name": ["Royal Prince", "Royal Princess"],
+        "timod": [4,10],
+        "land_titles": [1,4],
+        "land_holdings": 70,
+        "land_size": [1,20,{"mul":5}],
+        "_cr_range": [16,25]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["Royal Prince", "Royal Princess"],
+        "timod": [4,10],
+        "land_titles": [1,4],
+        "land_holdings": 70,
+        "land_size": [1,20,{"mul":5}],
+        "_cr_range": [6,15]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["Archduke", "Archduchess"],
+        "timod": [4,10],
+        "land_titles": {"range": [2,4]},
+        "land_holdings": 75,
+        "land_size": [1,10,{"mul":5}],
+        "_cr_range": [16,20]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["Duke", "Duchess"],
+        "timod": [4,8],
+        "land_titles": [1,3],
+        "land_holdings": 85,
+        "land_size": [1,10,{"mul":5}],
+        "_cr_range": [21,25]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["Marquis", "Marquese"],
+        "timod": [3,10],
+        "land_titles": [1,2],
+        "land_holdings": 60,
+        "land_size": [1,20,12],
+        "_cr_range": [26,35]
+    },
+    {
+        "culture": "Primitive",
+        "name": "Chieftain",
+        "_cr_range": [2,30],
+        "timod": [3,6],
+        "land_holdings": 40,
+        "land_size": [2,6,8]
+    },
+    {
+        "culture": "Nomad",
+        "name": "Chieftain",
+        "_cr_range": [11,40],
+        "timod": [3,6],
+        "land_holdings": 40,
+        "land_size": [2,6,8]
+    },
+    {
+        "culture": "Barbarian",
+        "name": "Chieftain",
+        "_cr_range": [26,45],
+        "timod": [3,6],
+        "land_holdings": 40,
+        "land_size": [2,6,8]
+    },
+    {
+        "culture": "Barbarian",
+        "name": "Jarl",
+        "_cr_range": [46,60],
+        "timod": [3,6],
+        "land_holdings": 70,
+        "land_size": [1,6,4]
+    },
+    {
+        "culture": "Primitive",
+        "name": "Subchieftain",
+        "_cr_range": {"ge": 31},
+        "timod": [2,6],
+        "land_holdings": 30,
+        "land_size": [1,8]
+    },
+    {
+        "culture": "Nomad",
+        "name": "Subchieftain",
+        "_cr_range": [41,80],
+        "timod": [2,6],
+        "land_holdings": 30,
+        "land_size": [1,8]
+    },
+    {
+        "culture": "Barbarian",
+        "name": "Subchieftain",
+        "_cr_range": [61,70],
+        "timod": [2,6],
+        "land_holdings": 30,
+        "land_size": [1,8]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["Count", "Countess"],
+        "_cr_range": [51,60],
+        "timod": [3,6],
+        "land_titles": {"p": 90},
+        "land_holdings": 40,
+        "land_size": [1,20,4]
+    },
+    {
+        "culture": "Barbarian",
+        "name": ["Baron", "Baroness"],
+        "timod": [2,10],
+        "land_titles": {"p": 75},
+        "land_holdings": 60,
+        "land_size": [1,10,4],
+        "_cr_range": [71,75]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["Baron","Baroness"],
+        "timod": [2,10],
+        "land_titles": {"p": 75},
+        "land_holdings": 60,
+        "land_size": [1,10,4],
+        "_cr_range": [61,75]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["Baronet","Baroness"],
+        "timod": [2,8],
+        "land_titles": {"p": 50},
+        "land_holdings": 30,
+        "land_size": [1,10],
+        "_cr_range": [76,78]
+    },
+    {
+        "culture": "Barbarian",
+        "name": ["Prince", "Princess"],
+        "derive_from_parent_if": 20,
+        "_cr_range": [76,80]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["Prince", "Princess"],
+        "derive_from_parent_if": 20,
+        "_cr_range": [79,90]
+    },
+    {
+        "culture": ["Civilized","Decadent"],
+        "name": ["Knight","Lady"],
+        "timod": [2,6],
+        "_cr_range": {"ge":91},
+        "land_titles": {"p":35},
+        "land_holdings": 60,
+        "land_size": [1,4]
+    },
+    {
+        "culture": ["Nomad","Barbarian"],
+        "name":["Hetman","Hetwoman"],
+        "_cr_range": {"ge":81},
+        "timod": [1,6],
+        "land_holdings":85,
+        "land_size":[1,4]
+    },
+    {
+        "culture": ["Civilized", "Decadent"],
+        "name": ["Viscount", "Countess"],
+        "_cr_range": [36,50],
+        "timod": [3,8],
+        "land_holdings":50,
+        "land_size":[1,20,10],
+        "land_titles":1
+    }
+]

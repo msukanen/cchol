@@ -1,5 +1,5 @@
 //! 102: Culture
-use std::{fs::{self}, ops::RangeInclusive};
+use std::{fmt::Display, fs::{self}, ops::RangeInclusive};
 
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
@@ -60,6 +60,49 @@ lazy_static! {
         .expect("No default max Culture defined!");
 }
 
+/// Fixed "core types" for cultures.
+pub enum CultureCoreType {
+    Primitive,
+    Nomad,
+    Barbarian,
+    Civilized,
+    Decadent
+}
+
+impl CultureCoreType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            CultureCoreType::Barbarian => "Barbarian",
+            CultureCoreType::Civilized => "Civilized",
+            CultureCoreType::Decadent => "Decadent",
+            CultureCoreType::Nomad => "Nomad",
+            CultureCoreType::Primitive => "Primitive",
+        }
+    }
+}
+
+impl Display for CultureCoreType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+pub trait HasCultureCoreType {
+    fn core_type(&self) -> &'static CultureCoreType;
+}
+
+impl HasCultureCoreType for CultureCoreType {
+    fn core_type(&self) -> &'static CultureCoreType {
+        match self {
+            Self::Barbarian => &CultureCoreType::Barbarian,
+            Self::Civilized => &CultureCoreType::Civilized,
+            Self::Decadent => &CultureCoreType::Decadent,
+            Self::Nomad => &CultureCoreType::Nomad,
+            Self::Primitive => &CultureCoreType::Primitive
+        }
+    }
+}
+
 /// A trait for anything that acts (or routes) a CuMod.
 pub trait CuMod {
     /// Get the effective [CuMod].
@@ -74,10 +117,7 @@ pub struct Culture {
     /// Culture's native environment(s).
     native_of: NativeOf,
     /// CAUTION: range of roll results for randomly generating this particular [Culture].
-    #[serde(
-        rename = "_cr_range",
-        deserialize_with = "deserialize_cr_range"
-    )]
+    #[serde(deserialize_with = "deserialize_cr_range")]
     _cr_range: std::ops::RangeInclusive<i32>,
     #[serde(default)] _default_max: bool,
     #[serde(default)] provides_skills: Option<Vec<(String, i32)>>,
@@ -176,6 +216,19 @@ impl Culture {
 impl IsLiteracySource for Culture {
     fn literacy_skills(&self) -> Vec<(String, i32)> {
         self.literacy_chance.as_ref().cloned().unwrap_or_default()
+    }
+}
+
+impl HasCultureCoreType for Culture {
+    fn core_type(&self) -> &'static CultureCoreType {
+        match self.name().to_lowercase().as_str() {
+            "primitive" => &CultureCoreType::Primitive,
+            "nomad" => &CultureCoreType::Nomad,
+            "barbarian" => &CultureCoreType::Barbarian,
+            "civilized" => &CultureCoreType::Civilized,
+            "decadent" => &CultureCoreType::Decadent,
+            _ => unimplemented!("No core type determinable for '{}'", self.name())
+        }
     }
 }
 

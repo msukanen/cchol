@@ -1,0 +1,320 @@
+//! 103: Social Status
+//! 758: Nobles
+
+use std::fs;
+use lazy_static::lazy_static;
+use serde::Deserialize;
+use dicebag::{DiceExt, InclusiveRandomRange, percentage_chance_of};
+
+use crate::{IsNamed, social::culture::HasCultureCoreType, traits::HasRollRange, serialize::{deserialize_cr_range, deserialize_strings_to_vec, deserialize_string_w_optional}};
+
+static NOBLENOTES_FILE: &'static str = "./data/nobility.json";
+static NOBLE_TITLE_PARTS_FILE: &'static str = "./data/land_titles.json";
+lazy_static! {
+    static ref NOBLENOTES: Vec<NobleNote> = {
+        serde_jsonc::from_str(
+            &fs::read_to_string(NOBLENOTES_FILE)
+                .expect(format!("No '{}' found?!", NOBLENOTES_FILE).as_str())
+        ).expect("JSON error")
+    };
+
+    static ref NOBLE_TITLE_PARTS: NobleTitleParts = {
+        serde_jsonc::from_str(
+            &fs::read_to_string(NOBLE_TITLE_PARTS_FILE)
+                .expect(format!("No '{}' found?!", NOBLE_TITLE_PARTS_FILE).as_str())
+        ).expect("JSON error")
+    };
+}
+
+#[derive(Debug, Deserialize)]
+struct NobleTitleParts {
+    part1: Vec<String>,
+    part2: Vec<String>,
+    part3: Vec<String>
+}
+
+impl NobleTitleParts {
+    /// Create a single noble special/land title.
+    fn create_title(&self) -> String {
+        let r = 1.d(self.part1.len());
+        let p1 = &self.part1[r-1];
+        let r = 1.d(10 + self.part2.len());
+        if r <= 10 {
+            return p1.clone();
+        }
+        let r2 = 1.d(self.part3.len());
+        format!("{p1} of the {} {}", self.part2[r-11], self.part3[r2-1])
+    }
+
+    /// Create a vec of noble special/land title based on given creation `method`.
+    fn create_titles(&self, method: &Option<LandTitlesDecisionMethod>) -> Vec<String> {
+        let num = if let Some(method) = method {
+            method.random()
+        } else {
+            return vec![];
+        };
+        let mut titles = vec![];
+        for _ in 0..num {
+            titles.push(self.create_title());
+        }
+        titles
+    }
+}
+
+/// A trait for anything that deals with **TiMod**.
+pub trait TiMod {
+    fn timod(&self) -> i32;
+}
+
+pub struct Noble {
+    name: &'static (String, Option<String>),
+    timod: usize,
+    land_titles: Vec<String>,
+    land_size: usize,
+}
+
+impl TiMod for Noble {
+    fn timod(&self) -> i32 {
+        self.timod.min(i32::MAX as usize) as i32
+    }
+}
+
+impl IsNamed for Noble {
+    fn name(&self) -> &str {
+        &self.name.0
+    }
+}
+
+impl From<&'static NobleNote> for Noble {
+    fn from(value: &'static NobleNote) -> Self {
+        Noble {
+            name: &value.name,
+            timod: value.timod.random(),
+            land_titles: (0..value.land_titles.random())
+                .map(|_| NOBLE_TITLE_PARTS.create_title())
+                .collect(),
+            land_size: value.land_size.random()
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(untagged)]
+enum TiModDecisionMethod {
+    Flat(i32),
+    Roll((i32, usize)),
+    DeriveFromParent
+}
+
+impl Default for TiModDecisionMethod {
+    fn default() -> Self {
+        Self::DeriveFromParent
+    }
+}
+
+impl TiModDecisionMethod {
+    pub fn random(&self) -> usize {
+        (match self {
+            Self::Flat(x) => *x,
+            Self::Roll((n,s)) => n.d(*s),
+            Self::DeriveFromParent => 0
+        }).max(0) as usize
+    }
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct ValueRange {
+    range: std::ops::RangeInclusive<i32>
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct PercentChance {
+    p: u32
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(untagged)]
+enum LandTitlesDecisionMethod {
+    CountRange(ValueRange),
+    FixedCount(i32),
+    RollRange((i32,usize)),
+    PercentageChanceOfOne(PercentChance),
+    DeriveFromParent,
+}
+
+impl LandTitlesDecisionMethod {
+    pub fn random(&self) -> usize {
+        (match self {
+            Self::CountRange(r) => r.range.random_of(),
+            Self::FixedCount(x) => *x,
+            Self::RollRange((n, s)) => n.d(*s),
+            Self::PercentageChanceOfOne(p) => percentage_chance_of!(p.p, 1),
+            Self::DeriveFromParent => 0
+        }).max(0) as usize
+    }
+}
+
+impl Default for LandTitlesDecisionMethod {
+    fn default() -> Self {
+        Self::DeriveFromParent
+    }
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct DiceMul {
+    mul: i32
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(untagged)]
+enum LandSizeDecisionMethod {
+    NoModRoll((i32,usize)),
+    ModRoll((i32,usize,i32)),
+    MulRoll((i32,usize,DiceMul)),
+    // "*" representation
+    DeriveFromParent,
+}
+
+impl Default for LandSizeDecisionMethod {
+    fn default() -> Self {
+        Self::DeriveFromParent
+    }
+}
+
+impl LandSizeDecisionMethod {
+    pub fn random(&self) -> usize {
+        (match self {
+            Self::DeriveFromParent => 0,
+            Self::ModRoll((n,s,m)) => n.d(*s) + m,
+            Self::MulRoll((n,s,m)) => n.d(*s) * m.mul,
+            Self::NoModRoll((n,s)) => n.d(*s),
+        }).max(0) as usize
+    }
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct NobleNote {
+    #[serde(deserialize_with = "deserialize_string_w_optional")]
+    name: (String, Option<String>),
+    #[serde(default)] timod: TiModDecisionMethod,
+    #[serde(default)] land_titles: LandTitlesDecisionMethod,
+    #[serde(default)] land_holdings: usize,
+    #[serde(default)] land_size: LandSizeDecisionMethod,
+    #[serde(deserialize_with = "deserialize_strings_to_vec")]
+    culture: Vec<String>,
+    #[serde(deserialize_with = "deserialize_cr_range")]
+    _cr_range: std::ops::RangeInclusive<i32>,
+    #[serde(default)] derive_from_parent_if: Option<u32>,
+}
+
+impl IsNamed for NobleNote {
+    fn name(&self) -> &str {
+        &self.name.0
+    }
+}
+
+impl HasRollRange for NobleNote {
+    fn roll_range(&self) -> &std::ops::RangeInclusive<i32> {
+        &self._cr_range
+    }
+}
+
+impl NobleNote {
+    /// Get a culture appropriate random noble status.
+    pub fn random(culture_core: &impl HasCultureCoreType) -> &'static NobleNote {
+        let core_name = culture_core.core_type().to_string();
+        let roll = 1.d100();
+
+        NOBLENOTES.iter()
+            .filter(|note| note.culture.contains(&core_name))
+            .find(|note| note.roll_range().contains(&roll))
+            .expect("What on Earth just happened...?")
+    }
+}
+
+#[cfg(test)]
+mod nobility_data_integrity_tests {
+    use dicebag::DiceExt;
+
+    use crate::{IsNamed, misc::ConditionalExec, social::{culture::CultureCoreType, nobility::{NOBLENOTES, NobleNote}}};
+    static SPAM_COUNT: usize = 1001;
+
+    #[test]
+    fn nobility_json_ok() {
+        assert!(NOBLENOTES.len() > 0);
+    }
+
+    #[test]
+    fn noblenote_for_barbarian_spam() {
+        let ct = CultureCoreType::Barbarian;
+        for _ in 0..SPAM_COUNT {
+            let _ = NobleNote::random(&ct);
+        }
+    }
+
+    #[test]
+    fn prince() {
+        let _ = env_logger::try_init();
+        let parent = NOBLENOTES.iter()
+            .find(|c| c.name() == "Baron")
+            .expect("Baron -should- exist!");
+        let prince = NOBLENOTES.iter()
+            .find(|c| c.name() == "Prince")
+            .expect("Prince -should- exist!");
+        // redo a few times…
+        for _ in 0..20 {
+            if let Some(archd_chance) = prince.derive_from_parent_if {
+                if 1.d100() > archd_chance {
+                    let land_holdings = parent.land_holdings.if_p(||parent.land_size.random());
+                    log::debug!("Got {:?} as land_holdings.", land_holdings);
+                } else {
+                    log::debug!("ArchD, skip.");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn titles_are_accounted_for() {
+        let all_expected = vec![
+            "Emperor","High King","King","Kahn","Royal Prince","Archduke","Duke",
+            "Marquis","Chieftain","Viscount","Jarl","Subchieftain","Count","Baron",
+            "Baronet","Prince","Knight","Hetman"];
+        let prim_expected = vec![
+            "High King","Chieftain","Subchieftain"];
+        let nomad_expected = vec![
+            "Kahn","Chieftain","Subchieftain","Hetman"];
+        let barb_expected = vec![
+            "High King","King","Royal Prince","Chieftain","Jarl","Subchieftain","Baron","Prince","Hetman"];
+        let civdec_expected = vec![
+            "Emperor","King","Royal Prince","Archduke","Duke",
+            "Marquis","Viscount","Count","Baron",
+            "Baronet","Prince","Knight"];
+        let cultures = [
+            ("Primitive", &prim_expected),
+            ("Nomad", &nomad_expected),
+            ("Barbarian", &barb_expected),
+            ("Civilized", &civdec_expected),
+            ("Decadent", &civdec_expected)
+        ];
+
+        assert!(all_expected
+            .iter()
+            .all(|t|
+                NOBLENOTES.iter()
+                    .find(|n| n.name() == *t)
+                    .is_some()
+            ));
+
+        cultures.iter().for_each(|(n,v)|{
+            assert_eq!(NOBLENOTES.iter().filter(|note|note.culture.contains(&n.to_string())).collect::<Vec<&NobleNote>>().len(), v.len());
+            assert!(NOBLENOTES.iter()
+                .filter(|note|note.culture.contains(&n.to_string()))
+                .all(|note| v.contains(&note.name())));
+            assert!(v.iter()
+                .all(|t| NOBLENOTES.iter()
+                    .find(|note| note.name() == *t && note.culture.contains(&n.to_string()))
+                    .is_some()));
+        });
+    }
+}

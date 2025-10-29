@@ -12,19 +12,25 @@ where D: Deserializer<'de> {
     struct UptoX {
         upto: i32
     }
+    #[derive(Deserialize)]
+    struct GtOrEq {
+        ge: i32
+    }
     // A helper for dual format input:
     #[derive(Deserialize)]
     #[serde(untagged)]
     enum RangeHalp {
         S(i32),
         P((i32,i32)),
-        U(UptoX)
+        U(UptoX),
+        G(GtOrEq),
     }
 
     match RangeHalp::deserialize(deserializer)? {
         RangeHalp::S(v) => Ok(v..=v),
         RangeHalp::P((a,b)) => Ok(a..=b),
         RangeHalp::U(x) => Ok(i32::MIN..=x.upto),
+        RangeHalp::G(x) => Ok(x.ge..=i32::MAX),
     }
 }
 
@@ -41,13 +47,18 @@ where D: Deserializer<'de> {
     struct UptoX {
         upto: i32
     }
+    #[derive(Deserialize)]
+    struct GtOrEq {
+        ge: i32
+    }
     // A helper for dual format input:
     #[derive(Deserialize)]
     #[serde(untagged)]
     enum RangeHalp {
         S(i32),
         P((i32,i32)),
-        U(UptoX)
+        U(UptoX),
+        G(GtOrEq),
     }
 
     let maybe_halp = Option::<RangeHalp>::deserialize(deserializer)?;
@@ -56,6 +67,7 @@ where D: Deserializer<'de> {
         Some(RangeHalp::S(v)) => Ok(Some(v..=v)),
         Some(RangeHalp::P((a,b))) => Ok(Some(a..=b)),
         Some(RangeHalp::U(x)) => Ok(Some(i32::MIN..=x.upto)),
+        Some(RangeHalp::G(x)) => Ok(Some(x.ge..=i32::MAX)),
         None => Ok(None)
     }
 }
@@ -78,5 +90,39 @@ where D: Deserializer<'de> {
     match DiceHalp::deserialize(deserializer)? {
         DiceHalp::S(v) => Ok((v, v)),
         DiceHalp::P((a,b)) => Ok((a, b))
+    }
+}
+
+/// Deserializes any field that can be either a single String or a Vec<String>.
+pub(crate) fn deserialize_strings_to_vec<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where D: Deserializer<'de> {
+    // helper for the two shapes
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum StringHalp {
+        S(String),
+        M(Vec<String>),
+    }
+
+    match StringHalp::deserialize(deserializer)? {
+        StringHalp::S(s) => Ok(vec![s]),
+        StringHalp::M(v) => Ok(v),
+    }
+}
+
+/// Deserializes the "culture" field, which can be a single String or a Vec<String>.
+pub(crate) fn deserialize_string_w_optional<'de, D>(deserializer: D) -> Result<(String, Option<String>), D::Error>
+where D: Deserializer<'de> {
+    // helper for the two shapes
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum StringHalp {
+        S(String),
+        M((String, Option<String>)),
+    }
+
+    match StringHalp::deserialize(deserializer)? {
+        StringHalp::S(s) => Ok((s, None)),
+        StringHalp::M(v) => Ok(v),
     }
 }

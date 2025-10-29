@@ -1,0 +1,23 @@
+// 871: Special Titles for Nobility
+// = "part1", if 1.dX <= 10, otherwise
+// = "part1 of the part2 part3"
+{
+    "part1": [
+        "Commander", "Custodian", "Grim Sentinel", "High Champion",
+        "Honored Defender", "Iron Tower", "Lord Protector", "Liberator",
+        "Lord Governor", "Lord Guardian", "Keeper", "Preserver",
+        "Marshall", "Ranger", "Regent", "Retaliator",
+        "Swordmaster", "Vindicator", "Warden", "Watchwarder"
+    ],
+    "part2": [
+        "Highland", "Lowland", "Upper", "Lower", "Seaward",
+        "Northern", "Eastern", "Southern", "Western",
+        "Frozen", "Scorched"
+    ],
+    "part3": [
+        "Coasts", "Creation", "Domain", "Downs", "Fens",
+        "Forests", "Garth", "Heath", "Hills", "Isles",
+        "Marshes", "Moors", "Mountains", "Pale", "Reaches",
+        "Shire", "Steppe", "Uplands", "Wastes", "Waves"
+    ]
+}
