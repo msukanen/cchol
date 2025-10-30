@@ -14,7 +14,12 @@
         "name": "dwarf",
         "max_culture": "Civilized",
         "_cr_range": [3841,4080],
-        "racial_events": "Dwarf"
+        "racial_events": "Dwarf",
+        "gender_bias": {
+            "Male": {
+                "value": 5
+            }
+        }
     },
     {
         "name": "halfling",

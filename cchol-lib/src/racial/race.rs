@@ -2,6 +2,7 @@ use std::fs;
 
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
+use rpgassist::gender::{Gender, GenderBias, HasGenderBias};
 use serde::{de, Deserialize, Deserializer};
 
 use crate::{IsNamed, default_roll_range_def, events::RacialEvent, serialize::deserialize_cr_range, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}, traits::HasRollRange};
@@ -74,6 +75,13 @@ pub struct Race {
     #[serde(default)] shift_civilized_up: bool,
     #[serde(default)] racial_events: Option<RacialEvent>,
     #[serde(default)] hybrid_events: Option<RacialEvent>,
+    #[serde(default)] gender_bias: GenderBias,
+}
+
+impl HasGenderBias for Race {
+    fn gender_bias(&self) -> GenderBias {
+        self.gender_bias
+    }
 }
 
 default_roll_range_def!(Race);
@@ -157,5 +165,10 @@ impl Race {
         }
 
         None
+    }
+
+    /// Race does at times affect gender distribution, hence…
+    pub fn random_gender(&self) -> Gender {
+        Gender::new(self.gender_bias)
     }
 }
