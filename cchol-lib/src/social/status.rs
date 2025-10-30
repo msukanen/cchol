@@ -1,12 +1,12 @@
 //! 103: Social Status
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-use crate::social::wealth::Wealth;
+use crate::social::{nobility::Noble, wealth::Wealth};
 
 /// Status specs.
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct SocialStatus {
     wealth: Wealth,
-    
+    nobility: Option<Noble>,
 }

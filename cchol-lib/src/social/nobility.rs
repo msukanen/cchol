@@ -3,10 +3,11 @@
 
 use std::fs;
 use lazy_static::lazy_static;
-use serde::Deserialize;
+use rpgassist::gender::{Gender, GenderBias};
+use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, InclusiveRandomRange, percentage_chance_of};
 
-use crate::{IsNamed, social::culture::HasCultureCoreType, traits::HasRollRange, serialize::{deserialize_cr_range, deserialize_strings_to_vec, deserialize_string_w_optional}};
+use crate::{IsNamed, misc::ConditionalExec, serialize::{deserialize_cr_range, deserialize_string_w_optional, deserialize_strings_to_vec}, social::culture::{CultureCoreType, HasCultureCoreType}, traits::HasRollRange};
 
 static NOBLENOTES_FILE: &'static str = "./data/nobility.json";
 static NOBLE_TITLE_PARTS_FILE: &'static str = "./data/land_titles.json";
@@ -45,20 +46,6 @@ impl NobleTitleParts {
         let r2 = 1.d(self.part3.len());
         format!("{p1} of the {} {}", self.part2[r-11], self.part3[r2-1])
     }
-
-    /// Create a vec of noble special/land title based on given creation `method`.
-    fn create_titles(&self, method: &Option<LandTitlesDecisionMethod>) -> Vec<String> {
-        let num = if let Some(method) = method {
-            method.random()
-        } else {
-            return vec![];
-        };
-        let mut titles = vec![];
-        for _ in 0..num {
-            titles.push(self.create_title());
-        }
-        titles
-    }
 }
 
 /// A trait for anything that deals with **TiMod**.
@@ -66,8 +53,10 @@ pub trait TiMod {
     fn timod(&self) -> i32;
 }
 
+/// PC/NPC noble entry.
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Noble {
-    name: &'static (String, Option<String>),
+    name: (String, Option<String>),
     timod: usize,
     land_titles: Vec<String>,
     land_size: usize,
@@ -88,13 +77,63 @@ impl IsNamed for Noble {
 impl From<&'static NobleNote> for Noble {
     fn from(value: &'static NobleNote) -> Self {
         Noble {
-            name: &value.name,
+            name: value.name.clone(),
             timod: value.timod.random(),
             land_titles: (0..value.land_titles.random())
                 .map(|_| NOBLE_TITLE_PARTS.create_title())
                 .collect(),
-            land_size: value.land_size.random()
+            land_size: value.land_holdings.if_p(|| value.land_size.random()).unwrap_or_default(),
         }
+    }
+}
+
+impl Noble {
+    /// Generate a random culture-appropriate [Noble] entry.
+    pub fn new(culture_core: &impl HasCultureCoreType) -> Self {
+        let r = 1.d100();
+        let c = culture_core.core_type().to_string();
+        Self::from(NOBLENOTES.iter()
+            .find(|n| n.culture.contains(&c) && n.roll_range().contains(&r))
+            .expect(format!("No suitable NobleNote found for '{}' with roll of '{}'", c, r).as_str()))
+    }
+}
+
+/// A simple (NPC) noble entry for simple purposes…
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct SimpleNobleNPC {
+    pub name: String,
+    pub gender: Gender,
+    pub nobility: Noble,
+}
+
+impl SimpleNobleNPC {
+    /// Generate a random noble (NPC) with/from the given specs.
+    pub fn new_cultured(name: &str, culture_core: &impl HasCultureCoreType) -> Self {
+        Self {
+            name: name.to_string(),
+            gender: Gender::new(GenderBias::None),
+            nobility: Noble::new(culture_core)
+        }
+    }
+
+    /// Alter gender to be `gender`.
+    pub fn with_gender(mut self, gender: &Gender) -> Self {
+        self.gender = gender.clone();
+        self
+    }
+
+    /// Generate a random, named noble NPC.
+    /// 
+    /// FYI: [Culture] for them is random. For pre-defined [Culture], use `new_cultured()` instead.
+    pub fn new(name: &str) -> Self {
+        Self::new_cultured(name,
+            match 1.d20() {
+            ..=1 => CultureCoreType::Primitive,
+            ..=5 => CultureCoreType::Nomad,
+            ..=10 => CultureCoreType::Barbarian,
+            ..=17 => CultureCoreType::Civilized,
+            _ => CultureCoreType::Decadent
+        }.core_type())
     }
 }
 
@@ -113,7 +152,7 @@ impl Default for TiModDecisionMethod {
 }
 
 impl TiModDecisionMethod {
-    pub fn random(&self) -> usize {
+    fn random(&self) -> usize {
         (match self {
             Self::Flat(x) => *x,
             Self::Roll((n,s)) => n.d(*s),
@@ -143,7 +182,7 @@ enum LandTitlesDecisionMethod {
 }
 
 impl LandTitlesDecisionMethod {
-    pub fn random(&self) -> usize {
+    fn random(&self) -> usize {
         (match self {
             Self::CountRange(r) => r.range.random_of(),
             Self::FixedCount(x) => *x,
@@ -182,7 +221,7 @@ impl Default for LandSizeDecisionMethod {
 }
 
 impl LandSizeDecisionMethod {
-    pub fn random(&self) -> usize {
+    fn random(&self) -> usize {
         (match self {
             Self::DeriveFromParent => 0,
             Self::ModRoll((n,s,m)) => n.d(*s) + m,
@@ -221,7 +260,7 @@ impl HasRollRange for NobleNote {
 
 impl NobleNote {
     /// Get a culture appropriate random noble status.
-    pub fn random(culture_core: &impl HasCultureCoreType) -> &'static NobleNote {
+    fn random(culture_core: &impl HasCultureCoreType) -> &'static NobleNote {
         let core_name = culture_core.core_type().to_string();
         let roll = 1.d100();
 
