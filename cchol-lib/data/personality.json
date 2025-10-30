@@ -1,0 +1,682 @@
+{
+    "lightside_traits": [
+        {   "name": "Optimist",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Pessimist"
+            },{
+                "trait_type": "neutral_traits",
+                "name": "Pessimistic-Optimist"
+            }]
+        },
+        {   "name": "Altruist",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Egoist"
+            }]
+        },
+        {   "name": "Helpful",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Obstructive"
+            }]
+        },
+        {   "name": "Kindly",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Cruel"
+            }]
+        },
+        {   "name": "Careful",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Careless"
+            }]
+        },
+        {   "name": "Considerate",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Thoughtless"
+            }]
+        },
+        {   "name": "Sober",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Flippant"
+            }]
+        },
+        {   "name": "Teetotaler",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Drunkard"
+            }]
+        },
+        {   "name": "Trusting",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Suspicious"
+            }]
+        },
+        {   "name": "Peaceful",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Violent"
+            }]
+        },
+        {   "name": "Peacemaker",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Argumentative"
+            }]
+        },
+        {   "name": "Pious",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Irreverent"
+            },{
+                "trait_type": "neutral_traits",
+                "name": "Atheistic"
+            }]
+        },
+        {   "name": "Honest",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Cheat"
+            }]
+        },
+        {   "name": "Loving",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Hateful"
+            }]
+        },
+        {   "name": "Giving",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Selfish"
+            }]
+        },
+        {   "name": "Organized",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Slovenly"
+            }]
+        },
+        {   "name": "Clean",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Filthy"
+            }]
+        },
+        {   "name": "Punctual",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Tardy"
+            }]
+        },
+        {   "name": "Self-confident",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Self-doubting"
+            }]
+        },
+        {   "name": "Courageous",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Cowardly"
+            }]
+        },
+        {   "name": "Respectful",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Disrespectful"
+            }]
+        },
+        {   "name": "Calm",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Angry"
+            }]
+        },
+        {   "name": "Patient",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Impatient"
+            }]
+        },
+        {   "name": "Wise",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Foolish"
+            }]
+        },
+        {   "name": "Generous",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Greedy"
+            }]
+        },
+        {   "name": "Imaginative",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Dull"
+            }]
+        },
+        {   "name": "Forgiving",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Vengeful"
+            }]
+        },
+        {   "name": "Virtuous",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Immoral"
+            }]
+        },
+        {   "name": "Dependable",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Untrustworthy"
+            }]
+        },
+        {   "name": "Well-mannered",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Rude"
+            }]
+        },
+        {   "name": "Benign",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Harsh"
+            }]
+        },
+        {   "name": "Friendly",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Unfriendly"
+            }]
+        },
+        {   "name": "Humble",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Egotistic"
+            }]
+        },
+        {   "name": "Energetic",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Lazy"
+            },{
+                "trait_type": "neutral_traits",
+                "name": "Passive"
+            }]
+        },
+        {   "name": "Truthful",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Liar"
+            }]
+        },
+        {   "name": "Cheerful",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Morose"
+            },{
+                "trait_type": "neutral_traits",
+                "name": "Emotionless"
+            },{
+                "trait_type": "neutral_traits",
+                "name": "Grim"
+            }]
+        },
+        {   "name": "Enthusiastic",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Unenthusiastic"
+            }]
+        },
+        {   "name": "Thrifty",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Spendthrift"
+            }]
+        },
+        {   "name": "Diplomatic",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Tactless"
+            }]
+        }
+    ],
+    "darkside_traits": [
+        {   "name": "Pessimist",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Optimist"
+            },{
+                "trait_type": "neutral_traits",
+                "name": "Pessimistic-Optimist"
+            }]
+        },
+        {   "name": "Egoist",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Altruist"
+            }]
+        },
+        {   "name": "Obstructive",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Helpful"
+            }]
+        },
+        {   "name": "Cruel",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Kindly"
+            }]
+        },
+        {   "name": "Careless",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Careful"
+            }]
+        },
+        {   "name": "Thoughtless",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Considerate"
+            }]
+        },
+        {   "name": "Flippant",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Sober"
+            }]
+        },
+        {   "name": "Drunkard",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Teetotaler"
+            }]
+        },
+        {   "name": "Suspicious",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Trusting"
+            }]
+        },
+        {   "name": "Violent",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Peaceful"
+            }]
+        },
+        {   "name": "Argumentative",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Peacemaker"
+            }]
+        },
+        {   "name": "Irreverent",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Pious"
+            }]
+        },
+        {   "name": "Cheat",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Honest"
+            }]
+        },
+        {   "name": "Hateful",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Loving"
+            }]
+        },
+        {   "name": "Selfish",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Giving"
+            }]
+        },
+        {   "name": "Slovenly",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Organized"
+            }]
+        },
+        {   "name": "Filthy",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Clean"
+            }]
+        },
+        {   "name": "Tardy",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Punctual"
+            }]
+        },
+        {   "name": "Self-doubting",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Self-confident"
+            }]
+        },
+        {   "name": "Cowardly",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Courageous"
+            }]
+        },
+        {   "name": "Disrespectful",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Respectful"
+            }]
+        },
+        {   "name": "Angry",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Calm"
+            },{
+                "trait_type": "neutral_traits",
+                "name": "Even-tempered"
+            }]
+        },
+        {   "name": "Impatient",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Patient"
+            }]
+        },
+        {   "name": "Foolish",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Wise"
+            }]
+        },
+        {   "name": "Greedy",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Generous"
+            }]
+        },
+        {   "name": "Dull",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Imaginative"
+            },{
+                "trait_type": "neutral_traits",
+                "name": "Creative"
+            }]
+        },
+        {   "name": "Vengeful",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Forgiving"
+            }]
+        },
+        {   "name": "Immoral",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Virtuous"
+            }]
+        },
+        {   "name": "Untrustworthy",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Dependable"
+            }]
+        },
+        {   "name": "Rude",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Well-mannered"
+            }]
+        },
+        {   "name": "Harsh",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Benign"
+            }]
+        },
+        {   "name": "Unfriendly",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Friendly"
+            }]
+        },
+        {   "name": "Egotistic",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Humble"
+            }]
+        },
+        {   "name": "Lazy",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Energetic"
+            }]
+        },
+        {   "name": "Liar",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Truthful"
+            }]
+        },
+        {   "name": "Morose",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Cheerful"
+            }]
+        },
+        {   "name": "Unenthusiastic",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Enthusiastic"
+            }]
+        },
+        {   "name": "Spendthrift",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Thrifty"
+            }]
+        },
+        {   "name": "Tactless",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Diplomatic"
+            }]
+        }
+    ],
+    "neutral_traits": [
+        {   "name": "Curious"},
+        {   "name": "Hedonist"},
+        {   "name": "Precise"},
+        {   "name": "Studious"},
+        {   "name": "Mysterious"},
+        {   "name": "Loquacious",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Silent"
+            }]
+        },
+        {   "name": "Silent",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Loquacious"
+            }]
+        },
+        {   "name": "Foppish"},
+        {   "name": "Immaculate",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Rough"
+            }]
+        },
+        {   "name": "Rough",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Immaculate"
+            }]
+        },
+        {   "name": "Skeptic"},
+        {   "name": "Immature"},
+        {   "name": "Even-tempered",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Angry"
+            }]
+        },
+        {   "name": "Rash"},
+        {   "name": "Extroverted",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Introverted"
+            }]
+        },
+        {   "name": "Introverted",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Extroverted"
+            }]
+        },
+        {   "name": "Materialistic",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Aesthetic"
+            }]
+        },
+        {   "name": "Aesthetic",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Materialistic"
+            }]
+        },
+        {   "name": "Amoral"},
+        {   "name": "Dreamy"},
+        {   "name": "Creative",
+            "mutually_excludes": [{
+                "trait_type": "darkside_traits",
+                "name": "Dull"
+            }]
+        },
+        {   "name": "Leader",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Follower"
+            }]
+        },
+        {   "name": "Follower",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Leader"
+            }]
+        },
+        {   "name": "Emotional",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Emotionless"
+            }]
+        },
+        {   "name": "Emotionless",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Cheerful"
+            },{
+                "trait_type": "neutral_traits",
+                "name": "Emotional"
+            }]
+        },
+        {   "name": "Humorous",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Grim"
+            }]
+        },
+        {   "name": "Grim",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Humorous"
+            },{
+                "trait_type": "lightside_traits",
+                "name": "Cheerful"
+            }]
+        },
+        {   "name": "Conservative",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Liberal"
+            }]
+        },
+        {   "name": "Liberal",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Conservative"
+            }]
+        },
+        {   "name": "Aggressive",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Passive"
+            }]
+        },
+        {   "name": "Passive",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Aggressive"
+            },{
+                "trait_type": "lightside_traits",
+                "name": "Energetic"
+            }]
+        },
+        {   "name": "Self-sufficient",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Dependent"
+            }]
+        },
+        {   "name": "Dependent",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Self-sufficient"
+            }]
+        },
+        {   "name": "Romantic"},
+        {   "name": "Logical",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Illogical"
+            }]
+        },
+        {   "name": "Illogical",
+            "mutually_excludes": [{
+                "trait_type": "neutral_traits",
+                "name": "Logical"
+            }]
+        },
+        {   "name": "Frivolous"},
+        {   "name": "Aloof"},
+        {   "name": "Atheistic",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Pious"
+            }]
+        },
+        {   "name": "Pessimistic-Optimist",
+            "mutually_excludes": [{
+                "trait_type": "lightside_traits",
+                "name": "Optimist"
+            },{
+                "trait_type": "darkside_traits",
+                "name": "Pessimist"
+            }]
+        }
+    ]
+}
