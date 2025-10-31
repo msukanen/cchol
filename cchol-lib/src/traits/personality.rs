@@ -1,12 +1,27 @@
 //! 647: Lightside Traits
 //! 648: Darkside Traits
 
-use std::{collections::HashMap, f32::consts::E, fs};
+use std::{collections::HashMap, fs};
 
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use crate::ext::IsZero;
+use crate::{IsNamed, ext::IsZero};
+
+pub mod personality_al;
+pub use personality_al::allergies;
+pub mod personality_bt;
+pub use personality_bt::behavior_tag;
+pub mod personality_ex;
+pub use personality_ex::exotic_trait;
+pub mod personality_ma;
+pub use personality_ma::mental_affliction;
+pub mod personality_ph;
+pub use personality_ph::phobias;
+pub mod personality_sd;
+pub use personality_sd::sexual_disorder;
+
+pub(crate) type BanVec = Vec<PersonalityTrait>;
 
 static PERSONALITY_FILE: &'static str = "./data/personality.json";
 lazy_static! {
@@ -59,6 +74,12 @@ lazy_static! {
 pub struct PersonalityTraitExcluder {
     trait_type: String,
     name: String,
+}
+
+impl IsNamed for PersonalityTraitExcluder {
+    fn name(&self) -> &str {
+        &self.name
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
@@ -114,6 +135,12 @@ pub struct PersonalityTrait {
     #[serde(default)] strength: PersonalityTraitStrength,
 }
 
+impl IsNamed for PersonalityTrait {
+    fn name(&self) -> &str {
+        &self.name
+    }
+}
+
 #[derive(Debug, Deserialize)]
 struct PersonalityTraits {
     lightside_traits: Vec<PersonalityTrait>,
@@ -122,70 +149,95 @@ struct PersonalityTraits {
 }
 
 pub enum TraitRollResult {
-    Add(&'static PersonalityTrait),
-    Evolve { what: &'static PersonalityTrait, to: &'static PersonalityTrait },
+    Add(PersonalityTrait),
+    AddMultiple(BanVec),
+    Evolve { what: PersonalityTrait, to: PersonalityTrait },
     NoMatch
 }
 
-impl PersonalityTrait {
-    /// Generate a random personality trait which doesn't clash with any in the `bans` list.
-    /// 
-    /// Some combinations of potential clashes produce an "evolved" trait instead of a simple
-    /// addition to list…
-    /// 
-    /// ```
-    ///   TraitRollResult::Evolve { what, to }
-    /// ```
-    /// 
-    /// …tells what to replace with what.
-    #[must_use = "The result tells what else needs to be done, if anything"]
-    pub fn random(
-            bans: &Vec<&'static PersonalityTrait>,
-            classification: &PersonalityTraitClassification
-    ) -> TraitRollResult {
-        let pool = match classification {
-            PersonalityTraitClassification::D => &*DARKSIDE_TRAITS,
-            PersonalityTraitClassification::L => &*LIGHTSIDE_TRAITS,
-            PersonalityTraitClassification::N => &*NEUTRAL_TRAITS,
-            _ => unimplemented!("TODO")
-        };
+impl TraitRollResult {
+    pub fn as_vec(&self) -> Vec<PersonalityTrait> {
+        match self {
+            Self::Add(t) => vec![(*t).clone()],
+            Self::AddMultiple(v) => v
+                .iter()
+                .map(|v| PersonalityTrait { ..(*v).clone() })
+                .collect::<Vec<PersonalityTrait>>(),
+            Self::Evolve { to,.. } => vec![(*to).clone()],
+            Self::NoMatch => vec![]
+        }
+    }
+}
 
-        let mut bail_out_at_zero = 100;
+pub fn random_any(bans: &mut BanVec) -> TraitRollResult {
+    match 1.d100() {
+        ..=50 => TraitRollResult::NoMatch,
+        ..=65 => random(bans, &PersonalityTraitClassification::N),
+        ..=80 => random(bans, &PersonalityTraitClassification::L),
+        ..=95 => random(bans, &PersonalityTraitClassification::D),
+        _     => exotic_trait::random(bans)
+    }
+}
 
-        loop {
-            bail_out_at_zero -= 1;
-            
-            let entry = pool[1.d(pool.len()) - 1];
-            let clash = bans.iter().find(|t|
-                t.name == entry.name ||
-                t.mutually_excludes.iter().any(|x| x.name == entry.name));
-            match clash {
-                None => return TraitRollResult::Add(entry),
-                Some(clash_with) => {
-                    log::debug!("Clash: '{}' vs '{}'", clash_with.name, entry.name);
-                    if  (clash_with.name == "Pessimist" && entry.name == "Optimist")||
-                        (clash_with.name == "Optimist" && entry.name == "Pessimist") {
-                            let evolved_trait = PERSONALITY_TRAITS.get("Pessimistic-Optimist")
-                                .expect("DATA ERROR: 'Pessimistic-Optimist' not found!");
-                            return TraitRollResult::Evolve { what: clash_with, to: evolved_trait };
-                        }
-                }
+/// Generate a random personality trait which doesn't clash with any in the `bans` list.
+/// 
+/// Some combinations of potential clashes produce an "evolved" trait instead of a simple
+/// addition to list…
+/// 
+/// ```
+///   TraitRollResult::Evolve { what, to }
+/// ```
+/// 
+/// …tells what to replace with what.
+#[must_use = "The result tells what else needs to be done, if anything"]
+pub fn random(
+        bans: &BanVec,
+        classification: &PersonalityTraitClassification
+) -> TraitRollResult {
+    let pool = match classification {
+        PersonalityTraitClassification::D => &*DARKSIDE_TRAITS,
+        PersonalityTraitClassification::L => &*LIGHTSIDE_TRAITS,
+        PersonalityTraitClassification::N => &*NEUTRAL_TRAITS,
+        _ => unimplemented!("TODO")
+    };
+
+    let mut bail_out_at_zero = 100;
+
+    loop {
+        bail_out_at_zero -= 1;
+        
+        let entry = pool[1.d(pool.len()) - 1].clone();
+        let clash = bans.iter().find(|t|
+            t.name == entry.name ||
+            t.mutually_excludes.iter().any(|x| x.name() == entry.name()));
+        match clash {
+            None => return TraitRollResult::Add(entry),
+            Some(clash_with) => {
+                log::debug!("Clash: '{}' vs '{}'", clash_with.name(), entry.name());
+                if  (clash_with.name() == "Pessimist" && entry.name() == "Optimist")||
+                    (clash_with.name() == "Optimist" && entry.name() == "Pessimist") {
+                        let evolved_trait = PERSONALITY_TRAITS.get("Pessimistic-Optimist")
+                            .expect("DATA ERROR: 'Pessimistic-Optimist' not found!")
+                            .clone();
+                        return TraitRollResult::Evolve { what: clash_with.clone(), to: evolved_trait };
+                    }
             }
+        }
 
-            if bail_out_at_zero.is_zero() {
-                log::error!("All options exhausted!");
-                return TraitRollResult::NoMatch;
-                //panic!("All personality trait options exhausted! Call a medic (or a dev…)!");
-            }
+        if bail_out_at_zero.is_zero() {
+            log::error!("All options exhausted!");
+            return TraitRollResult::NoMatch;
+            //panic!("All personality trait options exhausted! Call a medic (or a dev…)!");
         }
     }
 }
 
 impl TraitRollResult {
     /// Directly apply the trait roll result in place on the given trait vec.
-    pub fn apply(self, upon: &mut Vec<&'static PersonalityTrait>) {
+    pub fn apply(self, upon: &mut BanVec) {
         match self {
             Self::Add(x) => upon.push(x),
+            Self::AddMultiple(v) => upon.extend(v),
             Self::Evolve { what, to } =>
                 *(upon.iter_mut().find(|x| x.name == what.name).unwrap()) = to,
             Self::NoMatch => ()
@@ -201,14 +253,14 @@ mod personality_tests {
     fn bans() {
         let mut bans = vec![];
         let classification = &PersonalityTraitClassification::D;
-        bans.push(PERSONALITY_TRAITS.get("Optimist").unwrap());
+        bans.push(PERSONALITY_TRAITS.get("Optimist").unwrap().clone());
         // lets try until we get TraitRollResult::Evolve
         let mut x = 0;
         let _ = env_logger::try_init();
         loop {
             x += 1;
             log::debug!("Rolling ... {x}");
-            let t1 = PersonalityTrait::random(&bans, classification);
+            let t1 = random(bans.as_ref(), classification);
             match t1 {
                 TraitRollResult::NoMatch|
                 TraitRollResult::Add(_) => (),

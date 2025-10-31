@@ -5,7 +5,7 @@ use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 
-use crate::{IsNamed, default_roll_range_def, serialize::deserialize_cr_range, skill::{IsLiteracySource, native_env::{IsNativeOf, NativeOf}}, traits::HasRollRange};
+use crate::{IsNamed, default_roll_range_def, serialize::deserialize_fixed_cr_range, skill::{IsLiteracySource, native_env::{IsNativeOf, NativeOf}}, traits::HasRollRange};
 
 fn validate_culture_ranges(cultures: &Vec<Culture>) {
     let mut ranges: Vec<&RangeInclusive<i32>> = cultures
@@ -117,7 +117,7 @@ pub struct Culture {
     /// Culture's native environment(s).
     native_of: NativeOf,
     /// CAUTION: range of roll results for randomly generating this particular [Culture].
-    #[serde(deserialize_with = "deserialize_cr_range")]
+    #[serde(deserialize_with = "deserialize_fixed_cr_range")]
     _cr_range: std::ops::RangeInclusive<i32>,
     #[serde(default)] _default_max: bool,
     #[serde(default)] provides_skills: Option<Vec<(String, i32)>>,

@@ -12,19 +12,36 @@ use crate::{IsNamed, misc::ConditionalExec, serialize::{deserialize_cr_range, de
 static NOBLENOTES_FILE: &'static str = "./data/nobility.json";
 static NOBLE_TITLE_PARTS_FILE: &'static str = "./data/land_titles.json";
 lazy_static! {
-    static ref NOBLENOTES: Vec<NobleNote> = {
+    // Load and parse NobleNotes …
+    static ref NOBILITYFILE: NobilityFile = {
         serde_jsonc::from_str(
             &fs::read_to_string(NOBLENOTES_FILE)
                 .expect(format!("No '{}' found?!", NOBLENOTES_FILE).as_str())
         ).expect("JSON error")
     };
 
+    // Accessor for NobilityFile.titles …
+    static ref NOBLENOTES: &'static Vec<NobleNote> = &NOBILITYFILE.titles;
+
+    // Determine the 'dice' to use for NobleNote matching…
+    static ref NOBLE_DICE: usize = {
+        let num_str = NOBILITYFILE.chooser.trim_start_matches('d');
+        num_str.parse::<usize>().expect(format!("Invalid 'chooser' format in '{}'", NOBLENOTES_FILE).as_str())
+    };
+
+    // Load and parse noble land titles…
     static ref NOBLE_TITLE_PARTS: NobleTitleParts = {
         serde_jsonc::from_str(
             &fs::read_to_string(NOBLE_TITLE_PARTS_FILE)
                 .expect(format!("No '{}' found?!", NOBLE_TITLE_PARTS_FILE).as_str())
         ).expect("JSON error")
     };
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct NobilityFile {
+    chooser: String,
+    titles: Vec<NobleNote>
 }
 
 #[derive(Debug, Deserialize)]
@@ -90,7 +107,7 @@ impl From<&'static NobleNote> for Noble {
 impl Noble {
     /// Generate a random culture-appropriate [Noble] entry.
     pub fn new(culture_core: &impl HasCultureCoreType) -> Self {
-        let r = 1.d100();
+        let r = 1.d(*NOBLE_DICE);
         let c = culture_core.core_type().to_string();
         Self::from(NOBLENOTES.iter()
             .find(|n| n.culture.contains(&c) && n.roll_range().contains(&r))

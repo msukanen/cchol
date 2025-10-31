@@ -1,5 +1,6 @@
-// Noble titles...
-[
+{
+    "chooser": "d100",
+    "titles": [
     {
         "culture": ["Civilized", "Decadent"],
         "name": ["Emperor", "Empress"],
@@ -220,4 +221,5 @@
         "land_size":[1,20,10],
         "land_titles":1
     }
-]
+    ]
+}

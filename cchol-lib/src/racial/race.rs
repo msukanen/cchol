@@ -5,11 +5,11 @@ use lazy_static::lazy_static;
 use rpgassist::gender::{Gender, GenderBias, HasGenderBias};
 use serde::{de, Deserialize, Deserializer};
 
-use crate::{IsNamed, default_roll_range_def, events::RacialEvent, serialize::deserialize_cr_range, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}, traits::HasRollRange};
+use crate::{IsNamed, default_roll_range_def, events::RacialEvent, serialize::deserialize_fixed_cr_range, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}, traits::HasRollRange};
 
 static RACE_FILE: &'static str = "./data/race.json";
 lazy_static! {
-    static ref RACES: Vec<Race> = {
+    pub(crate) static ref RACES: Vec<Race> = {
         serde_jsonc::from_str::<Vec<Race>>(
             &fs::read_to_string(RACE_FILE)
                 .expect(format!("No '{}' found?!", RACE_FILE).as_str())
@@ -65,7 +65,7 @@ pub struct Race {
     /// ...roll range for [`Race::random`]...
     #[serde(
         rename = "_cr_range",
-        deserialize_with = "deserialize_cr_range"
+        deserialize_with = "deserialize_fixed_cr_range"
     )]
     _cr_range: std::ops::RangeInclusive<i32>,
     #[serde(default)] hybrid: bool,
@@ -129,7 +129,7 @@ impl Race {
                 return higher_candidate;
             }
         } else if self.shift_nomad_down && culture.is_nomad() {
-            if let Some(lower_candidate) = CULTURES.iter().find(|c| c.cumod() < culture.cumod()) {
+            if let Some(lower_candidate) = CULTURES.iter().rev().find(|c| c.cumod() < culture.cumod()) {
                 return lower_candidate;
             }
         }

@@ -2,6 +2,7 @@ pub mod events;
 pub(crate) mod ext;
 pub mod misc;
 pub mod modifier;
+pub mod pc;
 pub mod racial;
 pub(crate) mod serialize;
 pub mod skill;

@@ -1,3 +1,6 @@
+mod serious_wound;
+pub use serious_wound::SeriousWound;
+
 use dicebag::DiceExt;
 
 pub trait ConditionalExec {

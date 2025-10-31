@@ -34,6 +34,27 @@ where D: Deserializer<'de> {
     }
 }
 
+/// Deserializer for fixed-end `_cr_range`.
+/// 
+/// # `_cr_range` in JSON
+/// * `i32` — singular choice value.
+/// * `[i32, i32]` — inclusive range.
+pub(crate) fn deserialize_fixed_cr_range<'de, D>(deserializer: D) -> Result<std::ops::RangeInclusive<i32>, D::Error>
+where D: Deserializer<'de> {
+    // A helper for dual format input:
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum RangeHalp {
+        S(i32),
+        P((i32,i32)),
+    }
+
+    match RangeHalp::deserialize(deserializer)? {
+        RangeHalp::S(v) => Ok(v..=v),
+        RangeHalp::P((a,b)) => Ok(a..=b),
+    }
+}
+
 /// Deserializer for optional `_cr_range` field.
 /// 
 /// # `_cr_range` in JSON
