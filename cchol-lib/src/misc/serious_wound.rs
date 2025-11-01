@@ -5,7 +5,7 @@ use dicebag::{DiceExt, IsOne};
 use rpgassist::{body::location::BodyLocation, direction::bilateral::Bilateral, stat::Stat};
 use serde::{Deserialize, Deserializer, Serialize};
 
-use crate::traits::personality::{BanVec, PersonalityTrait, exotic_trait, mental_affliction};
+use crate::traits::personality::{PersonalityTrait, TraitVec, exotic_trait, mental_affliction};
 
 fn deserialize_bdt_maff<'de, D>(deserializer: D) -> Result<Vec<PersonalityTrait>, D::Error>
 where D: Deserializer<'de> {
@@ -29,7 +29,7 @@ impl BrainDamageType {
     // FYI: random() itself doesn't use `bans` for anything, it's just routed
     //      through to something else(s) which might have some use for it.
     //
-    pub fn random(bans: &BanVec) -> Self {
+    pub fn random(bans: &TraitVec) -> Self {
         #[derive(Debug, PartialEq, Eq, Hash)]
         enum BDT { B1, B2, B3, B4, B5, B6 }
         impl From<i32> for BDT { fn from(value: i32) -> Self {
@@ -131,7 +131,7 @@ pub enum SeriousWound {
 }
 
 impl SeriousWound {
-    pub fn random(bans: &BanVec) -> Self {
+    pub fn random(bans: &TraitVec) -> Self {
         match 1.d20() {
             ..=1 => Self::ImpressiveFacialScar(Stat::Dex { val: if 1.d2().is_one() {1} else {-1} }),
             2 => Self::ImpressiveBodyScars(BodyLocation::random()),

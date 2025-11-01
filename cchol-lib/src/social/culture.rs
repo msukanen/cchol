@@ -143,8 +143,8 @@ impl CuMod for Culture {
 }
 
 impl IsNamed for Culture {
-    fn name(&self) -> &str {
-        &self.name
+    fn name(&self) -> String {
+        self.name.clone()
     }
 }
 
@@ -279,7 +279,7 @@ mod culture_tests {
         assert_eq!(5, CULTURES.len());
         (0..=1000).for_each(|_| {
             let c = Culture::random_unbiased();
-            assert!(["Primitive","Barbarian","Nomad","Civilized","Decadent"].contains(&c.name()));
+            assert!(["Primitive","Barbarian","Nomad","Civilized","Decadent"].contains(&c.name().as_str()));
         });
     }
 

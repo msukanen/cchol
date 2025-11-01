@@ -98,8 +98,8 @@ impl From<(SkillBase, Rank)> for Skill {
 impl IsSkill for Skill {}
 
 impl IsNamed for Skill {
-    fn name(&self) -> &str {
-        &self.name
+    fn name(&self) -> String {
+        self.name.clone()
     }
 }
 

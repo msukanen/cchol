@@ -1,3 +1,3 @@
 pub trait IsNamed {
-    fn name(&self) -> &str;
+    fn name(&self) -> String;
 }

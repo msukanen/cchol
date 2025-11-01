@@ -86,8 +86,8 @@ impl TiMod for Noble {
 }
 
 impl IsNamed for Noble {
-    fn name(&self) -> &str {
-        &self.name.0
+    fn name(&self) -> String {
+        self.name.0.clone()
     }
 }
 
@@ -264,8 +264,8 @@ struct NobleNote {
 }
 
 impl IsNamed for NobleNote {
-    fn name(&self) -> &str {
-        &self.name.0
+    fn name(&self) -> String {
+        self.name.0.clone()
     }
 }
 
@@ -366,7 +366,7 @@ mod nobility_data_integrity_tests {
             assert_eq!(NOBLENOTES.iter().filter(|note|note.culture.contains(&n.to_string())).collect::<Vec<&NobleNote>>().len(), v.len());
             assert!(NOBLENOTES.iter()
                 .filter(|note|note.culture.contains(&n.to_string()))
-                .all(|note| v.contains(&note.name())));
+                .all(|note| v.contains(&note.name().as_str())));
             assert!(v.iter()
                 .all(|t| NOBLENOTES.iter()
                     .find(|note| note.name() == *t && note.culture.contains(&n.to_string()))

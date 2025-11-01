@@ -87,8 +87,8 @@ impl HasGenderBias for Race {
 default_roll_range_def!(Race);
 
 impl IsNamed for Race {
-    fn name(&self) -> &str {
-        &self.name
+    fn name(&self) -> String {
+        self.name.clone()
     }
 }
 
