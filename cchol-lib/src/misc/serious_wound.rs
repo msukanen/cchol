@@ -1,5 +1,5 @@
 //! 870: Serious Wounds
-use std::collections::{HashMap, VecDeque};
+use std::{collections::{HashMap, VecDeque}, fmt::Display};
 
 use dicebag::{DiceExt, IsOne};
 use rpgassist::{body::location::BodyLocation, direction::bilateral::Bilateral, stat::Stat};
@@ -128,6 +128,15 @@ pub enum SeriousWound {
     ThroatInjury { voice_loss_percentage: u8 },
     BackInjury { str: Stat },
     LiverDamage { con: Stat },
+}
+
+impl Display for SeriousWound {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::BackInjury { .. } => write!(f, "back injury"),
+            Self::BodyPartSevered(bl) => write!(f, "body part ({bl}) severed"),
+        }
+    }
 }
 
 impl SeriousWound {
