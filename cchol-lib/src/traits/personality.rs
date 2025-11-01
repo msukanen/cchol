@@ -8,7 +8,7 @@ use std::{collections::HashMap, fs};
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use crate::{IsNamed, ext::IsZero, traits::personality::exotic_trait::ExoticTrait};
+use crate::{IsNamed, ext::IsZero};
 
 pub mod personality_al;
 pub use personality_al::allergies;
@@ -16,6 +16,7 @@ pub mod personality_bt;
 pub use personality_bt::behavior_tag;
 pub mod personality_ex;
 pub use personality_ex::exotic_trait;
+pub use personality_ex::exotic_trait::ExoticTrait;
 pub mod personality_ma;
 pub use personality_ma::mental_affliction;
 pub mod personality_ph;
@@ -91,6 +92,12 @@ pub enum Alignment {
     L,// lightside,
     N,// netural, and…
     NotApplicable// …covers everything else.
+}
+
+/// A trait for anything that might affect (N)PC alignment.
+pub trait AffectsAlignment {
+    /// Get alignment, if applicable.
+    fn alignment(&self) -> Alignment;
 }
 
 impl Default for Alignment {
@@ -201,7 +208,7 @@ impl TraitRollResult {
 }
 
 /// 318A: Alignment & Attitude
-pub fn random(bans: &mut TraitVec) -> TraitRollResult {
+pub fn random(bans: &TraitVec) -> TraitRollResult {
     match 1.d100() {
         ..=50 => TraitRollResult::NoMatch,
         ..=65 => random_neutral(bans),
