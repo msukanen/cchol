@@ -1,7 +1,18 @@
 pub mod phobias {
-    use crate::traits::personality::{BanVec, TraitRollResult};
+    use serde::{Deserialize, Serialize};
 
-    pub fn random(bans: &BanVec) -> TraitRollResult {
+    use crate::{IsNamed, traits::personality::{TraitVec, TraitRollResult}};
 
+    #[derive(Debug, Deserialize, Serialize, Clone)]
+    pub enum Phobia {
+
+    }
+
+    pub fn random(bans: &TraitVec) -> TraitRollResult {
+
+    }
+
+    impl IsNamed for Phobia {
+        
     }
 }
