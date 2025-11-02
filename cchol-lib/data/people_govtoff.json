@@ -1,0 +1,94 @@
+[
+    {
+        "name": "Scribe",
+        "_cr_range": 1
+    },
+    {
+        "name": "Clerk",
+        "_cr_range": 2
+    },
+    {
+        "name": "City Guardsman",
+        "alt": "Constable",
+        "_cr_range": 3
+    },
+    {
+        "name": "Guard Captain",
+        "alt": "Chief Constable",
+        "_cr_range": 4
+    },
+    {
+        "name": "Sheriff",
+        "_cr_range": 5
+    },
+    {
+        "name": "Tax Collector",
+        "_cr_range": 6
+    },
+    {
+        "name": "Magistrate",
+        "_cr_range": 7
+    },
+    {
+        "name": "Diplomat",
+        "alt": "Ambassador",
+        "_cr_range": 8
+    },
+    {
+        "name": "City Ruler",
+        "_cr_range": 9
+    },
+    {
+        "name": "Advisor to the Ruler",
+        "_cr_range": 10
+    },
+    {
+        "name": "Chief Advisor to the Ruler",
+        "_cr_range": 11
+    },
+    {
+        "name": "Governor",
+        "_cr_range": 12
+    },
+    {
+        // He's the LAW …
+        "name": "Judge",
+        "_cr_range": 13
+    },
+    {
+        "name": "Secret Policeman",
+        "_cr_range": 14
+    },
+    {
+        "name": "Soldier",
+        "_cr_range": 15
+    },
+    {
+        "name": "Army Officer",
+        "sub": "T538",
+        "_cr_range": 16
+    },
+    {
+        "name": "Bureaucrat",
+        "_cr_range": 17
+    },
+    {
+        "name": "Senator",
+        "_cr_range": 18
+    },
+    {
+        "name": "Govt Employee",
+        "sub": {
+            "primitive": "T420",
+            "nomad": "T421",
+            "barbarian": "T422",
+            "civilized": "T423",
+            "decadent": "T423"
+        },
+        "_cr_range": 19
+    },
+    {
+        "name": "Spy",
+        "_cr_range": 20
+    }
+]

@@ -2,7 +2,7 @@ mod race_tests {
     use cchol_lib::{IsNamed, racial::race::{RACE_DEFAULT, Race}, social::culture::Culture};
 
     #[test]
-    fn we_have_a_winner() {
+    fn race_data_integrity() {
         let r = *RACE_DEFAULT;
         assert_eq!(r.name(), "human");
     }

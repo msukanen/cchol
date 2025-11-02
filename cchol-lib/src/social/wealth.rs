@@ -5,7 +5,7 @@ use std::fs;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, DiceT};
-use crate::{IsNamed, serialize::{deserialize_dicet, deserialize_optional_cr_range}, modifier::CuMod, traits::HasRollRange};
+use crate::{IsNamed, modifier::CuMod, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range, validate_cr_ranges}};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Wealth {

@@ -5,11 +5,44 @@ pub mod mental_affliction {
     use rpgassist::details::ProperCaseExt;
     use serde::{Deserialize, Serialize};
 
-    use crate::{IsNamed, misc::SeriousWound, traits::personality::{self, AffectsAlignment, Alignment, PersonalityTrait, TraitRollResult, TraitVec, exotic_trait::{self, ExoticTrait}, phobias}};
+    use crate::{IsNamed, misc::SeriousWound, racial::Race, social::people::OtherPeople, traits::personality::{self, AffectsAlignment, Alignment, DLNTrait, PersonalityTrait, TraitRollResult, TraitVec, exotic_trait::{self, ExoticTrait}, phobias, random_darkside, random_lightside}};
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
     pub struct ExtraPersona {
         traits: TraitVec,
+    }
+
+    #[derive(Debug, Deserialize, Serialize, Clone)]
+    pub enum ObsessiveHatredKind {
+        AnyNonhuman,
+        ParticularNonhuman(Race),
+        Monsters,
+        Someone(OtherPeople),
+    }
+
+    impl ObsessiveHatredKind {
+        pub fn random() -> Self {
+            match 1.d4() {
+                ..=1 => Self::AnyNonhuman,
+                2 => Self::ParticularNonhuman(Race::random_nonhuman().clone()),
+                _ => unimplemented!()
+            }
+        }
+    }
+
+    #[derive(Debug, Deserialize, Serialize, Clone)]
+    pub enum ObsessiveBehaviorKind {
+        Devotion(TraitVec),
+    }
+
+    impl ObsessiveBehaviorKind {
+        fn random(bans: &TraitVec) -> Self {
+            match 1.d10() {
+                ..=1 => Self::Devotion(random_lightside(bans).as_vec()),
+                2 => Self::Devotion(random_darkside(bans).as_vec()),
+                _ => unimplemented!()
+            }
+        }
     }
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -100,7 +133,7 @@ pub mod mental_affliction {
                 9 => traits.push(MentalAffliction::ManicDepressive.into()),
                 10 => traits.push(MentalAffliction::Hypochondria.into()),
                 11|12 => traits.push(MentalAffliction::Depression.into()),
-                13 => traits.push(MentalAffliction::HystericalInjury { perceived_wound: SeriousWound::random(bans) }),
+                13 => traits.push(MentalAffliction::HystericalInjury { perceived_wound: SeriousWound::random(bans) }.into()),
 
                 // 5, 6, ... etc. upto 19 TODO
 

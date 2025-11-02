@@ -5,7 +5,7 @@ use dicebag::{DiceExt, IsOne};
 use rpgassist::{body::location::BodyLocation, direction::bilateral::Bilateral, stat::Stat};
 use serde::{Deserialize, Deserializer, Serialize};
 
-use crate::traits::personality::{PersonalityTrait, TraitVec, exotic_trait, mental_affliction};
+use crate::traits::{IsExplained, personality::{PersonalityTrait, TraitVec, exotic_trait, mental_affliction}};
 
 fn deserialize_bdt_maff<'de, D>(deserializer: D) -> Result<Vec<PersonalityTrait>, D::Error>
 where D: Deserializer<'de> {
@@ -22,6 +22,29 @@ pub enum BrainDamageType {
     MentalAffliction(Vec<PersonalityTrait>),
     OneSkillIncrAllOtherDecr { incr: i32, decr: i32 },
 }
+
+impl Display for BrainDamageType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::AllSkillsAffected { amount } => write!(f, "all skills {amount:+}"),
+            Self::Combined(dmg) => {
+                write!(f, "{}", dmg.iter()
+                    .map(|d| d.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", "))
+            },
+            Self::MentalAffliction(affs) => {
+                write!(f, "{}", affs.iter()
+                    .map(|a| (*a).to_string())
+                    .collect::<Vec<String>>()
+                    .join(", "))
+            },
+            Self::OneSkillIncrAllOtherDecr { incr, decr } => write!(f, "one skill {incr:+} and all other skills {decr:+}"),
+            Self::StatAffected { stat } => write!(f, "{stat}"),
+        }
+    }
+}
+
 
 impl BrainDamageType {
     /// Generate random brain damage(s).
@@ -105,6 +128,24 @@ pub enum SeriousWoundFootnote {
     Bdtfn8
 }
 
+impl Display for SeriousWoundFootnote {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Bdtfn7 => write!(f, "†"),
+            Self::Bdtfn8 => write!(f, "††"),
+        }
+    }
+}
+
+impl IsExplained for SeriousWoundFootnote {
+    fn explain(&self) -> String {
+        match self {
+            Self::Bdtfn7 => "without painkillers, the character must make an INT/Will check to perform any action requiring concentration",
+            Self::Bdtfn8 => "movement speed is ¾ of normal",
+        }.to_string()
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum SeriousWound {
     Combine2 { fst: Box<SeriousWound>, snd: Box<SeriousWound> },
@@ -135,6 +176,25 @@ impl Display for SeriousWound {
         match self {
             Self::BackInjury { .. } => write!(f, "back injury"),
             Self::BodyPartSevered(bl) => write!(f, "body part ({bl}) severed"),
+            Self::BrainDamage(bd) => write!(f, "brain damage ({bd})"),
+            Self::Combine2 { fst, snd } => write!(f, "{} alongside {}", fst.to_string(), snd.to_string()),
+            Self::Combine3 { fst, snd, trd } => write!(f, "{}, with {} and also {}", fst.to_string(), snd.to_string(), trd.to_string()),
+            Self::Disfigurement { app, cha } => write!(f, "disfigured ({app} and {cha})"),
+            Self::EarTornOut { which, deafened_side } => write!(f, "{which} ear torn out{}", if *deafened_side {" and that side completely deafened"} else {""}),
+            Self::EyePutOut(lr) => write!(f, "{lr} eye put out"),
+            Self::FootInjury { .. } => write!(f, "foot injury"),
+            Self::GenitalInjury => write!(f, "genital injury"),
+            Self::ImpressiveBodyScars(bl) => write!(f, "impressive scars at {bl}"),
+            Self::ImpressiveFacialScar(_) => write!(f, "impressive factial scar"),
+            Self::InjuryCausesConstantPain { .. } => write!(f, "<injury> causes constant pain"),
+            Self::InjuryHealsBadly { .. } => write!(f, "<injury> healed badly"),
+            Self::KidneyDamage { .. } => write!(f, "kidney damage"),
+            Self::KneeInjury { .. } => write!(f, "knee injury"),
+            Self::LiverDamage { .. } => write!(f, "liver damage"),
+            Self::LoseSomeTeeth(n) => write!(f, "lost {}", if *n!=1 {format!("{} teeth", n)} else {"a tooth".to_string()}),
+            Self::LungDamage { .. } => write!(f, "lung damage"),
+            Self::StomachInjury { .. } => write!(f, "stomach injury"),
+            Self::ThroatInjury { .. } => write!(f, "throat injury"),
         }
     }
 }

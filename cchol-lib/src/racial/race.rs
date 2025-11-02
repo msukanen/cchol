@@ -1,21 +1,35 @@
 use std::fs;
 
-use dicebag::DiceExt;
+use cchol_pm::HasRollRange;
+use dicebag::{DiceExt, InclusiveRandomRange};
 use lazy_static::lazy_static;
 use rpgassist::gender::{Gender, GenderBias, HasGenderBias};
-use serde::{de, Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, de};
 
-use crate::{IsNamed, default_roll_range_def, events::RacialEvent, serialize::deserialize_fixed_cr_range, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}, traits::HasRollRange};
+use crate::{IsNamed, events::RacialEvent, roll_range::{HasRollRange, HasVecRollRangeRoll, RollRange}, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges}, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}};
 
 static RACE_FILE: &'static str = "./data/race.json";
 lazy_static! {
     pub(crate) static ref RACES: Vec<Race> = {
-        serde_jsonc::from_str::<Vec<Race>>(
+        let races: Vec<Race> = serde_jsonc::from_str::<Vec<Race>>(
             &fs::read_to_string(RACE_FILE)
                 .expect(format!("No '{}' found?!", RACE_FILE).as_str())
-        ).expect("JSON fail!")
+        ).expect("JSON fail!");
+
+        let mut something_failed = false;
+        for r in &races {
+            if r.roll_range() == &(0..=0) {
+                something_failed = true;
+                log::error!("DATA VALIDATION: Race '{}' is MISSING its '_cr_range' field in '{RACE_FILE}'!", r.name());
+            }
+        }
+        if something_failed {panic!("Cannot continue before someone fixes JSON in '{RACE_FILE}'…")}
+
+        races
     };
 
+    /// The 'default' race to use when non-random race is required, which
+    /// usually is "human" but can be defined to be whatever else is present.
     pub static ref RACE_DEFAULT: &'static Race = {
         let defaults: Vec<&'static Race> = RACES.iter()
             .filter(|r| r.is_default())
@@ -28,9 +42,21 @@ lazy_static! {
     };
 
     /// Dice type to use for [Race] [random][Race::random]'izing.
-    static ref RACE_DICE: usize = crate::create_dice_size!(RACES);
+    static ref RACE_RANGE: RollRange = validate_cr_ranges("RACES", RACES, None);
+
+    /// Dice range for [Race] [random][Race::random]'izing in non-human range.
+    static ref RACE_RANGE_NONHUMAN: RollRange = {
+        let human_end = RACES.iter().find(|r| r.name().to_lowercase() == "human").unwrap().roll_range().end();
+        (*human_end + 1)..=(*RACE_RANGE.end() as i32)
+    };
+
+    /// If access to race specs of specifically "human" is required…
+    static ref RACE_HUMAN: &'static Race = {
+        RACES.iter().find(|r|r.name().to_lowercase() == "human").expect("Where'd the hummies go?!")
+    };
 }
 
+/// Deserialize a [Race]'s max culture, if any.
 fn deserialize_race_max_culture<'de,D>(deserializer: D) -> Result<Option<&'static Culture>, D::Error>
 where D: Deserializer<'de> {
     let maybe_name = Option::<String>::deserialize(deserializer)?;
@@ -51,7 +77,7 @@ where D: Deserializer<'de> {
 }
 
 /// Race specs.
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange)]
 pub struct Race {
     /// Name of the race, obviously.
     name: String,
@@ -59,23 +85,26 @@ pub struct Race {
     #[serde(
         rename = "max_culture",
         deserialize_with = "deserialize_race_max_culture",
+        skip_serializing,
         default
     )]
     max_culture: Option<&'static Culture>,
     /// ...roll range for [`Race::random`]...
     #[serde(
         rename = "_cr_range",
-        deserialize_with = "deserialize_fixed_cr_range"
+        deserialize_with = "deserialize_fixed_cr_range",
+        skip_serializing,
+        default = "default_pc_save_cr_range"
     )]
     _cr_range: std::ops::RangeInclusive<i32>,
     #[serde(default)] hybrid: bool,
     /// INIT-ONLY flag for being a default race when non-random is requested...
-    #[serde(default)] _default: Option<bool>,
-    #[serde(default)] shift_nomad_down: bool,
-    #[serde(default)] shift_civilized_up: bool,
+    #[serde(skip_serializing, default)] _default: Option<bool>,
+    #[serde(skip_serializing, default)] shift_nomad_down: bool,
+    #[serde(skip_serializing, default)] shift_civilized_up: bool,
     #[serde(default)] racial_events: Option<RacialEvent>,
     #[serde(default)] hybrid_events: Option<RacialEvent>,
-    #[serde(default)] gender_bias: GenderBias,
+    #[serde(skip_serializing, default)] gender_bias: GenderBias,
 }
 
 impl HasGenderBias for Race {
@@ -83,8 +112,6 @@ impl HasGenderBias for Race {
         self.gender_bias
     }
 }
-
-default_roll_range_def!(Race);
 
 impl IsNamed for Race {
     fn name(&self) -> String {
@@ -108,10 +135,11 @@ impl Race {
     }
 
     pub fn random() -> &'static Race {
-        let roll = 1.d(*RACE_DICE);
-        RACES.iter()
-            .find(|r| r.roll_range().contains(&roll))
-            .expect("Something went awefully wronk here…")
+        RACES.random_by_cr(&RACE_RANGE)
+    }
+
+    pub fn random_nonhuman() -> &'static Race {
+        RACES.random_by_cr(&RACE_RANGE_NONHUMAN)
     }
 
     pub fn shift_culture_if_needed(&self, culture: &'static Culture) -> &'static Culture {

@@ -1,4 +1,6 @@
 pub mod exotic_trait {
+    use std::fmt::Display;
+
     use dicebag::DiceExt;
     use serde::{Deserialize, Serialize};
 
@@ -11,6 +13,19 @@ pub mod exotic_trait {
         AL(Allergy),
         BT(BehaviorTag),
         SD(SexualDisorder),
+    }
+
+    impl Display for ExoticTrait {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            unimplemented!();
+            match self {
+                Self::AL(al) => write!(f, "{al}"),
+                Self::BT(bt) => write!(f, "{bt}"),
+                Self::MA(ma) => write!(f, "{ma}"),
+                Self::PH(ph) => write!(f, "{ph}"),
+                Self::SD(sd) => write!(f, "{sd}"),
+            }
+        }
     }
 
     /// Generate random exotic feature(s).

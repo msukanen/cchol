@@ -1,4 +1,8 @@
+use std::ops::RangeInclusive;
+
 use serde::{Deserialize, Deserializer};
+
+use crate::roll_range::HasRollRange;
 
 /// Deserializer for `_cr_range` field.
 /// 
@@ -146,4 +150,56 @@ where D: Deserializer<'de> {
         StringHalp::S(s) => Ok((s, None)),
         StringHalp::M(v) => Ok(v),
     }
+}
+
+/// Dummy default value for PC save loading.
+pub(crate) fn default_pc_save_cr_range() -> std::ops::RangeInclusive<i32> { 0..=0 }
+
+/// Validate _cr_range entries to not have gaps/overlaps.
+/// 
+/// # Args
+/// `vecname`— name/nick/whatever of that what has the `_cr_range` field.
+/// `cr_source`— the `_cr_range` holding vector.
+/// `opt_range_min`— default for range start is `1`, but can be adjusted with this.
+/// 
+/// # Return
+/// Determined full-cover range.
+pub(crate) fn validate_cr_ranges(
+        vecname: &str,
+        cr_source: &Vec<impl HasRollRange>,
+        opt_range_min: Option<i32>
+) -> std::ops::RangeInclusive<i32> {
+    let mut ranges: Vec<&RangeInclusive<i32>> = cr_source
+        .iter()
+        .map(|c| c.roll_range())
+        .collect();
+    
+    ranges.sort_by(|a,b| a.start().cmp(b.start()));
+    
+    if ranges.is_empty() {
+        panic!("DATA VALIDATION: {vecname} list is empty. Cannot validate ranges.");
+    }
+
+    let min = opt_range_min.unwrap_or_else(||1);
+    let start = *ranges[0].start();
+
+    if start != min {
+        panic!("DATA VALIDATION: {vecname} roll table must start at {min}. Found {:#?}", ranges[0]);
+    }
+
+    // Check for gaps/overlaps
+    for w in ranges.windows(2) {
+        let c = w[0];
+        let n = w[1];
+        let expected_next_start = *c.end() + 1;
+        if *n.start() != expected_next_start {
+            panic!("DATA VALIDATION: Gap or overlap in {vecname} roll table!\nFound {:#?}, followed by {:#?}", c, n);
+        }
+    }
+
+    let end = ranges.last().unwrap().end();
+
+    log::debug!("{vecname} ranges successfully validated: 1..={}", *ranges.last().unwrap().end());
+
+    start..=*end
 }

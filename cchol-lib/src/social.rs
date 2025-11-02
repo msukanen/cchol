@@ -1,5 +1,6 @@
 pub mod culture;
 pub mod nobility;
+pub mod people;
 pub mod status;
 pub mod wealth;
 

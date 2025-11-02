@@ -2,12 +2,13 @@
 //! 758: Nobles
 
 use std::fs;
+use cchol_pm::HasRollRange;
 use lazy_static::lazy_static;
 use rpgassist::gender::{Gender, GenderBias};
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, InclusiveRandomRange, percentage_chance_of};
 
-use crate::{IsNamed, misc::ConditionalExec, serialize::{deserialize_cr_range, deserialize_string_w_optional, deserialize_strings_to_vec}, social::culture::{CultureCoreType, HasCultureCoreType}, traits::HasRollRange};
+use crate::{IsNamed, misc::ConditionalExec, serialize::{deserialize_cr_range, deserialize_string_w_optional, deserialize_strings_to_vec}, social::culture::{CultureCoreType, HasCultureCoreType}, roll_range::*};
 
 static NOBLENOTES_FILE: &'static str = "./data/nobility.json";
 static NOBLE_TITLE_PARTS_FILE: &'static str = "./data/land_titles.json";
@@ -248,7 +249,7 @@ impl LandSizeDecisionMethod {
     }
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, HasRollRange)]
 struct NobleNote {
     #[serde(deserialize_with = "deserialize_string_w_optional")]
     name: (String, Option<String>),
@@ -266,12 +267,6 @@ struct NobleNote {
 impl IsNamed for NobleNote {
     fn name(&self) -> String {
         self.name.0.clone()
-    }
-}
-
-impl HasRollRange for NobleNote {
-    fn roll_range(&self) -> &std::ops::RangeInclusive<i32> {
-        &self._cr_range
     }
 }
 

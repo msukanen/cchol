@@ -1,4 +1,6 @@
 pub mod phobias {
+    use std::fmt::Display;
+
     use serde::{Deserialize, Serialize};
 
     use crate::{IsNamed, traits::personality::{TraitVec, TraitRollResult}};
@@ -9,10 +11,18 @@ pub mod phobias {
     }
 
     pub fn random(bans: &TraitVec) -> TraitRollResult {
-
+        unimplemented!()
     }
 
     impl IsNamed for Phobia {
-        
+        fn name(&self) -> String {
+            unimplemented!()
+        }
+    }
+
+    impl Display for Phobia {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            unimplemented!()
+        }
     }
 }

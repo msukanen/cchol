@@ -1,40 +1,12 @@
 //! 102: Culture
-use std::{fmt::Display, fs::{self}, ops::RangeInclusive};
+use std::{fmt::Display, fs::{self}};
 
+use cchol_pm::HasRollRange;
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 
-use crate::{IsNamed, default_roll_range_def, serialize::deserialize_fixed_cr_range, skill::{IsLiteracySource, native_env::{IsNativeOf, NativeOf}}, traits::HasRollRange};
-
-fn validate_culture_ranges(cultures: &Vec<Culture>) {
-    let mut ranges: Vec<&RangeInclusive<i32>> = cultures
-        .iter()
-        .map(|c| c.roll_range())
-        .collect();
-    
-    ranges.sort_by(|a,b| a.start().cmp(b.start()));
-    
-    if ranges.is_empty() {
-        panic!("DATA VALIDATION: CULTURES list is empty. Cannot validate ranges.");
-    }
-
-    if *ranges[0].start() != 1 {
-        panic!("DATA VALIDATION: Culture roll table must start at 1. Found {:#?}", ranges[0]);
-    }
-
-    // Check for gaps/overlaps
-    for w in ranges.windows(2) {
-        let c = w[0];
-        let n = w[1];
-        let expected_next_start = *c.end() + 1;
-        if *n.start() != expected_next_start {
-            panic!("DATA VALIDATION: Gap or overlap in Culture roll table!\nFound {:#?}, followed by {:#?}", c, n);
-        }
-    }
-
-    log::debug!("Culture ranges successfully validated: 1..={}", *ranges.last().unwrap().end());
-}
+use crate::{IsNamed, serialize::{deserialize_fixed_cr_range, validate_cr_ranges}, skill::{IsLiteracySource, native_env::{IsNativeOf, NativeOf}}, roll_range::*};
 
 /// FYI: all data files oughta reside within `./data/`.
 static CULTURE_FILE: &'static str = "./data/culture.json";
@@ -46,13 +18,13 @@ lazy_static! {
                 .expect(format!("No '{}' found?!", CULTURE_FILE).as_str())
         ).expect("JSON failure");
 
-        validate_culture_ranges(&cultures);
+        
 
         cultures
     };
 
     /// Dice type to use for [Culture] [random][Culture::random]'izing.
-    static ref CULTURE_DICE: usize = crate::create_dice_size!(CULTURES);
+    static ref CULTURE_RANGE: std::ops::RangeInclusive<i32> = validate_cr_ranges("CULTURES", &CULTURES, None);
 
     /// Default max [Culture] for e.g. [Race][crate::racial::Race]'s checks.
     pub(crate) static ref CULTURE_DEFAULT_MAX: &'static Culture = &CULTURES.iter()
@@ -110,7 +82,7 @@ pub trait CuMod {
 }
 
 /// Culture dwells here.
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, HasRollRange)]
 pub struct Culture {
     name: String,
     cumod: i32,
@@ -155,8 +127,6 @@ impl IsNativeOf for Culture {
     }
 }
 
-default_roll_range_def!(Culture);
-
 impl Culture {
     /// Generate a random [Culture] entry which respects given max.
     pub fn random<C: CuMod>(max_culture_mod: &C) -> Culture {
@@ -164,9 +134,8 @@ impl Culture {
         loop {
             let candidate = Self::random_unbiased();
             if candidate.cumod() <= max_cumod {
-                #[cfg(test)]{
-                    log::debug!("Candidate {:?} accepted", candidate.name())
-                }
+                //#[cfg(test)]{log::debug!("Candidate {:?} accepted", candidate.name())}
+                
                 if let NativeOf::Choice { primary, secondary } = &candidate.native_of {
                     // To spice things up a bit, potentially swap primary/secondary…
                     if 1.d3() == 1 {
@@ -176,18 +145,13 @@ impl Culture {
                 
                 return candidate.clone();
             }
-            #[cfg(test)] {
-                log::debug!("Entry exceeded max_cumod, rerolling...")
-            }
+            //#[cfg(test)] {log::debug!("Entry exceeded max_cumod, rerolling...")}
         }
     }
 
     /// Generate a random [Culture] entry.
     pub fn random_unbiased() -> &'static Culture {
-        let roll = 1.d(*CULTURE_DICE);
-        CULTURES.iter()
-                .find(|c| c.roll_range().contains(&roll))
-                .unwrap_or_else(|| panic!("Roll of {roll} didn't catch ANY Culture?!"))
+        CULTURES.random_by_cr(&CULTURE_RANGE);
     }
 
     pub fn is_civilized(&self) -> bool {
@@ -274,8 +238,7 @@ mod culture_tests {
     }
 
     #[test]
-    fn dryrun_load_file() {
-        assert_eq!(10, *CULTURE_DICE);
+    fn spam_data_integrity() {
         assert_eq!(5, CULTURES.len());
         (0..=1000).for_each(|_| {
             let c = Culture::random_unbiased();

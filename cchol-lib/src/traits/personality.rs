@@ -3,6 +3,7 @@
 //! 647: Lightside Traits
 //! 648: Darkside Traits
 
+use std::fmt::Display;
 use std::{collections::HashMap, fs};
 
 use dicebag::DiceExt;
@@ -147,11 +148,26 @@ pub struct DLNTrait {
     #[serde(default)] strength: TraitStrength,
 }
 
+impl Display for DLNTrait {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
 /// Collective personality trait catcher.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum PersonalityTrait {
     DLN(DLNTrait),
     EX(ExoticTrait),
+}
+
+impl Display for PersonalityTrait {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DLN(t) => write!(f, "{t}"),
+            Self::EX(t) => write!(f, "{t}"),
+        }
+    }
 }
 
 impl IsNamed for PersonalityTrait {
@@ -229,7 +245,7 @@ pub fn random_neutral(bans: &TraitVec) -> TraitRollResult { random_dln(bans, &Al
 /// Some combinations of potential clashes produce an "evolved" trait instead of a simple
 /// addition to list…
 /// 
-/// ```
+/// ```text
 ///   TraitRollResult::Evolve { what, to }
 /// ```
 /// 

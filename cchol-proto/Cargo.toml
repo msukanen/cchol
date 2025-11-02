@@ -1,0 +1,11 @@
+[package]
+name = "cchol-proto"
+version = "0.1.0"
+edition = "2024"
+authors = ["Markku Sukanen <gmail.com>"]
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+
+[badges]
+maintenance = { status = "experimental" }
