@@ -2,7 +2,7 @@ use std::ops::RangeInclusive;
 
 use serde::{Deserialize, Deserializer};
 
-use crate::roll_range::HasRollRange;
+use crate::roll_range::UseRollRange;
 
 /// Deserializer for `_cr_range` field.
 /// 
@@ -166,7 +166,7 @@ pub(crate) fn default_pc_save_cr_range() -> std::ops::RangeInclusive<i32> { 0..=
 /// Determined full-cover range.
 pub(crate) fn validate_cr_ranges(
         vecname: &str,
-        cr_source: &Vec<impl HasRollRange>,
+        cr_source: &Vec<impl UseRollRange>,
         opt_range_min: Option<i32>
 ) -> std::ops::RangeInclusive<i32> {
     let mut ranges: Vec<&RangeInclusive<i32>> = cr_source

@@ -5,7 +5,7 @@ use std::fs;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, DiceT};
-use crate::{IsNamed, modifier::CuMod, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range, validate_cr_ranges}};
+use crate::{IsNamed, modifier::CuMod, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Wealth {
@@ -48,7 +48,7 @@ impl Wealth {
 
 /// A range that is nigh impossible to roll with dice. Used for stuff that needs _cr_range to be present but are not in basic roll tables.
 static NO_RANGE: std::ops::RangeInclusive<i32> = i32::MIN..=i32::MIN;
-impl HasRollRange for Wealth {
+impl UseRollRange for Wealth {
     fn roll_range(&self) -> &std::ops::RangeInclusive<i32> {
         self._cr_range.as_ref().unwrap_or_else(|| &NO_RANGE)
     }

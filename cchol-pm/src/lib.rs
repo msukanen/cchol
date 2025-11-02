@@ -8,7 +8,7 @@ pub fn derive_has_roll_range(input: TokenStream) -> TokenStream {
     let name = &input.ident;
 
     TokenStream::from(quote! {
-        impl HasRollRange for #name {
+        impl UseRollRange for #name {
             fn roll_range(&self) -> &RollRange {
                 &self._cr_range
             }

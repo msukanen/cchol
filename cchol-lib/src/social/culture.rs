@@ -24,7 +24,7 @@ lazy_static! {
     };
 
     /// Dice type to use for [Culture] [random][Culture::random]'izing.
-    static ref CULTURE_RANGE: std::ops::RangeInclusive<i32> = validate_cr_ranges("CULTURES", &CULTURES, None);
+    static ref CULTURE_RANGE: RollRange = validate_cr_ranges("CULTURES", &CULTURES, None);
 
     /// Default max [Culture] for e.g. [Race][crate::racial::Race]'s checks.
     pub(crate) static ref CULTURE_DEFAULT_MAX: &'static Culture = &CULTURES.iter()
@@ -151,7 +151,7 @@ impl Culture {
 
     /// Generate a random [Culture] entry.
     pub fn random_unbiased() -> &'static Culture {
-        CULTURES.random_by_cr(&CULTURE_RANGE);
+        CULTURES.get_random_in_range(&*CULTURE_RANGE)
     }
 
     pub fn is_civilized(&self) -> bool {

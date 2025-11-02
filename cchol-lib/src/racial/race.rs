@@ -1,12 +1,11 @@
 use std::fs;
 
 use cchol_pm::HasRollRange;
-use dicebag::{DiceExt, InclusiveRandomRange};
 use lazy_static::lazy_static;
 use rpgassist::gender::{Gender, GenderBias, HasGenderBias};
 use serde::{Deserialize, Deserializer, Serialize, de};
 
-use crate::{IsNamed, events::RacialEvent, roll_range::{HasRollRange, HasVecRollRangeRoll, RollRange}, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges}, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}};
+use crate::{IsNamed, events::RacialEvent, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges}, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}};
 
 static RACE_FILE: &'static str = "./data/race.json";
 lazy_static! {
@@ -42,7 +41,7 @@ lazy_static! {
     };
 
     /// Dice type to use for [Race] [random][Race::random]'izing.
-    static ref RACE_RANGE: RollRange = validate_cr_ranges("RACES", RACES, None);
+    static ref RACE_RANGE: RollRange = validate_cr_ranges("RACES", &RACES, None);
 
     /// Dice range for [Race] [random][Race::random]'izing in non-human range.
     static ref RACE_RANGE_NONHUMAN: RollRange = {
@@ -135,11 +134,11 @@ impl Race {
     }
 
     pub fn random() -> &'static Race {
-        RACES.random_by_cr(&RACE_RANGE)
+        RACES.get_random_in_range(&*RACE_RANGE)
     }
 
     pub fn random_nonhuman() -> &'static Race {
-        RACES.random_by_cr(&RACE_RANGE_NONHUMAN)
+        RACES.get_random_in_range(&*RACE_RANGE_NONHUMAN)
     }
 
     pub fn shift_culture_if_needed(&self, culture: &'static Culture) -> &'static Culture {

@@ -54,7 +54,7 @@ impl ResolveInPlace for GovtOfficial {
 
 /// Generate a random govt official.
 pub fn random() -> GovtOfficial {
-    let mut goff = GOVT_OFFICIALS.random_by_cr(&GOVT_RANGE);
+    let mut goff = GOVT_OFFICIALS.get_random_in_range(&GOVT_RANGE).clone();
     goff.resolve();
     goff
 }
@@ -71,7 +71,7 @@ mod govt_official_tests {
 
     #[test]
     fn get_rwr() {
-        let mut goff = GOVT_OFFICIALS.random_by_cr(&GOVT_RANGE);
+        let mut goff = GOVT_OFFICIALS.get_random_in_range(&GOVT_RANGE).clone();
         goff.resolve();
         assert_ne!(Gender::Unspecified, goff.gender())
     }

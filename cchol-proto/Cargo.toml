@@ -6,6 +6,7 @@ authors = ["Markku Sukanen <gmail.com>"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+dicebag = "0.3"
 
 [badges]
 maintenance = { status = "experimental" }
