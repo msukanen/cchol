@@ -15,3 +15,17 @@ pub fn derive_has_roll_range(input: TokenStream) -> TokenStream {
         }
     })
 }
+
+#[proc_macro_derive(Gendered)]
+pub fn derive_has_gender(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    TokenStream::from(quote! {
+        impl HasGender for #name {
+            fn gender(&self) -> Gender {
+                self.gender
+            }
+        }
+    })
+}

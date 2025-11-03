@@ -2,9 +2,9 @@
 //! 758: Nobles
 
 use std::fs;
-use cchol_pm::HasRollRange;
+use cchol_pm::{Gendered, HasRollRange};
 use lazy_static::lazy_static;
-use rpgassist::gender::{Gender, GenderBias};
+use rpgassist::gender::{Gender, GenderBias, HasGender};
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, InclusiveRandomRange, percentage_chance_of};
 
@@ -117,10 +117,10 @@ impl Noble {
 }
 
 /// A simple (NPC) noble entry for simple purposes…
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, Gendered)]
 pub struct SimpleNobleNPC {
     pub name: String,
-    pub gender: Gender,
+    gender: Gender,
     pub nobility: Noble,
 }
 
@@ -129,7 +129,7 @@ impl SimpleNobleNPC {
     pub fn new_cultured(name: &str, culture_core: &impl HasCultureCoreType) -> Self {
         Self {
             name: name.to_string(),
-            gender: Gender::new(GenderBias::None),
+            gender: Gender::random_biased(GenderBias::None),
             nobility: Noble::new(culture_core)
         }
     }

@@ -37,31 +37,36 @@
         "name": "centaur",
         "_cr_range": [4561,4578],
         "max_culture": "Civilized",
-        "racial_events": "Monster"
+        "racial_events": "Monster",
+        "beastman": true
     },
     {
         "name": "faun",
         "_cr_range": [4579,4596],
         "max_culture": "Nomad",
-        "racial_events": "Monster"
+        "racial_events": "Monster",
+        "beastman": true
     },
     {
         "name": "satyr",
         "_cr_range": [4597,4605],
         "max_culture": "Barbarian",
-        "racial_events": "Monster"
+        "racial_events": "Monster",
+        "beastman": true
     },
     {
         "name": "goatman",
         "_cr_range": [4606,4614],
         "max_culture": "Barbarian",
-        "racial_events": "Monster"
+        "racial_events": "Monster",
+        "beastman": true
     },
     {
         "name": "minotaur",
         "_cr_range": [4615,4632],
         "max_culture": "Barbarian",
-        "racial_events": "Monster"
+        "racial_events": "Monster",
+        "beastman": true
     },
     // 20 sub 4..5 1d6
     {
@@ -69,21 +74,24 @@
         "_cr_range": [4633,4656],
         "shift_nomad_down": true,
         "shift_civilized_up": true,
-        "racial_events": "Monster"
+        "racial_events": "Monster",
+        "reptilian": true
     },
     {
         "name": "serpentman",
         "_cr_range": [4657,4672],
         "shift_nomad_down": true,
         "shift_civilized_up": true,
-        "racial_events": "Monster"
+        "racial_events": "Monster",
+        "reptilian": true
     },
     {
         "name": "dragonman",
         "_cr_range": [4673,4680],
         "shift_nomad_down": true,
         "shift_civilized_up": true,
-        "racial_events": "Monster"
+        "racial_events": "Monster",
+        "reptilian": true
     },
     // 20 sub 6
     {

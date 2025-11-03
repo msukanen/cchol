@@ -1,9 +1,9 @@
 use std::fs;
 
-use cchol_pm::HasRollRange;
+use cchol_pm::{Gendered, HasRollRange};
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::{gender::{Gender, HasGender}, resolve::resolve_in_place::ResolveInPlace};
+use rpgassist::{gender::{Bias10, Gender, GenderBias, HasGender}, resolve::resolve_in_place::ResolveInPlace};
 use serde::{Deserialize, Serialize};
 
 use crate::{serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, deserialize_strings_to_vec, validate_cr_ranges}, roll_range::*};
@@ -23,7 +23,7 @@ lazy_static! {
     static ref GOVT_RANGE: std::ops::RangeInclusive<i32> = validate_cr_ranges("GOVT_OFFICIALS", &GOVT_OFFICIALS, None);
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange)]
+#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange, Gendered)]
 pub struct GovtOfficial {
     name: String,
     #[serde(deserialize_with = "deserialize_strings_to_vec", default = "govt_alt_default", skip_serializing)]
@@ -34,15 +34,9 @@ pub struct GovtOfficial {
     gender: Gender
 }
 
-impl HasGender for GovtOfficial {
-    fn gender(&self) -> Gender {
-        self.gender
-    }
-}
-
 impl ResolveInPlace for GovtOfficial {
     fn resolve(&mut self) {
-        self.gender.resolve();
+        self.gender.resolve_biased(GenderBias::Male23);
         if self.alt.len() > 0 {
             let roll = 1.d(self.alt.len() + 1);
             if roll > 1 {

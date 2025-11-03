@@ -1,3 +1,4 @@
+//! 101: Race
 use std::fs;
 
 use cchol_pm::HasRollRange;
@@ -104,6 +105,8 @@ pub struct Race {
     #[serde(default)] racial_events: Option<RacialEvent>,
     #[serde(default)] hybrid_events: Option<RacialEvent>,
     #[serde(skip_serializing, default)] gender_bias: GenderBias,
+    #[serde(default)] beastman: bool,
+    #[serde(default)] reptilian: bool,
 }
 
 impl HasGenderBias for Race {
@@ -179,6 +182,16 @@ impl Race {
         self.hybrid
     }
 
+    /// See if the [Race] is a beastman species.
+    pub fn is_beastman(&self) -> bool {
+        self.beastman
+    }
+
+    /// See if the [Race] is reptilian/batrachian species.
+    pub fn is_reptilian(&self) -> bool {
+        self.reptilian
+    }
+
     /// Get [RacialEvents] table, if any.
     pub fn has_racial_events(&self, raised_by_humans: bool) -> Option<RacialEvent> {
         if let Some(e) = &self.racial_events {
@@ -196,6 +209,6 @@ impl Race {
 
     /// Race does at times affect gender distribution, hence…
     pub fn random_gender(&self) -> Gender {
-        Gender::new(self.gender_bias)
+        Gender::random_biased(self.gender_bias)
     }
 }

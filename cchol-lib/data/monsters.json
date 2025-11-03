@@ -1,0 +1,69 @@
+[
+    {
+        "variants": ["Orc", "Troll", "Goblin"],
+        "_cr_range": 1
+    },
+    {
+        "_cr_range": 2,
+        "variants": ["Icky Blob", "Monstrous Glob", "Monstrous Slime", "Monstrous Jelly"],
+        "gender": "NeverApplicable"
+    },
+    {
+        "name": "Dragon",
+        "_cr_range": 3
+    },
+    {
+        "_cr_range": 4,
+        "variants": ["Unicorn", "Griffin", "Hippogriff", "Pegasus", "Phoenix", "Sphinx", "Hydra", "Roc"]
+    },
+    {
+        "_cr_range": 5,
+        "variants": ["Vampire", "Zombie", "Wight", "Wraith", "Spectre", "Skeleton", "Mummy", "Ghost", "Ghoul"]
+    },
+    {
+        "_cr_range": 6,
+        "variants": ["Werewolf", "Werebear", "Wereboar", "Wererat"]
+    },
+    {
+        "_cr_range": 7,
+        "name": "Giant"
+    },
+    {
+        "_cr_range": 8,
+        "variants": ["Demon", "Devil"]
+    },
+    {
+        "_cr_range": 9,
+        "name": "Giant <Animal>"
+    },
+    {
+        "_cr_range": 10,
+        "name": "Sea Monster"
+    },
+    {
+        "_cr_range": 11,
+        "variants": ["Pixie", "Sprite", "Brownie"]
+    },
+    {
+        "_cr_range": 12,
+        "variants": ["Earth Elemental", "Fire Elemental", "Water Elemental", "Air Elemental"],
+        "gender": "NeverApplicable"
+    },
+    {
+        "_cr_range": 13,
+        "name": "Horror From Beyond",
+        "gender": "NeverApplicable"
+    },
+    {
+        "name": "Evil Elf",
+        "_cr_range": 14
+    },
+    {
+        "name": "Evil Dwarf",
+        "_cr_range": 15
+    },
+    {
+        "variants": ["Living Statue", "Golem"],
+        "_cr_range": 16
+    }
+]
