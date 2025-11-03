@@ -1,0 +1,58 @@
+[{
+    "l":"Adept",
+    "d":"Clumsy"
+},{
+    "l":"Ambitious",
+    "d":"Laid Back"// casual
+},{
+    "l":"Creative",
+    "d":"Uncreative"
+},{
+    "l":"Efficient",
+    "d":"Inefficient"
+},{
+    "l":"Fair",
+    "d":"Underhanded"
+},{
+    "l":"Generous",
+    "d":"Stingy"
+},{
+    "l":"Happy",
+    "d":"Unhappy"
+},{
+    "l":"Hard Worker",
+    "d":"Lazy"
+},{
+    "l":"Humble",
+    "d":"Arrogant"
+},{
+    "l":"Inspired Loyalty",
+    "d":"Inspired Mistrust"
+},{
+    "l":"Office Politician",
+    "d":"Avoids Politics"
+},{
+    "l":"Opinionated",
+    "d":"A Yesman"
+},{
+    "l":"Overbearing",
+    "d":"Submissive"
+},{
+    "l":"Patient",
+    "d":"Impatient"
+},{
+    "l":"Productive",
+    "d":"Unproductive"
+},{
+    "l":"Talented",
+    "d":"Incompetent"
+},{
+    "l":"Trusting",
+    "d":"Jealous"
+},{
+    "l":"Well-liked",
+    "d":"Hated"
+},{
+    "l":"Workaholic",
+    "d":"Slacker"
+}]
