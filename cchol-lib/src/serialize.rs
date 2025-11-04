@@ -1,3 +1,14 @@
+//! Various serde deserializers:
+//! 
+//! * deserialize_cr_range — for potentially open-ended `_cr_range` fields.
+//! * deserialize_fixed_cr_range — for fixed value `_cr_range` which have distinct start/end values in total.
+//! * deserialize_optional_cr_range — as per `deserialize_cr_range`, but for Option variant.
+//! * deserialize_dicet — deserializer for dice roll type(s).
+//! * deserialize_strings_to_vec — deserialize a) single string, b) array of strings, both into vec of String.
+//! 
+//! Other:
+//! * default_pc_save_cr_range — PC saves don't need `_cr_range` for anything, but it's present in some cases…
+//! * validate_cr_ranges — validator for those `_cr_range` which need to be without gaps or overlaps.
 use std::ops::RangeInclusive;
 
 use serde::{Deserialize, Deserializer};
@@ -10,6 +21,7 @@ use crate::roll_range::UseRollRange;
 /// * `i32` — singular choice value.
 /// * `[i32, i32]` — inclusive range.
 /// * `{ "upto": i32 }` — an inclusive "anything upto X" range's cap.
+/// * `{ "ge": i32 }` — anything greater-or-equal…
 pub(crate) fn deserialize_cr_range<'de, D>(deserializer: D) -> Result<std::ops::RangeInclusive<i32>, D::Error>
 where D: Deserializer<'de> {
     #[derive(Deserialize)]
@@ -65,6 +77,7 @@ where D: Deserializer<'de> {
 /// * `i32` — singular choice value.
 /// * `[i32, i32]` — inclusive range.
 /// * `{ "upto": i32 }` — an inclusive "anything upto X" range's cap.
+/// * `{ "ge": i32 }` — anything greater-or-equal…
 pub(crate) fn deserialize_optional_cr_range<'de, D>(deserializer: D)
     -> Result<Option<std::ops::RangeInclusive<i32>>, D::Error>
 where D: Deserializer<'de> {
@@ -113,7 +126,7 @@ where D: Deserializer<'de> {
     }
 
     match DiceHalp::deserialize(deserializer)? {
-        DiceHalp::S(v) => Ok((v, v)),
+        DiceHalp::S(v) => Ok((v, 1)),
         DiceHalp::P((a,b)) => Ok((a, b))
     }
 }

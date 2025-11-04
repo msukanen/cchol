@@ -1,6 +1,8 @@
 pub mod culture;
 pub mod nobility;
 pub mod people;
+pub mod religion;
+pub use religion::Deity;
 pub mod status;
 pub mod wealth;
 

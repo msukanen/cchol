@@ -3,6 +3,7 @@
 use std::fs;
 
 use lazy_static::lazy_static;
+use rpgassist::resolve::resolve_in_place::ResolveInPlace;
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, DiceT};
 use crate::{IsNamed, modifier::CuMod, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}};
@@ -32,6 +33,7 @@ impl IsNamed for Wealth {
 }
 
 impl Wealth {
+    /// Generate random [Wealth] level.
     pub fn random(cumod_src: &impl CuMod) -> &'static Self {
         fn mk_wealth(cumod: i32) -> &'static Wealth {
             let roll = 1.d100() + cumod;
@@ -43,6 +45,14 @@ impl Wealth {
         }
 
         mk_wealth(cumod_src.cumod())
+    }
+}
+
+impl ResolveInPlace for Wealth {
+    /// **NOTE:** the resolver is to be used on a **.clone()**'d [Wealth] instance.
+    fn resolve(&mut self) {
+        let smod = self.survival_mod.0.d(self.survival_mod.1 as usize);
+        self.survival_mod = (smod, 1);
     }
 }
 
@@ -68,6 +78,8 @@ lazy_static! {
 mod wealth_data_integrity {
     use crate::{IsNamed, social::wealth::WEALTH};
 
+    static SPAM_RANGE: std::ops::RangeInclusive<i32> = 0..=1000;
+
     #[test]
     fn wealth_file_parses() {
         let _ = env_logger::try_init();
@@ -86,5 +98,15 @@ mod wealth_data_integrity {
                 panic!("'{name}' not listed?!")
             }
         });
+    }
+
+    #[test]
+    fn survival_mod_resolve() {
+        let _ = env_logger::try_init();
+        for _ in SPAM_RANGE.clone() {
+            let mut w = WEALTH.iter().find(|w| w.name().to_lowercase() == "destitute").unwrap().clone();
+            assert!(w.survival_mod.0 == 1 || w.survival_mod.0 == 2);
+            assert_eq!(w.survival_mod.1, 1);
+        }
     }
 }

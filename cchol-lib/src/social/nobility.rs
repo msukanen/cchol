@@ -107,7 +107,7 @@ impl From<&'static NobleNote> for Noble {
 
 impl Noble {
     /// Generate a random culture-appropriate [Noble] entry.
-    pub fn new(culture_core: &impl HasCultureCoreType) -> Self {
+    pub fn random(culture_core: &impl HasCultureCoreType) -> Self {
         let r = 1.d(*NOBLE_DICE);
         let c = culture_core.core_type().to_string();
         Self::from(NOBLENOTES.iter()
@@ -130,7 +130,7 @@ impl SimpleNobleNPC {
         Self {
             name: name.to_string(),
             gender: Gender::random_biased(GenderBias::None),
-            nobility: Noble::new(culture_core)
+            nobility: Noble::random(culture_core)
         }
     }
 

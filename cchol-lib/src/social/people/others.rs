@@ -3,10 +3,10 @@ use std::fs;
 
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::gender::{Gender, HasGender};
+use rpgassist::gender::{Gender, GenderBias, HasGender};
 use serde::{Deserialize, Serialize};
 
-use crate::{misc::OccupationPerformance, racial::Monster, social::{nobility::SimpleNobleNPC, people::govt_official::GovtOfficial}};
+use crate::{IsNamed, misc::OccupationPerformance, racial::{Monster, Race}, social::{culture::HasCultureCoreType, nobility::SimpleNobleNPC, people::{Relation, adventurer::Adventurer, govt_official::{self, GovtOfficial}}}};
 
 static CRIMINAL_TYPES_FILE: &'static str = "./data/criminals.json";
 lazy_static! {
@@ -51,6 +51,7 @@ pub enum WOMType {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum OtherPeople {
     Combined(Vec<Box<OtherPeople>>),
+    Adventurer(Adventurer),
     CommonSoldier { gender: Gender },
     /// A variety of [CRIMINAL_TYPES].
     Criminal { r#type: String, gender: Gender,
@@ -59,22 +60,57 @@ pub enum OtherPeople {
     },
     Friend { gender: Gender },
     GovtOfficial(GovtOfficial),
-    Invader { gender: Gender },
+    Invader,
     KnownByOccupation { occupation: OccupationPerformance, gender: Gender },
     Lover { gender: Gender },
     Mentor { gender: Gender },
     Monster(Monster),
     Neighbor { gender: Gender },
     Noble { specs: SimpleNobleNPC },
+    Nonhuman {
+        // for non-human we need just name of the race here, any other specs are irrelevant in this context.
+        race: String, gender: Gender },
     Outcast { r#type: OutcastType, gender: Gender },
     Prostitute,
+    Relative { relation: Relation },
     Thief { gender: Gender },
     WielderOfMagic { r#type: WOMType, gender: Gender },
     //TODO: some common(ish) animal types.
     WildAnimal { gender: Gender },
 } impl OtherPeople {
-    pub fn random() -> Self {
-        unimplemented!()
+    /// Generate some random peep(s).
+    pub fn random(culture: &impl HasCultureCoreType) -> Self {
+        match 1.d20() {
+            ..=1 => Self::GovtOfficial(govt_official::random()),
+            2 => Self::Friend { gender: Gender::random() },
+            3 => if 1.d3() == 1 {Self::Prostitute} else {Self::Outcast { r#type: OutcastType::random(), gender: Gender::random() }},
+            4 => Self::WielderOfMagic { r#type: WOMType::random(), gender: Gender::random() },
+            5 => Self::Mentor { gender: Gender::random() },
+            6 => Self::Thief { gender: Gender::random() },
+            7 => Self::Noble { specs: SimpleNobleNPC::new("<name>") },
+            8 => Self::Monster(Monster::random()),
+            9 => Self::Neighbor { gender: Gender::random() },
+            10 => Self::Lover { gender: Gender::random_biased(GenderBias::Female23) },
+            11 => Self::KnownByOccupation { occupation: unimplemented!("TODO 420,421,422,423"), gender: Gender::random() },
+            12 => Self::WildAnimal { gender: Gender::random() },
+            13 => Self::Invader,
+            14 => Self::CommonSoldier { gender: Gender::random_biased(GenderBias::Male23) },
+            15 => Self::Criminal {
+                r#type: CRIMINAL_TYPES[1.d(CRIMINAL_TYPES.len())-1].clone(),
+                gender: Gender::random_biased(GenderBias::Male23),
+                deg_of_involvement: 1.d20() },
+            16 => Self::Adventurer(Adventurer::random()),
+            17 => Self::Relative { relation: Relation::random() },
+            18 => unimplemented!("TODO 762"),
+            19 => Self::Nonhuman { race: Race::random_nonhuman().name().into(), gender: Gender::random() },
+            _ => {// lets make a 2-3 combo variant
+                let mut cmb = vec![Box::new(Self::random(culture))];
+                for _ in 0..1.d2() {
+                    cmb.push(Box::new(Self::random(culture)));
+                }
+                Self::Combined(cmb)
+            }
+        }
     }
 }
 
@@ -83,24 +119,28 @@ impl HasGender for OtherPeople {
         match self {
             // Combined is… combined. Find the gender(s) via other means.
             Self::Combined(_) => Gender::Unspecified,
+
+            Self::Adventurer(a) => a.gender(),
             Self::GovtOfficial(g) => g.gender(),
             Self::Prostitute => Gender::Female,
             Self::Noble { specs } => specs.gender(),
             Self::Monster(m) => m.gender(),
+            Self::Relative { relation } => relation.gender(),
             //--- ones with a direct 'gender' field:
             Self::CommonSoldier { gender }       |
             Self::Criminal { gender,.. }         |
             Self::Friend { gender }              |
-            Self::Invader { gender }             |
             Self::KnownByOccupation { gender,.. }|
             Self::Lover { gender }               |
             Self::Mentor { gender }              |
             Self::Neighbor { gender }            |
+            Self::Nonhuman { gender,..}          |
             Self::Outcast { gender,..}           |
             Self::Thief { gender }               |
             Self::WielderOfMagic { gender,.. }   |
             Self::WildAnimal { gender }          => *gender,
-            //_ => unimplemented!()
+            //--- the ones with fixed gender…:
+            Self::Invader => Gender::Male,
         }
     }
 }

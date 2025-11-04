@@ -12,16 +12,11 @@ use crate::{IsNamed, serialize::{deserialize_fixed_cr_range, validate_cr_ranges}
 static CULTURE_FILE: &'static str = "./data/culture.json";
 lazy_static! {
     /// Cultures!
-    pub(crate) static ref CULTURES: Vec<Culture> = {
-        let cultures = serde_jsonc::from_str::<Vec<Culture>>(
+    pub(crate) static ref CULTURES: Vec<Culture>
+        = serde_jsonc::from_str::<Vec<Culture>>(
             &fs::read_to_string(CULTURE_FILE)
                 .expect(format!("No '{}' found?!", CULTURE_FILE).as_str())
         ).expect("JSON failure");
-
-        
-
-        cultures
-    };
 
     /// Dice type to use for [Culture] [random][Culture::random]'izing.
     static ref CULTURE_RANGE: RollRange = validate_cr_ranges("CULTURES", &CULTURES, None);

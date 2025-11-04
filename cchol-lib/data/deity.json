@@ -1,0 +1,102 @@
+[{
+    "name": "Ancestor Worship",
+    "_cr_range": [-2,1],
+    "gender": "NeverApplicable"
+},{
+    "name": "Beast Gods",
+    "_cr_range": 2,
+    "gender": "NeverApplicable"
+},{
+    "name": "Hunting God",
+    "gender_bias": {
+        "Male": { "value": 5 }
+    },
+    "_cr_range": 3
+},{
+    "name": "Trickster",
+    "gender_bias": {
+        "Male": { "value": 5 }
+    },
+    "_cr_range": 4
+},{
+    "name": "Earth Goddess",
+    "gender": "Female",
+    "_cr_range": [5,6]
+},{
+    "name": "Agricultural Goddess",
+    "gender": "Female",
+    "_cr_range": [7,8]
+},{
+    "name": "Ruling Deity",
+    "_cr_range": [9,10]
+},{
+    "name": "Sea God",
+    "alt": "God of Water",
+    "gender_bias": {
+        "Male": { "value": 2 }
+    },
+    "_cr_range": 11
+},{
+    "name": "Sun God",
+    "alt": "God of Fire",
+    "gender_bias": {
+        "Male": { "value": 4 }
+    },
+    "_cr_range": 12
+},{
+    "name": "Moon Goddess",
+    "gender": "Female",
+    "_cr_range": 13
+},{
+    "name": "Storm God",
+    "gender_bias": {
+        "Male": { "value": 6 }
+    },
+    "_cr_range": 14
+},{
+    "name": "God of Air",
+    "gender_bias": {
+        "Female": { "value": 1 }
+    },
+    // note the same _cr_range as that of Storm God
+    "_cr_range": 14
+},
+//FYI: _cr_range 15 is reserved internally!
+{
+    "name": "War God",
+    "gender": "Male",
+    "_cr_range": 16
+},{
+    "name": "Love Goddess",
+    "gender": "Female",
+    "_cr_range": 17
+},{
+    "name": "Ruler of the Underworld",// ruler of the land of dead, in other words; caretaker of souls.
+    "_cr_range": 18
+},{
+    "name": "God of Wisdom and Knowledge",
+    "gender": "Male",
+    "_cr_range": 19
+},{
+    "name": "Healing God",
+    "gender_bias": {
+        "Female": { "value": 5 }
+    },
+    "_cr_range": 20
+},{
+    "name": "Trade God",
+    "_cr_range": 21
+},{
+    "name": "Luck Goddess",
+    "gender": "Female",
+    "_cr_range": 22
+},{
+    "name": "Night Goddess",
+    "gender": "Female",
+    "_cr_range": 23,
+},{
+    "name": "God of Thieves",
+    "gender": "Male",
+    "_cr_range": 24
+}
+]

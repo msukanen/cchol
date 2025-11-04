@@ -1,9 +1,9 @@
 use std::fs;
 
-use cchol_pm::HasRollRange;
-use dicebag::{DiceExt, InclusiveRandomRange};
+use cchol_pm::{Gendered, HasRollRange};
+use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::gender::Gender;
+use rpgassist::gender::{Gender, HasGender};
 use serde::{Deserialize, Serialize};
 
 use crate::{IsNamed, racial::Race, roll_range::*, serialize::{deserialize_cr_range, validate_cr_ranges}};
@@ -44,7 +44,7 @@ pub enum AdventurerProwess {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange)]
+#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange, Gendered)]
 pub struct Adventurer {
     name: String,
     #[serde(deserialize_with = "deserialize_cr_range")]
@@ -56,6 +56,7 @@ pub struct Adventurer {
     #[serde(default)]
     prowess: AdventurerProwess,
 } impl Adventurer {
+    /// Generate a random [Adventurer].
     pub fn random() -> Self {
         let adv = ADVENTURERS.get_random_in_range(&ADVENTURERS_RANGE);
         // a non-human adventurer maybe?

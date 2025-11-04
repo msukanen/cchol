@@ -3,7 +3,7 @@ use std::fs;
 use cchol_pm::{Gendered, HasRollRange};
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::{gender::{Bias10, Gender, GenderBias, HasGender}, resolve::resolve_in_place::ResolveInPlace};
+use rpgassist::{gender::{Gender, GenderBias, HasGender}, resolve::resolve_in_place::ResolveInPlace};
 use serde::{Deserialize, Serialize};
 
 use crate::{serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, deserialize_strings_to_vec, validate_cr_ranges}, roll_range::*};
