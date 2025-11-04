@@ -15,7 +15,7 @@ pub mod phobias {
     }
 
     impl IsNamed for Phobia {
-        fn name(&self) -> String {
+        fn name(&self) -> &str {
             unimplemented!()
         }
     }

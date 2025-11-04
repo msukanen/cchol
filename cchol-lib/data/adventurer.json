@@ -1,0 +1,36 @@
+[{
+    "name": "Wizard",
+    "_cr_range": [1,2]
+},
+{
+    "name": "Priest",
+    "_cr_range": [3,6]
+},
+{
+    "name":"Warrior",
+    "_cr_range":[7,11]
+},
+{
+    "name":"Thief",
+    "_cr_range":[12,13]
+},
+{
+    "name":"Ranger",
+    "_cr_range":[14,15]
+},
+{
+    "name":"Druid",
+    "_cr_range":16
+},
+{
+    "name":"Shaman",
+    "_cr_range":17
+},
+{
+    "name":"Bard",
+    "_cr_range":18
+},
+{
+    "name":"Martial Arts Monk",
+    "_cr_range":19
+}]

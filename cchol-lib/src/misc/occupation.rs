@@ -75,9 +75,9 @@ impl WorkAttitude {
             }).as_vec()[0].clone();
             
             if lightside {
-                Self { l: t.name(), d: String::new(), alignment: Alignment::L }
+                Self { l: t.name().into(), d: String::new(), alignment: Alignment::L }
             } else {
-                Self { l: String::new(), d: t.name(), alignment: Alignment::D }
+                Self { l: String::new(), d: t.name().into(), alignment: Alignment::D }
             }
         } else {
             let a = &(*WORK_ATTITUDES)[roll - 1];
@@ -87,10 +87,10 @@ impl WorkAttitude {
 }
 
 impl IsNamed for WorkAttitude {
-    fn name(&self) -> String {
+    fn name(&self) -> &str {
         match self.alignment {
-            Alignment::D => self.d.clone(),
-            _ => self.l.clone()
+            Alignment::D => &self.d,
+            _ => &self.l
         }
     }
 }

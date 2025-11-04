@@ -2,10 +2,9 @@ pub mod mental_affliction {
     use std::fmt::Display;
 
     use dicebag::DiceExt;
-    use rpgassist::details::ProperCaseExt;
     use serde::{Deserialize, Serialize};
 
-    use crate::{IsNamed, misc::SeriousWound, racial::Race, social::people::OtherPeople, traits::personality::{self, AffectsAlignment, Alignment, DLNTrait, PersonalityTrait, TraitRollResult, TraitVec, exotic_trait::{self, ExoticTrait}, phobias, random_darkside, random_lightside}};
+    use crate::{IsNamed, misc::SeriousWound, racial::Race, social::people::OtherPeople, traits::personality::{self, AffectsAlignment, Alignment, PersonalityTrait, TraitRollResult, TraitVec, exotic_trait::{self, ExoticTrait}, phobias, random_darkside, random_lightside}};
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
     pub struct ExtraPersona {
@@ -57,6 +56,21 @@ pub mod mental_affliction {
         Megalomania,
         Paranoia,
         SplitPersonality { extras: Vec<ExtraPersona> },
+    } impl IsNamed for MentalAffliction {
+        fn name(&self) -> &str {
+            match self {
+                Self::Catatonia => "Catatonia",
+                Self::CompulsiveLying => "Compulsive Lying",
+                Self::Depression => "Depression",
+                Self::Hallucinations => "Hallucinations",
+                Self::Hypochondria => "Hypochondria",
+                Self::HystericalInjury { .. } => "Hysterical Injury",
+                Self::ManicDepressive => "Manic Depressive",
+                Self::Megalomania => "Megalomania",
+                Self::Paranoia => "Paranoia",
+                Self::SplitPersonality { .. } => "Split Personality",
+            }
+        }
     }
 
     impl AffectsAlignment for MentalAffliction {
@@ -90,12 +104,6 @@ pub mod mental_affliction {
                 Self::Depression => write!(f, "depression"),
                 Self::HystericalInjury { perceived_wound } => write!(f, "hysterical injury: {perceived_wound}"),
             }
-        }
-    }
-
-    impl IsNamed for MentalAffliction {
-        fn name(&self) -> String {
-            self.to_string().proper_case()
         }
     }
 

@@ -5,7 +5,7 @@ use dicebag::{DiceExt, IsOne};
 use rpgassist::{body::location::BodyLocation, direction::bilateral::Bilateral, stat::Stat};
 use serde::{Deserialize, Deserializer, Serialize};
 
-use crate::traits::{IsExplained, personality::{PersonalityTrait, TraitVec, exotic_trait, mental_affliction}};
+use crate::{ext::IsExplained, traits::personality::{PersonalityTrait, TraitVec, exotic_trait, mental_affliction}};
 
 fn deserialize_bdt_maff<'de, D>(deserializer: D) -> Result<Vec<PersonalityTrait>, D::Error>
 where D: Deserializer<'de> {

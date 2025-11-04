@@ -15,7 +15,7 @@ pub mod behavior_tag {
     }
 
     impl IsNamed for BehaviorTag {
-        fn name(&self) -> String {
+        fn name(&self) -> &str {
             unimplemented!()
         }
     }

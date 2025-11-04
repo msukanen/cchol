@@ -2,3 +2,10 @@ pub mod natural_join;
 
 pub mod zero;
 pub use zero::IsZero;
+
+mod described;
+pub use described::HasDescription;
+pub use described::IsExplained;
+
+mod named;
+pub use named::IsNamed;

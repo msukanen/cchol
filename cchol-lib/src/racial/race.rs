@@ -116,8 +116,8 @@ impl HasGenderBias for Race {
 }
 
 impl IsNamed for Race {
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        &self.name
     }
 }
 

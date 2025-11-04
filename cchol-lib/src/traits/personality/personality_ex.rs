@@ -47,7 +47,7 @@ pub mod exotic_trait {
     }
 
     impl IsNamed for ExoticTrait {
-        fn name(&self) -> String {
+        fn name(&self) -> &str {
             match self {
                 Self::AL(x)=> x.name(),
                 Self::BT(x)=> x.name(),

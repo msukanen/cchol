@@ -15,7 +15,7 @@ where D: Deserializer<'de> {
 
 fn serialize_pc_race<S>(race: &&'static Race, serializer: S) -> Result<S::Ok, S::Error>
 where S: Serializer {
-    serializer.serialize_str(race.name().as_str())
+    serializer.serialize_str(race.name())
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -28,8 +28,8 @@ pub struct PlayerCharacter {
 }
 
 impl IsNamed for PlayerCharacter {
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        &self.name
     }
 }
 

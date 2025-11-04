@@ -43,15 +43,15 @@ impl Monster {
                 ..=0 => return Self { name: {
                     let bs = RACES.iter().filter(|r| r.is_beastman()).collect::<Vec<&'static Race>>();
                     let idx = 1.d(bs.len()) - 1;
-                    bs[idx].name()
+                    bs[idx].name().into()
                 }, variants: vec![], _cr_range: default_pc_save_cr_range(), gender },
                 1 => return Self { name: {
                     let bs = RACES.iter().filter(|r| r.is_reptilian()).collect::<Vec<&'static Race>>();
                     let idx = 1.d(bs.len()) - 1;
-                    bs[idx].name()
+                    bs[idx].name().into()
                 }, variants: vec![], _cr_range: default_pc_save_cr_range(), gender },
-                2 => return Self { name: "GM#756A".to_string(), variants: vec![], _cr_range: default_pc_save_cr_range(), gender },
-                _ => return Self { name: "GM#756B".to_string(), variants: vec![], _cr_range: default_pc_save_cr_range(), gender },
+                2 => return Self { name: "GM#756A".into(), variants: vec![], _cr_range: default_pc_save_cr_range(), gender },
+                _ => return Self { name: "GM#756B".into(), variants: vec![], _cr_range: default_pc_save_cr_range(), gender },
             }
         }
         let mon = MONSTERS.get_random_in_range(&MONSTER_RANGE);

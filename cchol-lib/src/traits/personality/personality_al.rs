@@ -15,7 +15,7 @@ pub mod allergies {
     }
 
     impl IsNamed for Allergy {
-        fn name(&self) -> String {
+        fn name(&self) -> &str {
             unimplemented!()
         }
     }

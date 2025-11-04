@@ -15,7 +15,7 @@ pub mod sexual_disorder {
     }
 
     impl IsNamed for SexualDisorder {
-        fn name(&self) -> String {
+        fn name(&self) -> &str {
             unimplemented!()
         }
     }

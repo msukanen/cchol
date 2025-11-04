@@ -4,7 +4,7 @@ use lazy_static::lazy_static;
 use rpgassist::ranking::{rank::IsRanked, Rank};
 use serde::{Deserialize, Serialize};
 
-use crate::{traits::HasDescription, IsNamed};
+use crate::{ext::HasDescription, IsNamed};
 
 pub mod native_env;
 mod unusual;
@@ -98,8 +98,8 @@ impl From<(SkillBase, Rank)> for Skill {
 impl IsSkill for Skill {}
 
 impl IsNamed for Skill {
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        &self.name
     }
 }
 

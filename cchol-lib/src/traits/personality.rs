@@ -81,8 +81,8 @@ pub struct PersonalityTraitExcluder {
 }
 
 impl IsNamed for PersonalityTraitExcluder {
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        &self.name
     }
 }
 
@@ -171,7 +171,7 @@ impl Display for PersonalityTrait {
 }
 
 impl IsNamed for PersonalityTrait {
-    fn name(&self) -> String {
+    fn name(&self) -> &str {
         match self {
             Self::EX(x) => x.name(),
             Self::DLN(x) => x.name()
@@ -180,8 +180,8 @@ impl IsNamed for PersonalityTrait {
 }
 
 impl IsNamed for DLNTrait {
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        &self.name
     }
 }
 
