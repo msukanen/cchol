@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use rpgassist::{gender::{Gender, HasGender}, stat::{Stat, StatBase}};
+use rpgassist::{ext::IsNamed, gender::{Gender, HasGender}, stat::{Stat, StatBase}};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::{IsNamed, racial::{Race, race::RACES}};
+use crate::racial::{Race, race::RACES};
 
 fn deserialize_pc_race<'de,D>(deserializer: D) -> Result<&'static Race, D::Error>
 where D: Deserializer<'de> {

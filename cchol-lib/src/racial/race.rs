@@ -3,10 +3,10 @@ use std::fs;
 
 use cchol_pm::HasRollRange;
 use lazy_static::lazy_static;
-use rpgassist::gender::{Gender, GenderBias, HasGenderBias};
+use rpgassist::{gender::{Gender, GenderBias, HasGenderBias}, ext::IsNamed};
 use serde::{Deserialize, Deserializer, Serialize, de};
 
-use crate::{IsNamed, events::RacialEvent, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges}, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}};
+use crate::{events::RacialEvent, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges}, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}};
 
 static RACE_FILE: &'static str = "./data/race.json";
 lazy_static! {

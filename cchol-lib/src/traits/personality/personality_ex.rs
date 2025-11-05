@@ -3,8 +3,9 @@ pub mod exotic_trait {
 
     use dicebag::DiceExt;
     use serde::{Deserialize, Serialize};
+    use rpgassist::ext::IsNamed;
 
-    use crate::{IsNamed, traits::personality::{TraitVec, TraitRollResult, allergies::{self, Allergy}, behavior_tag::{self, BehaviorTag}, mental_affliction::{self, MentalAffliction}, phobias::{self, Phobia}, sexual_disorder::{self, SexualDisorder}}};
+    use crate::{traits::personality::{TraitVec, TraitRollResult, allergies::{self, Allergy}, behavior_tag::{self, BehaviorTag}, mental_affliction::{self, MentalAffliction}, phobias::{self, Phobia}, sexual_disorder::{self, SexualDisorder}}};
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
     pub enum ExoticTrait {

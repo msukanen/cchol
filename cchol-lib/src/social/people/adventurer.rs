@@ -3,10 +3,10 @@ use std::fs;
 use cchol_pm::{Gendered, HasRollRange};
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::gender::{Gender, HasGender};
+use rpgassist::{gender::{Gender, HasGender}, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 
-use crate::{IsNamed, racial::Race, roll_range::*, serialize::{deserialize_cr_range, validate_cr_ranges}};
+use crate::{racial::Race, roll_range::*, serialize::{deserialize_cr_range, validate_cr_ranges}};
 
 static ADVENTURER_FILE: &'static str = "./data/adventurer.json";
 lazy_static! {

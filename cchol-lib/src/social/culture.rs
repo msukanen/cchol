@@ -5,8 +5,9 @@ use cchol_pm::HasRollRange;
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use serde::Deserialize;
+use rpgassist::ext::IsNamed;
 
-use crate::{IsNamed, serialize::{deserialize_fixed_cr_range, validate_cr_ranges}, skill::{IsLiteracySource, native_env::{IsNativeOf, NativeOf}}, roll_range::*};
+use crate::{serialize::{deserialize_fixed_cr_range, validate_cr_ranges}, skill::{IsLiteracySource, native_env::{IsNativeOf, NativeOf}}, roll_range::*};
 
 /// FYI: all data files oughta reside within `./data/`.
 static CULTURE_FILE: &'static str = "./data/culture.json";

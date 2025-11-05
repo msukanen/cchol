@@ -1,3 +1,4 @@
+pub mod body;
 pub mod events;
 pub(crate) mod ext;
 pub mod misc;
@@ -9,4 +10,3 @@ pub(crate) mod serialize;
 pub mod skill;
 pub mod social;
 mod traits;
-pub use ext::IsNamed;

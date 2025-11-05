@@ -1,5 +1,6 @@
 mod race_tests {
-    use cchol_lib::{IsNamed, racial::race::{RACE_DEFAULT, Race}, social::culture::Culture};
+    use rpgassist::ext::IsNamed;
+    use cchol_lib::{racial::race::{RACE_DEFAULT, Race}, social::culture::Culture};
 
     #[test]
     fn race_data_integrity() {

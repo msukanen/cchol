@@ -1,10 +1,10 @@
 use std::{fs, ops::{AddAssign, SubAssign}};
 
 use lazy_static::lazy_static;
-use rpgassist::ranking::{rank::IsRanked, Rank};
+use rpgassist::{ranking::{rank::IsRanked, Rank}, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 
-use crate::{ext::HasDescription, IsNamed};
+use crate::ext::HasDescription;
 
 pub mod native_env;
 mod unusual;

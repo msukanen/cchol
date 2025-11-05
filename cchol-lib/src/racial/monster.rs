@@ -4,10 +4,10 @@ use std::fs;
 use cchol_pm::{Gendered, HasRollRange};
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::gender::{Gender, HasGender};
+use rpgassist::{gender::{Gender, HasGender}, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 
-use crate::{IsNamed, racial::{Race, race::RACES}, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_cr_range, validate_cr_ranges}};
+use crate::{racial::{Race, race::RACES}, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_cr_range, validate_cr_ranges}};
 
 static MONSTER_FILE: &'static str = "./data/monsters.json";
 lazy_static! {

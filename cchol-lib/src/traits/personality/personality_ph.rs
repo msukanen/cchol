@@ -2,8 +2,9 @@ pub mod phobias {
     use std::fmt::Display;
 
     use serde::{Deserialize, Serialize};
+    use rpgassist::ext::IsNamed;
 
-    use crate::{IsNamed, traits::personality::{TraitVec, TraitRollResult}};
+    use crate::{traits::personality::{TraitVec, TraitRollResult}};
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
     pub enum Phobia {

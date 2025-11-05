@@ -4,5 +4,7 @@ pub mod others;
 pub use others::OtherPeople;
 pub mod relative;
 pub use relative::Relation;
+pub mod companion;
+pub use companion::Companion;
 pub mod rival;
 pub use rival::Rival;

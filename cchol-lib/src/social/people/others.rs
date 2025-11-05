@@ -3,10 +3,10 @@ use std::fs;
 
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::gender::{Gender, GenderBias, HasGender};
+use rpgassist::{gender::{Gender, GenderBias, HasGender}, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 
-use crate::{IsNamed, misc::OccupationPerformance, racial::{Monster, Race}, social::{culture::HasCultureCoreType, nobility::SimpleNobleNPC, people::{Relation, adventurer::Adventurer, govt_official::{self, GovtOfficial}}}};
+use crate::{misc::OccupationPerformance, racial::{Monster, Race}, social::{culture::HasCultureCoreType, nobility::SimpleNobleNPC, people::{Relation, adventurer::Adventurer, govt_official::{self, GovtOfficial}}}};
 
 static CRIMINAL_TYPES_FILE: &'static str = "./data/criminals.json";
 lazy_static! {

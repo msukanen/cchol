@@ -2,10 +2,10 @@ use std::fs;
 
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::ranking::{Rank, rank::IsRanked};
+use rpgassist::{ranking::{Rank, rank::IsRanked}, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 
-use crate::{IsNamed, traits::personality::{self, AffectsAlignment, Alignment}};
+use crate::traits::personality::{self, AffectsAlignment, Alignment};
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum OccupationAchievementLevel {

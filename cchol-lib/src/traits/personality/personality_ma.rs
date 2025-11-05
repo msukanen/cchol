@@ -3,8 +3,9 @@ pub mod mental_affliction {
 
     use dicebag::DiceExt;
     use serde::{Deserialize, Serialize};
+    use rpgassist::ext::IsNamed;
 
-    use crate::{IsNamed, misc::SeriousWound, racial::Race, social::people::OtherPeople, traits::personality::{self, AffectsAlignment, Alignment, PersonalityTrait, TraitRollResult, TraitVec, exotic_trait::{self, ExoticTrait}, phobias, random_darkside, random_lightside}};
+    use crate::{misc::SeriousWound, racial::Race, social::people::OtherPeople, traits::personality::{self, AffectsAlignment, Alignment, PersonalityTrait, TraitRollResult, TraitVec, exotic_trait::{self, ExoticTrait}, phobias, random_darkside, random_lightside}};
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
     pub struct ExtraPersona {

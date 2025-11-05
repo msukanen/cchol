@@ -9,7 +9,8 @@ use std::{collections::HashMap, fs};
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use crate::{IsNamed, ext::IsZero};
+use crate::ext::IsZero;
+use rpgassist::ext::IsNamed;
 
 pub mod personality_al;
 pub use personality_al::allergies;

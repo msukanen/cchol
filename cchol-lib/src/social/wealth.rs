@@ -3,10 +3,12 @@
 use std::fs;
 
 use lazy_static::lazy_static;
-use rpgassist::resolve::resolve_in_place::ResolveInPlace;
+
+use rpgassist::{resolve::resolve_in_place::ResolveInPlace, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, DiceT};
-use crate::{IsNamed, modifier::CuMod, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}};
+
+use crate::{modifier::CuMod, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Wealth {
@@ -76,7 +78,7 @@ lazy_static! {
 
 #[cfg(test)]
 mod wealth_data_integrity {
-    use crate::{IsNamed, social::wealth::WEALTH};
+    use super::*;
 
     static SPAM_RANGE: std::ops::RangeInclusive<i32> = 0..=1000;
 

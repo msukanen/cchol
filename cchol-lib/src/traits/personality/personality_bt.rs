@@ -2,8 +2,9 @@ pub mod behavior_tag {
     use std::fmt::Display;
 
     use serde::{Deserialize, Serialize};
+    use rpgassist::ext::IsNamed;
 
-    use crate::{IsNamed, traits::personality::{TraitRollResult, TraitVec}};
+    use crate::{traits::personality::{TraitRollResult, TraitVec}};
 
     #[derive(Debug, Deserialize, Serialize, Clone)]
     pub enum BehaviorTag {

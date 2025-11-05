@@ -4,11 +4,11 @@
 use std::fs;
 use cchol_pm::{Gendered, HasRollRange};
 use lazy_static::lazy_static;
-use rpgassist::gender::{Gender, GenderBias, HasGender};
+use rpgassist::{gender::{Gender, GenderBias, HasGender}, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, InclusiveRandomRange, percentage_chance_of};
 
-use crate::{IsNamed, misc::ConditionalExec, serialize::{deserialize_cr_range, deserialize_string_w_optional, deserialize_strings_to_vec}, social::culture::{CultureCoreType, HasCultureCoreType}, roll_range::*};
+use crate::{misc::ConditionalExec, serialize::{deserialize_cr_range, deserialize_string_w_optional, deserialize_strings_to_vec}, social::culture::{CultureCoreType, HasCultureCoreType}, roll_range::*};
 
 static NOBLENOTES_FILE: &'static str = "./data/nobility.json";
 static NOBLE_TITLE_PARTS_FILE: &'static str = "./data/land_titles.json";
@@ -285,9 +285,8 @@ impl NobleNote {
 
 #[cfg(test)]
 mod nobility_data_integrity_tests {
-    use dicebag::DiceExt;
+    use super::*;
 
-    use crate::{IsNamed, misc::ConditionalExec, social::{culture::CultureCoreType, nobility::{NOBLENOTES, NobleNote}}};
     static SPAM_COUNT: usize = 1001;
 
     #[test]
