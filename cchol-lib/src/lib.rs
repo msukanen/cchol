@@ -1,3 +1,4 @@
+pub mod animal;
 pub mod body;
 pub mod events;
 pub(crate) mod ext;
