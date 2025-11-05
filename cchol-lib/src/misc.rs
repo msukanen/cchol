@@ -1,3 +1,5 @@
+mod color;
+pub use color::ExoticColor;
 mod occupation;
 pub use occupation::OccupationPerformance;
 mod serious_wound;
