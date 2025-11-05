@@ -29,3 +29,17 @@ pub fn derive_has_gender(input: TokenStream) -> TokenStream {
         }
     })
 }
+
+#[proc_macro_derive(HasName)]
+pub fn derive_has_name(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    TokenStream::from(quote! {
+        impl IsNamed for #name {
+            fn name(&self) -> &str {
+                &self.name
+            }
+        }
+    })
+}
