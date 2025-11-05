@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fmt::Display, fs};
 
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
@@ -86,12 +86,12 @@ impl WorkAttitude {
     }
 }
 
-impl IsNamed for WorkAttitude {
-    fn name(&self) -> &str {
-        match self.alignment {
+impl Display for WorkAttitude {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self.alignment {
             Alignment::D => &self.d,
             _ => &self.l
-        }
+        })
     }
 }
 
