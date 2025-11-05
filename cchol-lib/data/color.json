@@ -1,0 +1,23 @@
+[
+    {"name":"Red", "alt": [{"name":"Crimson","exotic":true}, {"name":"Scarlet","exotic":true}, "Blood Red"]},
+    {"name":"Red Orange", "alt": "Sunset Orange"},
+    {"name":"Orange"},
+    {"name":"Yellow-orange"},
+    {"name":"Yellow"},
+    {"name":"Yellow-green", "alt": "Citrine"},
+    {"name":"Green"},
+    {"name":"Blue-green", "alt":["Aquamarine", "Tourquoise"]},
+    {"name":"Blue"},
+    {"name":"Blue-violet", "alt":"Royal Blue"},
+    {"name":"Violet", "alt":["Purple", "Lavender"]},
+    {"name":"Red-violet", "alt":["Magenta", "Hot Pink"], "exotic": true},
+    {"name":"Pink", "exotic": true},
+    {"name":"White", "alt":["Snow White", "Off-white", "Ivory"]},
+    {"name":"Black", "alt":["Ebony", "True Black", {"name":"Vantablack", "exotic":true}]},
+    {"name":"Gray"},
+    {"name":"Maroon", "alt": ["Reddish Brown", "Purplish Brown"]},
+    {"name":"Silver"},
+    {"name":"Gold"},
+    {"name":"Platinum"},
+    {"name":"Brown"}
+]
