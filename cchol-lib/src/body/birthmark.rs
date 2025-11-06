@@ -2,10 +2,10 @@
 use std::fmt::Display;
 
 use dicebag::DiceExt;
-use rpgassist::{body::location::BodyLocation, misc::shape::Shape};
+use rpgassist::body::location::BodyLocation;
 use serde::{Deserialize, Serialize};
 
-use crate::misc::ExoticColor;
+use crate::misc::{ExoticColor, Shape};
 
 /// Birthmark specs live here.
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -20,7 +20,7 @@ impl Birthmark {
     pub fn random() -> Self {
         let location = BodyLocation::random();
         let exotic_color = if 1.d20() == 1 {Some(ExoticColor::random())} else {None};
-        let shape = Shape::new();
+        let shape = Shape::random();
 
         Self { location, exotic_color, shape }
     }

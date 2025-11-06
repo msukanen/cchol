@@ -5,6 +5,8 @@ pub use occupation::OccupationPerformance;
 mod serious_wound;
 pub use serious_wound::SeriousWound;
 pub mod datum;
+mod shape;
+pub use shape::Shape;
 
 use dicebag::DiceExt;
 
