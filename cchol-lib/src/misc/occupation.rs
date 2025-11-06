@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use rpgassist::{ranking::{Rank, rank::IsRanked}, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 
-use crate::traits::personality::{self, AffectsAlignment, Alignment};
+use crate::{misc::datum::is_april_fools, traits::personality::{self, AffectsAlignment, Alignment}};
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum OccupationAchievementLevel {
@@ -41,6 +41,18 @@ impl OccupationAchievementLevel {
                 _ => 11
             } }
         }
+    }
+}
+
+impl Display for OccupationAchievementLevel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} ({}rank {})", match self {
+            Self::Apprentice {..} => "Apprentice",
+            Self::Journeyman {..} => "Journeyman",
+            Self::MasterCraftsman {..} => "Master Craftsman",
+            Self::MasterOfNote {..} => "Master of Note",
+            Self::SkilledTradesman {..} => "Skilled Tradesman",
+        }, if is_april_fools() {"p"} else {""}, self.rank())
     }
 }
 
