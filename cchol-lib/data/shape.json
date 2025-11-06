@@ -1,0 +1,13 @@
+[
+    "<Animal>"/* '<…>': look a name up from '…'-generator.*/,
+    {"name":"bat","bm":true},
+    {"name":"claw","bm":true},
+    {"name":"crescent moon","bm":true},
+    "dragon",
+    {"name":"eagle","alt":["hawk","raven","crow","songbird"]},
+    {"name":"fish","bm":true},
+    {"name":"hand","bm":true},
+    {"name":"skull","bm":true},
+    {"name":"sword","bm":true},
+    "tribal marking"
+]
