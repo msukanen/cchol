@@ -4,11 +4,11 @@
 use std::fs;
 use cchol_pm::{Gendered, HasRollRange};
 use lazy_static::lazy_static;
-use rpgassist::{gender::{Gender, GenderBias, HasGender}, ext::IsNamed};
+use rpgassist::{gender::{Gender, GenderBias, HasGender}, ext::IsNamed, serialize::serial_strings::deserialize_strings_to_vec};
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, InclusiveRandomRange, percentage_chance_of};
 
-use crate::{misc::ConditionalExec, serialize::{deserialize_cr_range, deserialize_string_w_optional, deserialize_strings_to_vec}, social::culture::{CultureCoreType, HasCultureCoreType}, roll_range::*};
+use crate::{misc::ConditionalExec, serialize::{deserialize_cr_range, deserialize_string_w_optional}, social::culture::{CultureCoreType, HasCultureCoreType}, roll_range::*};
 
 static NOBLENOTES_FILE: &'static str = "./data/nobility.json";
 static NOBLE_TITLE_PARTS_FILE: &'static str = "./data/land_titles.json";

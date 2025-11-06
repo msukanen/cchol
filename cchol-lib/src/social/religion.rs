@@ -5,9 +5,9 @@ use std::fs;
 use cchol_pm::{Gendered, HasRollRange};
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::{gender::{Gender, GenderBias, HasGender}, resolve::resolve_in_place::ResolveInPlace};
+use rpgassist::{gender::{Gender, GenderBias, HasGender}, resolve::resolve_in_place::ResolveInPlace, serialize::serial_strings::deserialize_strings_to_vec};
 use serde::{Deserialize, Serialize};
-use crate::{modifier::CuMod, roll_range::{UseRollRange, RollRange}, serialize::{deserialize_strings_to_vec, deserialize_cr_range}, traits::personality::{AffectsAlignment, Alignment}};
+use crate::{modifier::CuMod, roll_range::{UseRollRange, RollRange}, serialize::deserialize_cr_range, traits::personality::{AffectsAlignment, Alignment}};
 
 /// Deity "alignments".
 #[derive(Debug, Deserialize, Serialize, Clone)]

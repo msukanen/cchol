@@ -131,23 +131,6 @@ where D: Deserializer<'de> {
     }
 }
 
-/// Deserializes any field that can be either a single String or a Vec<String>.
-pub(crate) fn deserialize_strings_to_vec<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
-where D: Deserializer<'de> {
-    // helper for the two shapes
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    enum StringHalp {
-        S(String),
-        M(Vec<String>),
-    }
-
-    match StringHalp::deserialize(deserializer)? {
-        StringHalp::S(s) => Ok(vec![s]),
-        StringHalp::M(v) => Ok(v),
-    }
-}
-
 /// Deserializes the "culture" field, which can be a single String or a Vec<String>.
 pub(crate) fn deserialize_string_w_optional<'de, D>(deserializer: D) -> Result<(String, Option<String>), D::Error>
 where D: Deserializer<'de> {
