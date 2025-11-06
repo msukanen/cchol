@@ -1,7 +1,7 @@
 //! 865: Color
 //! 
 //! Some colors are exotic in some contexts…
-use std::fs;
+use std::{fmt::Display, fs};
 
 use dicebag::{DiceExt, IsOne, RandomOf};
 use lazy_static::lazy_static;
@@ -16,6 +16,13 @@ pub enum ColorTint {
     /// Randomly either [pastel/light][ColorTint::Pastel] or [dark][ColorTint::Dark].
     fn random() -> Self {
         if 1.d2().is_one() {Self::Pastel} else {Self::Dark}
+    }
+} impl Display for ColorTint {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            Self::Dark => "dark",
+            Self::Pastel => "light",// better to use 'light' than 'pastel' in most cases?
+        })
     }
 }
 
@@ -146,6 +153,15 @@ impl ExoticColor {
             .clone();
         base_color.resolve_as_mundane();
         base_color
+    }
+}
+
+impl Display for ExoticColor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.tint {
+            Some(tint) => write!(f, "{tint} {}", self.name),
+            _ => write!(f, "{}", self.name)
+        }
     }
 }
 
