@@ -10,9 +10,10 @@ use crate::misc::{ExoticColor, Shape};
 /// Birthmark specs live here.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Birthmark {
-    pub location: BodyLocation,
-    pub exotic_color: Option<ExoticColor>,
-    pub shape: Shape,
+    location: BodyLocation,
+    #[serde(default)]
+    exotic_color: Option<ExoticColor>,
+    shape: Shape,
 }
 
 impl Birthmark {
@@ -23,6 +24,11 @@ impl Birthmark {
         let shape = Shape::random();
 
         Self { location, exotic_color, shape }
+    }
+
+    /// Relocate the birthmark. Generally of not much of use, but who knows…
+    pub fn relocate(&mut self, where_to: BodyLocation) {
+        self.location = where_to
     }
 }
 
