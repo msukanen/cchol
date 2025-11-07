@@ -105,20 +105,66 @@ impl From<&'static NobleNote> for Noble {
     }
 }
 
+impl From<NobleNote> for Noble {
+    fn from(value: NobleNote) -> Self {
+        Noble {
+            name: value.name.clone(),
+            timod: value.timod.random(),
+            land_titles: (0..value.land_titles.random())
+                .map(|_| NOBLE_TITLE_PARTS.create_title())
+                .collect(),
+            land_size: value.land_holdings.if_p(|| value.land_size.random()).unwrap_or_default(),
+        }
+    }
+}
+
 impl Noble {
     /// Generate a random culture-appropriate [Noble] entry.
     pub fn random(culture_core: &impl HasCultureCoreType) -> Self {
         let r = 1.d(*NOBLE_DICE);
         let c = culture_core.core_type().to_string();
-        Self::from(NOBLENOTES.iter()
+        let note = NOBLENOTES.iter()
             .find(|n| n.culture.contains(&c) && n.roll_range().contains(&r))
-            .expect(format!("No suitable NobleNote found for '{}' with roll of '{}'", c, r).as_str()))
+            .expect(format!("No suitable NobleNote found for '{}' with roll of '{}'", c, r).as_str());
+        // Refine potential 'prince' stats to be based on either parent, or treated as Archduke (basically)…
+        if let Some(dfp) = &note.derive_from_parent_if {
+            if 1.d100() <= *dfp {
+                let r = 1.d(*NOBLE_DICE);
+                // lets use something appropriate non-prince as parent:
+                let parent = NOBLENOTES.iter()
+                    .find(|n|
+                        n.culture.contains(&c) &&
+                        n.roll_range().contains(&r) &&
+                        n.derive_from_parent_if.is_none()
+                    ).expect(format!("Cannot find suitable parent for '{note:?}' with roll of '{r}'?!").as_str());
+                // 10% to 100% of parents' specs (timod, land size) carry over:
+                let pof = 0.1 * 1.d10() as f64;
+                // nobles have *some* timod no matter what, so if dropping digits gives us zero, ramp it up to 1.
+                let timod = ((parent.timod.random() as f64 * pof) as usize).max(1);
+                let land_size = if 1.d100() <= parent.land_holdings {(parent.land_size.random() as f64 * pof) as usize} else {0};
+                return Noble {
+                    name: note.name.clone(),
+                    timod,
+                    land_titles: vec![],
+                    land_size
+                };
+            } else {// Archduke equivalent...
+                let archd = NOBLENOTES.iter()
+                    .find(|n| n.name().to_lowercase() == "archduke")
+                    .expect(format!("Archduke missing from '{NOBLENOTES_FILE}'?!").as_str());
+                let mut noble = Self::from(archd);
+                noble.name = note.name.clone();
+                return noble;
+            }
+        }
+        Self::from(note)
     }
 
     /// See if the [Noble] entry is compatible with the given [Culture].
     pub fn is_compatible_with(&self, culture: &Culture) -> bool {
         NOBLENOTES.iter()
-            .find(|n| n.name() == self.name() && n.culture.contains(&culture.core_type().to_string())).is_some()
+            .find(|n| n.name() == self.name() && n.culture.contains(&culture.core_type().to_string()))
+            .is_some()
     }
 }
 
@@ -276,19 +322,6 @@ impl IsNamed for NobleNote {
     }
 }
 
-impl NobleNote {
-    /// Get a culture appropriate random noble status.
-    fn random(culture_core: &impl HasCultureCoreType) -> &'static NobleNote {
-        let core_name = culture_core.core_type().to_string();
-        let roll = 1.d100();
-
-        NOBLENOTES.iter()
-            .filter(|note| note.culture.contains(&core_name))
-            .find(|note| note.roll_range().contains(&roll))
-            .expect("What on Earth just happened...?")
-    }
-}
-
 #[cfg(test)]
 mod nobility_data_integrity_tests {
     use super::*;
@@ -300,14 +333,14 @@ mod nobility_data_integrity_tests {
         assert!(NOBLENOTES.len() > 0);
     }
 
-    #[test]
+/*     #[test]
     fn noblenote_for_barbarian_spam() {
         let ct = CultureCoreType::Barbarian;
         for _ in 0..SPAM_COUNT {
             let _ = NobleNote::random(&ct);
         }
     }
-
+ */
     #[test]
     fn prince() {
         let _ = env_logger::try_init();
