@@ -19,6 +19,7 @@ paste = "1"
 cchol-pm = { path = "../cchol-pm" }
 chrono = "0.4.42"
 bitflags = { version = "2.10", features = ["serde"] }
+strum = { version = "0.27.2", features = ["derive"] }
 
 [badges]
 maintenance = { status = "experimental"}
