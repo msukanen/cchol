@@ -10,12 +10,14 @@ use serde::{Deserialize, Deserializer, Serialize, de};
 pub mod pet;
 use pet::PetAbility;
 
+/// "Hooks" for `_special` field.
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub enum AnimalSpecial {
+pub enum AnimalSpecialHandlingHooks {
     Fish,
     Alien,
 }
 
+/// Animal variants — basic distinction between wild and tamed.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum Animal {
     Wild(AnimalCore),
@@ -24,12 +26,15 @@ pub enum Animal {
     /// Tame the animal, if not already a pet.
     pub fn petify(&mut self) {
         if let Animal::Wild(w) = self {
-            *self = Animal::Pet(w.clone())
+            let mut beast = w.clone();
+            beast.pet_abilities = PetAbility::random();
+            *self = Animal::Pet(beast)
         }
     }
 }
 
 bitflags! {
+    /// Environments where any given animal lives/thrives, or which they just commonly utilize.
     #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
     #[serde(transparent)]
     pub struct AnimalEnv: u8 {
@@ -37,7 +42,7 @@ bitflags! {
         const Land   = 1<<1;// 2
         const Air    = 1<<2;// 4
         const Burrow = 1<<3;// 8
-        // Flags which belong to "alien" species resolve().
+        // Flags which belong to "alien" species ([AnimalSpecialHandlingHooks::Alien]) `resolve()`.
         // DO NOT USE anywhere else, arrite?
         const _Space = 1<<4;// 16
         const _Incorporeal = 1<<5;// 32
@@ -61,14 +66,14 @@ where D: Deserializer<'de> {
     })
 }
 
-fn deserialize_animal_special_hook<'de,D>(deserializer:D) -> Result<Option<AnimalSpecial>, D::Error>
+fn deserialize_animal_special_hook<'de,D>(deserializer:D) -> Result<Option<AnimalSpecialHandlingHooks>, D::Error>
 where D: Deserializer<'de> {
     let s_opt = Option::<String>::deserialize(deserializer)?;
     match s_opt {
         None => Ok(None),
         Some(s) => match s.to_lowercase().as_str() {
-            "fish" => Ok(Some(AnimalSpecial::Fish)),
-            "alien" => Ok(Some(AnimalSpecial::Alien)),
+            "fish" => Ok(Some(AnimalSpecialHandlingHooks::Fish)),
+            "alien" => Ok(Some(AnimalSpecialHandlingHooks::Alien)),
             other => Err(de::Error::custom(format!("Unknown _special hook: '{other}'…")))
         }
     }
@@ -83,7 +88,8 @@ pub struct AnimalCore {
     #[serde(default, deserialize_with="deserialize_env_from_num")]
     environment: AnimalEnv,
     #[serde(default)] sab: bool,
-    #[serde(default, rename = "_special")] special: Option<AnimalSpecial>,
+    #[serde(default, rename = "_special", deserialize_with = "deserialize_animal_special_hook")]
+    special: Option<AnimalSpecialHandlingHooks>,
     #[serde(default)] pet_abilities: Vec<PetAbility>,
 } impl AnimalCore {
     /// The animal is an amphibian?
@@ -162,14 +168,14 @@ impl ResolveInPlace for AnimalCore {
         // Apply special 'hooks', if applicable.
         if let Some(spc) = &self.special {
             match spc {
-                AnimalSpecial::Fish => {
+                AnimalSpecialHandlingHooks::Fish => {
                     self.environment = AnimalEnv::Water;
                     if 1.d3().is_one() {
                         // mudskipper etc.
                         self.environment |= AnimalEnv::Land
                     }
                 },
-                AnimalSpecial::Alien => {
+                AnimalSpecialHandlingHooks::Alien => {
                     self.environment = AnimalEnv::from_bits(1.d(63) as u8).unwrap();
                 }
             }
