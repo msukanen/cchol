@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use rpgassist::{gender::{Gender, GenderBias, HasGenderBias}, ext::IsNamed};
 use serde::{Deserialize, Deserializer, Serialize, de};
 
-use crate::{events::RacialEvent, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges}, social::culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}};
+use crate::{events::RacialEvent, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges}, social::{culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}, nobility::Noble, status::SocialStatus}};
 
 static RACE_FILE: &'static str = "./data/race.json";
 lazy_static! {
@@ -107,6 +107,8 @@ pub struct Race {
     #[serde(skip_serializing, default)] gender_bias: GenderBias,
     #[serde(default)] beastman: bool,
     #[serde(default)] reptilian: bool,
+    #[serde(default, skip_serializing)] forced_gender: Option<Gender>,
+    #[serde(default, skip_serializing)] convert_title: Vec<(String, String)>,
 }
 
 impl HasGenderBias for Race {
@@ -196,7 +198,7 @@ impl Race {
         if let Some(name) = name {
             Self::from(name.as_str())
         } else {
-            Self::default()
+            Self::random()
         }
     }
 
@@ -237,6 +239,39 @@ impl Race {
 
     /// Race does at times affect gender distribution, hence…
     pub fn random_gender(&self) -> Gender {
+        if let Some(fg) = &self.forced_gender {
+            return *fg;
+        }
         Gender::random_biased(self.gender_bias)
+    }
+
+    /// Adjust `gender` to conform with the [Race] specs.
+    /// 
+    /// Generally does nothing except when given `gender` that is
+    /// not compatible with the [Race] specs.
+    pub fn adjust_gender(&self, gender: Gender) -> Gender {
+        if let Some(fg) = &self.forced_gender {
+            if gender != *fg {
+                return *fg
+            }
+        }
+        gender
+    }
+
+    /// Adjust social status to conform with [Race] specs.
+    pub fn adjust_social_status(&self, ss: SocialStatus) -> SocialStatus {
+        if self.convert_title.is_empty() { return ss;}
+        
+        if let Some(n) = ss.nobility() {
+            // adjust noble title if needed…
+            for (from_title, to_title) in &self.convert_title {
+                if n.name().to_lowercase() == from_title.to_lowercase() {
+                    let nobility = Some(Noble { name: (to_title.into(), None), ..(*n).clone() });
+                    return SocialStatus { nobility, ..ss };
+                }
+            }
+        }
+        
+        ss
     }
 }

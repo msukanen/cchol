@@ -74,10 +74,10 @@ pub trait TiMod {
 /// PC/NPC noble entry.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Noble {
-    name: (String, Option<String>),
-    timod: usize,
-    land_titles: Vec<String>,
-    land_size: usize,
+    pub(crate) name: (String, Option<String>),
+    pub(crate) timod: usize,
+    pub(crate) land_titles: Vec<String>,
+    pub(crate) land_size: usize,
 }
 
 impl TiMod for Noble {

@@ -19,7 +19,11 @@
             "Male": {
                 "value": 5
             }
-        }
+        },
+        "convert_title": [
+            ["Baron","Thane"],
+            ["Subchieftain","Boss"]
+        ]
     },
     {
         "name": "halfling",
@@ -45,28 +49,38 @@
         "_cr_range": [4579,4596],
         "max_culture": "Nomad",
         "racial_events": "Monster",
-        "beastman": true
+        "beastman": true,
+        "forced_gender": "Female",
+        "convert_title": [
+            ["Kahn","Grand Elder"],// roughly same as prim. High-King
+            ["High King","Grand Elder"],
+            ["Chieftain","Matriarch of the Flock"],
+            ["Subchieftain","Matriarch"]
+        ]
     },
     {
         "name": "satyr",
         "_cr_range": [4597,4605],
         "max_culture": "Barbarian",
         "racial_events": "Monster",
-        "beastman": true
+        "beastman": true,
+        "forced_gender": "Male"
     },
     {
         "name": "goatman",
         "_cr_range": [4606,4614],
         "max_culture": "Barbarian",
         "racial_events": "Monster",
-        "beastman": true
+        "beastman": true,
+        "forced_gender": "Male"
     },
     {
         "name": "minotaur",
         "_cr_range": [4615,4632],
         "max_culture": "Barbarian",
         "racial_events": "Monster",
-        "beastman": true
+        "beastman": true,
+        "forced_gender": "Male"
     },
     // 20 sub 4..5 1d6
     {

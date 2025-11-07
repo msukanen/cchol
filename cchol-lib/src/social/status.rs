@@ -9,8 +9,8 @@ use crate::{modifier::CuMod, social::{culture::{Culture, HasCultureCoreType}, no
 /// Status specs.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct SocialStatus {
-    wealth: Wealth,
-    nobility: Option<Noble>,
+    pub(crate) wealth: Wealth,
+    pub(crate) nobility: Option<Noble>,
 } impl SocialStatus {
     /// Generate [`culture`][Culture]-appropriate random [SocialStatus].
     pub fn random(culture: &Culture) -> Self {
@@ -28,5 +28,13 @@ pub struct SocialStatus {
             n.is_compatible_with(culture)
         } else { true };
         self.wealth.is_compatible_with(culture) && noble_compatible
+    }
+
+    pub fn wealth(&self) -> &Wealth {
+        &self.wealth
+    }
+
+    pub fn nobility(&self) -> Option<&Noble> {
+        self.nobility.as_ref()
     }
 }
