@@ -1,6 +1,6 @@
-use cchol_lib::racial::Race;
+use cchol_lib::{pc::PlayerCharacter, racial::Race, social::culture::Culture};
 use clap::Parser;
-use rpgassist::gender::Gender;
+use rpgassist::{gender::Gender, ext::IsNamed};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -22,9 +22,8 @@ struct Cli {
 fn main() {
     let _ = env_logger::try_init();
     let args = Cli::parse();
-    let race = Race::from_opt(args.race);
-    let gender = race.readjust_gender(Gender::from(args.gender));
+    let pc = PlayerCharacter::random(&args.name);
 
-    println!("Generating stuff for {}; {:?}, {:?}", args.name, gender, race);
+    println!("Generating stuff for {pc:?}");
     //let p = PlayerCharacter::new("MJS", Some(Gender::Male), None);
  }
