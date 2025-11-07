@@ -7,6 +7,8 @@ pub use serious_wound::SeriousWound;
 pub mod datum;
 mod shape;
 pub use shape::Shape;
+mod material;
+pub use material::Substance;
 
 use dicebag::DiceExt;
 
