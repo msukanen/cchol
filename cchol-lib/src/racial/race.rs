@@ -144,28 +144,28 @@ impl Race {
         RACES.get_random_in_range(&*RACE_RANGE_NONHUMAN)
     }
 
-    pub fn shift_culture_if_needed(&self, culture: &'static Culture) -> &'static Culture {
-        if self.max_culture() < culture {
-            return self.max_culture();
+    pub fn shift_culture_if_needed(&self, culture: &Culture) -> Culture {
+        if self.max_culture() < &culture {
+            return self.max_culture().clone();
         }
 
         if !self.shift_civilized_up && !self.shift_nomad_down {
-            return culture;
+            return culture.clone();
         }
 
         if self.shift_civilized_up && culture.is_civilized() {
             if let Some(higher_candidate) = CULTURES.iter()
                     .find(|c| c.cumod() > culture.cumod()) {
-                return higher_candidate;
+                return higher_candidate.clone();
             }
         } else if self.shift_nomad_down && culture.is_nomad() {
             if let Some(lower_candidate) = CULTURES.iter().rev().find(|c| c.cumod() < culture.cumod()) {
-                return lower_candidate;
+                return lower_candidate.clone();
             }
         }
 
         log::debug!("No shifting required");
-        culture
+        culture.clone()
     }
 
     /// Get a race by name.
