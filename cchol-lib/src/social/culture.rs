@@ -12,14 +12,18 @@ use crate::{serialize::{deserialize_fixed_cr_range, validate_cr_ranges}, skill::
 /// FYI: all data files oughta reside within `./data/`.
 static CULTURE_FILE: &'static str = "./data/culture.json";
 lazy_static! {
+    // raw json content… load/validate combo — final published product then in CULTURES below.
+    static ref __CULTURES: Vec<Culture> = serde_jsonc::from_str::<Vec<Culture>>(
+        &fs::read_to_string(CULTURE_FILE).expect(format!("Error with '{CULTURE_FILE}'?!").as_str())
+    ).expect("JSON failure");
+
+    /// Dice type to use for [Culture] [random][Culture::random]'izing.
+    static ref CULTURE_RANGE: RollRange = validate_cr_ranges("CULTURES", &__CULTURES, None);
+
     /// Cultures!
     pub(crate) static ref CULTURES: Vec<Culture> = {
-        let rawcs = serde_jsonc::from_str::<Vec<Culture>>(
-            &fs::read_to_string(CULTURE_FILE)
-                .expect(format!("No '{}' found?!", CULTURE_FILE).as_str())
-        ).expect("JSON failure");
         let mut modded = vec![];
-        rawcs.iter().for_each(|c|{
+        __CULTURES.iter().for_each(|c|{
             match &c.native_of {
                 NativeOf::Choice { primary, secondary } => {
                     modded.push(c.clone());
@@ -33,9 +37,6 @@ lazy_static! {
         });
         modded
     };
-
-    /// Dice type to use for [Culture] [random][Culture::random]'izing.
-    static ref CULTURE_RANGE: RollRange = validate_cr_ranges("CULTURES", &CULTURES, None);
 
     /// Default max [Culture] for e.g. [Race][crate::racial::Race]'s checks.
     pub(crate) static ref CULTURE_DEFAULT_MAX: &'static Culture = &CULTURES.iter()
