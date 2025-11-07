@@ -97,7 +97,7 @@ pub struct PlayerCharacter {
     /// 
     /// Chainable in any order.
     pub fn with_gender(&mut self, gender: Gender) -> &mut Self {
-        self.gender = gender;
+        self.gender = self.race.adjust_gender(gender);
         self
     }
 
@@ -106,6 +106,7 @@ pub struct PlayerCharacter {
     /// Chainable in any order.
     pub fn with_race(&mut self, race: &'static Race) -> &mut Self {
         self.race = race;
+        self.gender = self.race.adjust_gender(self.gender);
         self.culture = self.race.shift_culture_if_needed(&self.culture);
         if !self.status.is_compatible_with(&self.culture) {
             self.status = SocialStatus::random(&self.culture);
