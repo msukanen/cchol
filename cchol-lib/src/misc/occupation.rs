@@ -58,11 +58,9 @@ impl Display for OccupationAchievementLevel {
 
 static WORK_ATTITUDES_FILE: &'static str = "./data/work_attitude.json";
 lazy_static! {
-    static ref WORK_ATTITUDES: Vec<WorkAttitude> = {
-        serde_jsonc::from_str(
+    static ref WORK_ATTITUDES: Vec<WorkAttitude> = serde_jsonc::from_str(
             &fs::read_to_string(WORK_ATTITUDES_FILE).expect(format!("Error with '{WORK_ATTITUDES_FILE}'?!").as_str())
-        ).expect("JSON error")
-    };
+        ).expect("JSON error");
     static ref WORK_ATTITUDES_COUNT: usize = WORK_ATTITUDES.len();
 }
 
