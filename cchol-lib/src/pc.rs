@@ -4,7 +4,7 @@ use cchol_pm::{Gendered, HasName};
 use rpgassist::{ext::IsNamed, gender::{Gender, HasGender}, stat::{Stat, StatBase}};
 use serde::{Deserialize, Serialize};
 
-use crate::{racial::{Race, race::RACE_DEFAULT}, social::{culture::Culture, status::SocialStatus}};
+use crate::{racial::Race, social::{culture::Culture, status::SocialStatus}};
 
 mod serial_pc_race {
     use rpgassist::ext::IsNamed;
@@ -24,6 +24,27 @@ mod serial_pc_race {
     pub(super) fn serialize<S>(race: &&'static Race, serializer: S) -> Result<S::Ok, S::Error>
     where S: Serializer {
         serializer.serialize_str(race.name())
+    }
+}
+
+mod serial_pc_culture {
+    use rpgassist::ext::IsNamed;
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    use crate::social::culture::{CULTURES, Culture};
+
+    pub(super) fn deserialize<'de,D>(deserializer: D) -> Result<&'static Culture, D::Error>
+    where D: Deserializer<'de> {
+        let cult_name = String::deserialize(deserializer)?;
+        // fail-fast if exact name match (case ignorant) isn't found…!
+        Ok(&*CULTURES.iter()
+            .find(|n| n.name().to_lowercase() == cult_name.to_lowercase())
+            .expect(format!("SAVE FILE: non-existent Culture '{cult_name}' defined!").as_str()))
+    }
+
+    pub(super) fn serialize<S>(culture: &&'static Culture, serializer: S) -> Result<S::Ok, S::Error>
+    where S: Serializer {
+        serializer.serialize_str(culture.name())
     }
 }
 
@@ -54,12 +75,13 @@ pub struct PlayerCharacter {
     #[serde(with = "serial_pc_race")]
     race: &'static Race,
     stats: StatMap,
-    culture: Culture,
+    #[serde(with = "serial_pc_culture")]
+    culture: &'static Culture,
     status: SocialStatus,
 } impl PlayerCharacter {
     /// Generate a random PC.
     pub fn random(name: &str) -> Self {
-        let race = &RACE_DEFAULT;
+        let race = Race::default();
         let culture = Culture::random(race.max_culture());
         Self {
             name: name.into(),
@@ -94,8 +116,8 @@ pub struct PlayerCharacter {
     /// Builder for specific [`culture`][Culture].
     /// 
     /// Chainable in any order.
-    pub fn with_culture(&mut self, cult: &'static Culture) -> &mut Self {
-        self.culture = cult.clone();
+    pub fn with_culture(&mut self, culture: &'static Culture) -> &mut Self {
+        self.culture = culture;
         self.culture = self.race.shift_culture_if_needed(&self.culture);
         if !self.status.is_compatible_with(&self.culture) {
             self.status = SocialStatus::random(&self.culture);

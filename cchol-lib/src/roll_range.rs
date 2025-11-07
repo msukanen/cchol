@@ -1,4 +1,5 @@
-use dicebag::InclusiveRandomRange;
+use dicebag::{InclusiveRandomRange, RandomOf};
+use rpgassist::ext::GetTypeName;
 
 pub type RollRange = std::ops::RangeInclusive<i32>;
 
@@ -17,8 +18,12 @@ where
 {
     fn get_random_in_range(&self, range: &RollRange) -> &T {
         let roll = range.random_of();
-        self.iter()
-            .find(|r| r.roll_range().contains(&roll))
-            .expect(format!("Roll '{roll}' out of range or some other logic failure…").as_str())
+        let found = self.iter()
+            .filter(|r| r.roll_range().contains(&roll))
+            .collect::<Vec<&T>>();
+        if found.is_empty() {
+            panic!("{} - roll '{roll}' out of range or some other logic failure…", self.type_name())
+        }
+        found.random_of()
     }
 }

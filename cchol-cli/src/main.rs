@@ -1,3 +1,4 @@
+use cchol_lib::racial::Race;
 use clap::Parser;
 use rpgassist::gender::Gender;
 
@@ -13,15 +14,17 @@ struct Cli {
     gender: Option<String>,
     #[arg(short, long)]
     race: Option<String>,
+    #[arg(short, long)]
+    culture: Option<String>,
 }
 
 /// Simple CLI thingy.
-fn main() {/*
+fn main() {
     let _ = env_logger::try_init();
     let args = Cli::parse();
-    let race = Race::from(args.race);
+    let race = Race::from_opt(args.race);
     let gender = race.readjust_gender(Gender::from(args.gender));
 
     println!("Generating stuff for {}; {:?}, {:?}", args.name, gender, race);
     //let p = PlayerCharacter::new("MJS", Some(Gender::Male), None);
- */}
+ }

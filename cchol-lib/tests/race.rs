@@ -1,10 +1,10 @@
 mod race_tests {
     use rpgassist::ext::IsNamed;
-    use cchol_lib::{racial::race::{RACE_DEFAULT, Race}, social::culture::Culture};
+    use cchol_lib::{racial::race::Race, social::culture::Culture};
 
     #[test]
     fn race_data_integrity() {
-        let r = *RACE_DEFAULT;
+        let r = Race::default();
         assert_eq!(r.name(), "human");
     }
 

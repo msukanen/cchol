@@ -13,11 +13,26 @@ use crate::{serialize::{deserialize_fixed_cr_range, validate_cr_ranges}, skill::
 static CULTURE_FILE: &'static str = "./data/culture.json";
 lazy_static! {
     /// Cultures!
-    pub(crate) static ref CULTURES: Vec<Culture>
-        = serde_jsonc::from_str::<Vec<Culture>>(
+    pub(crate) static ref CULTURES: Vec<Culture> = {
+        let rawcs = serde_jsonc::from_str::<Vec<Culture>>(
             &fs::read_to_string(CULTURE_FILE)
                 .expect(format!("No '{}' found?!", CULTURE_FILE).as_str())
         ).expect("JSON failure");
+        let mut modded = vec![];
+        rawcs.iter().for_each(|c|{
+            match &c.native_of {
+                NativeOf::Choice { primary, secondary } => {
+                    modded.push(c.clone());
+                    modded.push(c.clone());
+                    let mut flipped = c.clone();
+                    flipped.native_of = NativeOf::Choice { primary: secondary.clone(), secondary: primary.clone() };
+                    modded.push(flipped);
+                }
+                _ => modded.push(c.clone()),
+            }
+        });
+        modded
+    };
 
     /// Dice type to use for [Culture] [random][Culture::random]'izing.
     static ref CULTURE_RANGE: RollRange = validate_cr_ranges("CULTURES", &CULTURES, None);
@@ -125,23 +140,13 @@ impl IsNativeOf for Culture {
 
 impl Culture {
     /// Generate a random [Culture] entry which respects given max.
-    pub fn random<C: CuMod>(max_culture_mod: &C) -> Culture {
+    pub fn random<C: CuMod>(max_culture_mod: &C) -> &'static Culture {
         let max_cumod = max_culture_mod.cumod();
         loop {
             let candidate = Self::random_unbiased();
             if candidate.cumod() <= max_cumod {
-                //#[cfg(test)]{log::debug!("Candidate {:?} accepted", candidate.name())}
-                
-                if let NativeOf::Choice { primary, secondary } = &candidate.native_of {
-                    // To spice things up a bit, potentially swap primary/secondary…
-                    if 1.d3() == 1 {
-                        return Self { native_of: NativeOf::Choice { primary: secondary.clone(), secondary: primary.clone() }, ..candidate.clone() }
-                    }
-                }
-                
-                return candidate.clone();
+                return candidate;
             }
-            //#[cfg(test)] {log::debug!("Entry exceeded max_cumod, rerolling...")}
         }
     }
 

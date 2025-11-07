@@ -30,7 +30,7 @@ lazy_static! {
 
     /// The 'default' race to use when non-random race is required, which
     /// usually is "human" but can be defined to be whatever else is present.
-    pub static ref RACE_DEFAULT: &'static Race = {
+    static ref RACE_DEFAULT: &'static Race = {
         let defaults: Vec<&'static Race> = RACES.iter()
             .filter(|r| r.is_default())
             .collect();
@@ -136,45 +136,73 @@ impl Race {
         self._default.unwrap_or_default()
     }
 
+    /// Get a random [Race].
     pub fn random() -> &'static Race {
         RACES.get_random_in_range(&*RACE_RANGE)
     }
 
+    /// Get a random non-human [Race].
     pub fn random_nonhuman() -> &'static Race {
         RACES.get_random_in_range(&*RACE_RANGE_NONHUMAN)
     }
 
-    pub fn shift_culture_if_needed(&self, culture: &Culture) -> Culture {
+    /// Shift culture one way or the other if the given `culture` doesn't
+    /// comply with the [Race]'s requirements.
+    /// 
+    /// # Returns
+    /// **a)** a clone of `culture` itself, or
+    /// **b)** a shifted [Culture] instance.
+    pub fn shift_culture_if_needed(&self, culture: &'static Culture) -> &'static Culture {
         if self.max_culture() < &culture {
-            return self.max_culture().clone();
+            return self.max_culture();
         }
 
         if !self.shift_civilized_up && !self.shift_nomad_down {
-            return culture.clone();
+            return culture;
         }
-
-        if self.shift_civilized_up && culture.is_civilized() {
+        else if self.shift_civilized_up && culture.is_civilized() {
             if let Some(higher_candidate) = CULTURES.iter()
                     .find(|c| c.cumod() > culture.cumod()) {
-                return higher_candidate.clone();
+                return higher_candidate;
             }
-        } else if self.shift_nomad_down && culture.is_nomad() {
-            if let Some(lower_candidate) = CULTURES.iter().rev().find(|c| c.cumod() < culture.cumod()) {
-                return lower_candidate.clone();
+        }
+        else if self.shift_nomad_down && culture.is_nomad() {
+            if let Some(lower_candidate) = CULTURES
+                    .iter()
+                    .rev() // to find the nearest smaller-than. Without .rev() we'd always hit rock bottom instead.
+                    .find(|c| c.cumod() < culture.cumod())
+            {
+                return lower_candidate;
             }
         }
 
         log::debug!("No shifting required");
-        culture.clone()
+        culture
     }
 
-    /// Get a race by name.
+    /// Get a race by `name`.
     /// 
     /// **FYI:** We *intentionally* panic if `value` is not found.
-    pub fn from(value: &str) -> &'static Self {
+    pub fn from(name: &str) -> &'static Self {
         RACES.iter()
-            .find(|r| r.name().to_lowercase() == value.to_lowercase())
-            .expect(format!("No race called '{}' found!", value).as_str())
+            .find(|r| r.name().to_lowercase() == name.to_lowercase())
+            .expect(format!("No race called '{name}' found!").as_str())
+    }
+
+    /// Get a race by (optional) `name`.
+    /// 
+    /// If no name is provided (`None`), then we hand out the default race.
+    pub fn from_opt(name: Option<String>) -> &'static Self {
+        if let Some(name) = name {
+            Self::from(name.as_str())
+        } else {
+            Self::default()
+        }
+    }
+
+    /// Hand out a static ref to the default [Race].
+    pub fn default() -> &'static Self {
+        &RACE_DEFAULT
     }
 
     /// See if the [Race] is a human+other hybrid.
