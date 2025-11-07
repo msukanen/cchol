@@ -4,7 +4,7 @@ use std::{fmt::Display, fs::{self}};
 use cchol_pm::HasRollRange;
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use rpgassist::ext::IsNamed;
 
 use crate::{serialize::{deserialize_fixed_cr_range, validate_cr_ranges}, skill::{IsLiteracySource, native_env::{IsNativeOf, NativeOf}}, roll_range::*};
@@ -78,7 +78,7 @@ pub trait CuMod {
 }
 
 /// Culture dwells here.
-#[derive(Debug, Deserialize, Clone, HasRollRange)]
+#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange)]
 pub struct Culture {
     name: String,
     cumod: i32,

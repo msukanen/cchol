@@ -4,12 +4,13 @@ use std::fs;
 
 use lazy_static::lazy_static;
 
-use rpgassist::{resolve::resolve_in_place::ResolveInPlace, ext::IsNamed};
+use rpgassist::{resolve::resolve_in_place::ResolveInPlace, ext::IsNamed, serialize::serial_strings::deserialize_strings_to_vec};
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, DiceT};
 
-use crate::{modifier::CuMod, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}};
+use crate::{modifier::CuMod, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}, social::culture::Culture};
 
+/// Wealth specs.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Wealth {
     name: String,
@@ -26,6 +27,8 @@ pub struct Wealth {
         deserialize_with = "deserialize_optional_cr_range",
         default
     )]  _cr_range: Option<std::ops::RangeInclusive<i32>>,
+    #[serde(deserialize_with = "deserialize_strings_to_vec")]
+    cultures: Vec<String>,
 }
 
 impl IsNamed for Wealth {
@@ -48,6 +51,12 @@ impl Wealth {
 
         mk_wealth(cumod_src.cumod())
     }
+
+    /// Check if current [Wealth] level is compatible with the given [`culture`][Culture]'s specs.
+    pub fn is_compatible_with(&self, culture: &Culture) -> bool {
+        self.cultures.contains(&"all".into()) ||
+        self.cultures.iter().find(|name| name.to_lowercase() == culture.name().to_lowercase()).is_some()
+    }
 }
 
 impl ResolveInPlace for Wealth {
@@ -68,12 +77,9 @@ impl UseRollRange for Wealth {
 
 static WEALTH_FILE: &'static str = "./data/wealth.json";
 lazy_static! {
-    static ref WEALTH: Vec<Wealth> = {
-        serde_jsonc::from_str(
-            &fs::read_to_string(WEALTH_FILE)
-                .expect(format!("No '{}' found?", WEALTH_FILE).as_str())
-        ).expect("JSON failed")
-    };
+    static ref WEALTH: Vec<Wealth> = serde_jsonc::from_str(
+            &fs::read_to_string(WEALTH_FILE).expect(format!("Error with '{WEALTH_FILE}'?!").as_str())
+        ).expect("JSON error");
 }
 
 #[cfg(test)]
@@ -106,7 +112,7 @@ mod wealth_data_integrity {
     fn survival_mod_resolve() {
         let _ = env_logger::try_init();
         for _ in SPAM_RANGE.clone() {
-            let mut w = WEALTH.iter().find(|w| w.name().to_lowercase() == "destitute").unwrap().clone();
+            let w = WEALTH.iter().find(|w| w.name().to_lowercase() == "destitute").unwrap().clone();
             assert!(w.survival_mod.0 == 1 || w.survival_mod.0 == 2);
             assert_eq!(w.survival_mod.1, 1);
         }

@@ -8,7 +8,7 @@ use rpgassist::{gender::{Gender, GenderBias, HasGender}, ext::IsNamed, serialize
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, InclusiveRandomRange, percentage_chance_of};
 
-use crate::{misc::ConditionalExec, serialize::{deserialize_cr_range, deserialize_string_w_optional}, social::culture::{CultureCoreType, HasCultureCoreType}, roll_range::*};
+use crate::{misc::ConditionalExec, roll_range::*, serialize::{deserialize_cr_range, deserialize_string_w_optional}, social::culture::{Culture, CultureCoreType, HasCultureCoreType}};
 
 static NOBLENOTES_FILE: &'static str = "./data/nobility.json";
 static NOBLE_TITLE_PARTS_FILE: &'static str = "./data/land_titles.json";
@@ -113,6 +113,12 @@ impl Noble {
         Self::from(NOBLENOTES.iter()
             .find(|n| n.culture.contains(&c) && n.roll_range().contains(&r))
             .expect(format!("No suitable NobleNote found for '{}' with roll of '{}'", c, r).as_str()))
+    }
+
+    /// See if the [Noble] entry is compatible with the given [Culture].
+    pub fn is_compatible_with(&self, culture: &Culture) -> bool {
+        NOBLENOTES.iter()
+            .find(|n| n.name() == self.name() && n.culture.contains(&culture.core_type().to_string())).is_some()
     }
 }
 
