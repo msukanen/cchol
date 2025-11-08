@@ -1,8 +1,7 @@
 //! 102: Culture
 use std::{fmt::Display, fs::{self}};
 
-use cchol_pm::HasRollRange;
-use dicebag::DiceExt;
+use cchol_pm::{HasCuMod, HasName, HasRollRange};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use rpgassist::ext::IsNamed;
@@ -94,7 +93,10 @@ pub trait CuMod {
 }
 
 /// Culture dwells here.
-#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange)]
+#[derive(
+    Debug, Deserialize, Serialize, Clone,
+    HasRollRange, HasName, HasCuMod,
+)]
 pub struct Culture {
     name: String,
     cumod: i32,
@@ -117,18 +119,6 @@ impl PartialEq for Culture {
 impl PartialOrd for Culture {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.cumod.partial_cmp(&other.cumod)
-    }
-}
-
-impl CuMod for Culture {
-    fn cumod(&self) -> i32 {
-        self.cumod
-    }
-}
-
-impl IsNamed for Culture {
-    fn name(&self) -> &str {
-        &self.name
     }
 }
 

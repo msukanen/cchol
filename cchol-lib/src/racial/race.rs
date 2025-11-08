@@ -245,7 +245,7 @@ impl Race {
         Gender::random_biased(self.gender_bias)
     }
 
-    /// Adjust `gender` to conform with the [Race] specs.
+    /// Adjust `gender` to conform with the [Race] specs, if needed.
     /// 
     /// Generally does nothing except when given `gender` that is
     /// not compatible with the [Race] specs.
@@ -258,7 +258,7 @@ impl Race {
         gender
     }
 
-    /// Adjust social status to conform with [Race] specs.
+    /// Adjust social status to conform with [Race] specs, if needed.
     pub fn adjust_social_status(&self, ss: SocialStatus) -> SocialStatus {
         if self.convert_title.is_empty() { return ss;}
         

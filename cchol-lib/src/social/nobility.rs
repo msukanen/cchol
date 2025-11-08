@@ -2,7 +2,7 @@
 //! 758: Nobles
 
 use std::fs;
-use cchol_pm::{Gendered, HasRollRange};
+use cchol_pm::{Gendered, HasRollRange, HasTiMod};
 use lazy_static::lazy_static;
 use rpgassist::{gender::{Gender, GenderBias, HasGender}, ext::IsNamed, serialize::serial_strings::deserialize_strings_to_vec};
 use serde::{Deserialize, Serialize};
@@ -10,16 +10,15 @@ use dicebag::{DiceExt, InclusiveRandomRange, percentage_chance_of};
 
 use crate::{misc::ConditionalExec, roll_range::*, serialize::{deserialize_cr_range, deserialize_string_w_optional}, social::culture::{Culture, CultureCoreType, HasCultureCoreType}};
 
+static TIMOD_HARD_CAP: usize = 100;
 static NOBLENOTES_FILE: &'static str = "./data/nobility.json";
 static NOBLE_TITLE_PARTS_FILE: &'static str = "./data/land_titles.json";
 lazy_static! {
     // Load and parse NobleNotes …
-    static ref NOBILITYFILE: NobilityFile = {
-        serde_jsonc::from_str(
+    static ref NOBILITYFILE: NobilityFile = serde_jsonc::from_str(
             &fs::read_to_string(NOBLENOTES_FILE)
                 .expect(format!("No '{}' found?!", NOBLENOTES_FILE).as_str())
-        ).expect("JSON error")
-    };
+        ).expect("JSON error");
 
     // Accessor for NobilityFile.titles …
     static ref NOBLENOTES: &'static Vec<NobleNote> = &NOBILITYFILE.titles;
@@ -68,6 +67,7 @@ impl NobleTitleParts {
 
 /// A trait for anything that deals with **TiMod**.
 pub trait TiMod {
+    /// Get **TiMod**.
     fn timod(&self) -> i32;
 }
 
@@ -78,11 +78,13 @@ pub struct Noble {
     pub(crate) timod: usize,
     pub(crate) land_titles: Vec<String>,
     pub(crate) land_size: usize,
+    pub(crate) _cr_range: RollRange,
 }
 
 impl TiMod for Noble {
     fn timod(&self) -> i32 {
-        self.timod.min(i32::MAX as usize) as i32
+        // TiMod hard cap: 100, which itself is somewhat absurd, considering that (default) Emperor has TiMod of 60.
+        self.timod.min(TIMOD_HARD_CAP) as i32
     }
 }
 
@@ -93,27 +95,15 @@ impl IsNamed for Noble {
 }
 
 impl From<&'static NobleNote> for Noble {
-    fn from(value: &'static NobleNote) -> Self {
+    fn from(note: &'static NobleNote) -> Self {
         Noble {
-            name: value.name.clone(),
-            timod: value.timod.random(),
-            land_titles: (0..value.land_titles.random())
+            name: note.name.clone(),
+            timod: note.timod.random(),
+            land_titles: (0..note.land_titles.random())
                 .map(|_| NOBLE_TITLE_PARTS.create_title())
                 .collect(),
-            land_size: value.land_holdings.if_p(|| value.land_size.random()).unwrap_or_default(),
-        }
-    }
-}
-
-impl From<NobleNote> for Noble {
-    fn from(value: NobleNote) -> Self {
-        Noble {
-            name: value.name.clone(),
-            timod: value.timod.random(),
-            land_titles: (0..value.land_titles.random())
-                .map(|_| NOBLE_TITLE_PARTS.create_title())
-                .collect(),
-            land_size: value.land_holdings.if_p(|| value.land_size.random()).unwrap_or_default(),
+            land_size: note.land_holdings.if_p(|| note.land_size.random()).unwrap_or_default(),
+            _cr_range: note._cr_range.clone(),
         }
     }
 }
@@ -146,7 +136,8 @@ impl Noble {
                     name: note.name.clone(),
                     timod,
                     land_titles: vec![],
-                    land_size
+                    land_size,
+                    _cr_range: note._cr_range.clone()
                 };
             } else {// Archduke equivalent...
                 let archd = NOBLENOTES.iter()
@@ -163,8 +154,33 @@ impl Noble {
     /// See if the [Noble] entry is compatible with the given [Culture].
     pub fn is_compatible_with(&self, culture: &Culture) -> bool {
         NOBLENOTES.iter()
-            .find(|n| n.name() == self.name() && n.culture.contains(&culture.core_type().to_string()))
-            .is_some()
+            .find(|n|
+                n.name() == self.name() &&
+                n.culture.contains(&culture.core_type().to_string())
+            ).is_some()
+    }
+
+    /// Find next higher rank in noble hierarchy, if any.
+    pub(in crate::social) fn get_next_higher_rank(&self, culture: &Culture) -> Option<&'static NobleNote> {
+        let note = NOBLENOTES.iter()
+            .find(|n|
+                n.roll_range().contains(&(self._cr_range.start() - 1)) &&
+                n.culture.contains(&culture.core_type().to_string())
+            );
+        if let Some(_) = note {
+            return note;
+        }
+        // no next higher rank available...?
+        None
+    }
+
+    /// Find the lowest rung in the noble hierarchy. Usually something like 'hetman' or 'knight', etc.
+    pub(in crate::social) fn get_lowest_rank(culture: &Culture) -> &'static NobleNote {
+        NOBLENOTES.iter()
+            .find(|n|
+                n.roll_range().contains(&(*NOBLE_DICE as i32)) &&
+                n.culture.contains(&culture.core_type().to_string())
+            ).expect(format!("Some serious error with _cr_range in JSON - can't find an entry with '{}' for '{}'", *NOBLE_DICE, culture.name()).as_str())
     }
 }
 
@@ -174,9 +190,7 @@ pub struct SimpleNobleNPC {
     pub name: String,
     gender: Gender,
     pub nobility: Noble,
-}
-
-impl SimpleNobleNPC {
+} impl SimpleNobleNPC {
     /// Generate a random noble (NPC) with/from the given specs.
     pub fn new_cultured(name: &str, culture_core: &impl HasCultureCoreType) -> Self {
         Self {
@@ -205,6 +219,10 @@ impl SimpleNobleNPC {
             _ => CultureCoreType::Decadent
         }.core_type())
     }
+} impl TiMod for SimpleNobleNPC {
+    fn timod(&self) -> i32 {
+        self.nobility.timod()
+    }
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -231,16 +249,19 @@ impl TiModDecisionMethod {
     }
 }
 
+/// Helper for ___DecisionMethod structs.
 #[derive(Debug, Deserialize, Clone)]
 struct ValueRange {
     range: std::ops::RangeInclusive<i32>
 }
 
+/// Helper for ___DecisionMethod structs.
 #[derive(Debug, Deserialize, Clone)]
 struct PercentChance {
     p: u32
 }
 
+/// Land titles existence decision method.
 #[derive(Debug, Deserialize, Clone)]
 #[serde(untagged)]
 enum LandTitlesDecisionMethod {
@@ -249,9 +270,7 @@ enum LandTitlesDecisionMethod {
     RollRange((i32,usize)),
     PercentageChanceOfOne(PercentChance),
     DeriveFromParent,
-}
-
-impl LandTitlesDecisionMethod {
+} impl LandTitlesDecisionMethod {
     fn random(&self) -> usize {
         (match self {
             Self::CountRange(r) => r.range.random_of(),
@@ -302,7 +321,7 @@ impl LandSizeDecisionMethod {
 }
 
 #[derive(Debug, Deserialize, Clone, HasRollRange)]
-struct NobleNote {
+pub struct NobleNote {
     #[serde(deserialize_with = "deserialize_string_w_optional")]
     name: (String, Option<String>),
     #[serde(default)] timod: TiModDecisionMethod,
@@ -322,25 +341,33 @@ impl IsNamed for NobleNote {
     }
 }
 
+impl NobleNote {
+    /// Find a [NobleNote] by title.
+    /// 
+    /// Search may or may not result with multiple entries, depending™.
+    /// 
+    /// # Returns
+    /// **a)** `None` if nothing matching found,
+    /// **b)** ref vec of match(es).
+    pub fn find(name: &str) -> Option<Vec<&'static NobleNote>> {
+        let notes = NOBLENOTES.iter()
+            .filter(|note| note.name().to_lowercase() == name.to_lowercase())
+            .collect::<Vec<&'static NobleNote>>();
+        if notes.is_empty() { return None }
+        
+        Some(notes)
+    }
+}
+
 #[cfg(test)]
 mod nobility_data_integrity_tests {
     use super::*;
-
-    static SPAM_COUNT: usize = 1001;
 
     #[test]
     fn nobility_json_ok() {
         assert!(NOBLENOTES.len() > 0);
     }
 
-/*     #[test]
-    fn noblenote_for_barbarian_spam() {
-        let ct = CultureCoreType::Barbarian;
-        for _ in 0..SPAM_COUNT {
-            let _ = NobleNote::random(&ct);
-        }
-    }
- */
     #[test]
     fn prince() {
         let _ = env_logger::try_init();
