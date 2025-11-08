@@ -149,6 +149,8 @@ pub struct PlayerCharacter {
 
     /// See how much moneys the character has… at start.
     pub fn starting_money(&self) -> f64 {
-        self.starting_money * self.status.wealth().starting_money_mod()
+        self.starting_money
+        * self.status.wealth().starting_money_mod()
+        * self.birth.starting_money_mod()
     }
 }

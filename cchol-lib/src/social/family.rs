@@ -75,7 +75,7 @@ pub enum FamilyStructure {
             16 => Self::AuntOrUncle { specs: RelationSubType::random(RelationSubType::Auncle, Gender::random(), Gender::random())},
             ..=18 => Self::SingleParent { gender: Gender::Female }/* mom, obviously */,
             19 => Self::SingleParent { gender: Gender::Male }/* dad, ditto */,
-            20 => Self::Guardian(Guardian::random(culture)),
+            //20 => Self::Guardian(Guardian::random(culture)),
             ..=24 => Self::StreetKid { survival_mod: 1.d3() },
             _ => Self::Orphanage
         }
