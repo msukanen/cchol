@@ -5,6 +5,7 @@ pub(crate) mod ext;
 pub mod misc;
 pub mod modifier;
 pub mod pc;
+pub mod places;
 pub mod racial;
 pub mod roll_range;
 pub(crate) mod serialize;
