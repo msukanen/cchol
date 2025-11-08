@@ -2,16 +2,17 @@
 
 use std::fs;
 
+use cchol_pm::{HasName, HasSolMod};
 use lazy_static::lazy_static;
 
-use rpgassist::{resolve::resolve_in_place::ResolveInPlace, ext::IsNamed, serialize::serial_strings::deserialize_strings_to_vec};
+use rpgassist::{resolve::resolve_in_place::ResolveInPlace, ext::IsNamed, serialize::{serial_strings::deserialize_strings_to_vec, serial_uf64::deserialize as uf64_deserialize}};
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, DiceT};
 
-use crate::{modifier::CuMod, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}, social::culture::Culture};
+use crate::{modifier::{CuMod, SolMod}, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}, social::culture::Culture, misc::defaults::f64::one_f64};
 
 /// Wealth specs.
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, HasName, HasSolMod)]
 pub struct Wealth {
     name: String,
     #[serde(default)] aliases: Option<Vec<String>>,
@@ -29,12 +30,8 @@ pub struct Wealth {
     )]  _cr_range: Option<std::ops::RangeInclusive<i32>>,
     #[serde(deserialize_with = "deserialize_strings_to_vec")]
     cultures: Vec<String>,
-}
-
-impl IsNamed for Wealth {
-    fn name(&self) -> &str {
-        &self.name
-    }
+    #[serde(rename = "starting$", deserialize_with = "uf64_deserialize", default = "one_f64")]
+    starting_money_mod: f64,
 }
 
 impl Wealth {
@@ -56,6 +53,11 @@ impl Wealth {
     pub fn is_compatible_with(&self, culture: &Culture) -> bool {
         self.cultures.contains(&"all".into()) ||
         self.cultures.iter().find(|name| name.to_lowercase() == culture.name().to_lowercase()).is_some()
+    }
+
+    /// Get starting money modifier.
+    pub fn starting_money_mod(&self) -> f64 {
+        self.starting_money_mod
     }
 }
 

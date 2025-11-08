@@ -1,11 +1,16 @@
+//! # **Player Character**
 use std::collections::HashMap;
 
 use cchol_pm::{Gendered, HasName};
-use rpgassist::{ext::IsNamed, gender::{Gender, HasGender}, stat::{Stat, StatBase}};
+use rpgassist::{ext::IsNamed, gender::{Gender, HasGender}, stat::{Stat, StatBase}, serialize::serial_uf64::deserialize as uf64_deserialize};
 use serde::{Deserialize, Serialize};
 
 use crate::{racial::Race, social::{culture::Culture, status::SocialStatus}};
 
+/// Default starting money, be it $, €, credits, gold, or something else.
+static DEFAULT_STARTING_MONEY: f64 = 1_000.0;
+
+/// (De)serializer for PC save [Race] entry.
 mod serial_pc_race {
     use rpgassist::ext::IsNamed;
     use serde::{Deserialize, Deserializer, Serializer};
@@ -27,6 +32,7 @@ mod serial_pc_race {
     }
 }
 
+/// (De)serialized for PC save [Culture] entry.
 mod serial_pc_culture {
     use rpgassist::ext::IsNamed;
     use serde::{Deserialize, Deserializer, Serializer};
@@ -48,10 +54,12 @@ mod serial_pc_culture {
     }
 }
 
+/// [Stat] map for e.g. [PlayerCharacter] etc.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct StatMap(HashMap<StatBase, Stat>);
 
 impl Default for StatMap {
+    /// Generate default [StatMap] with more or less sensible default values for each stat present.
     fn default() -> Self {
         let mut map = HashMap::new();
         map.insert(StatBase::Age, StatBase::Age.default());
@@ -67,6 +75,8 @@ impl Default for StatMap {
     }
 }
 
+fn get_starting_money_default() -> f64 {DEFAULT_STARTING_MONEY}
+
 /// Player Character data lives here, obviously(?)…
 #[derive(Debug, Deserialize, Serialize, Clone, HasName, Gendered)]
 pub struct PlayerCharacter {
@@ -78,6 +88,8 @@ pub struct PlayerCharacter {
     #[serde(with = "serial_pc_culture")]
     culture: &'static Culture,
     status: SocialStatus,
+    #[serde(deserialize_with = "uf64_deserialize", default = "get_starting_money_default")]
+    starting_money: f64,
 } impl PlayerCharacter {
     /// Generate a random PC.
     pub fn random(name: &str) -> Self {
@@ -89,7 +101,8 @@ pub struct PlayerCharacter {
             stats: StatMap::default(),
             race,
             status: SocialStatus::random(&culture),
-            culture
+            culture,
+            starting_money: DEFAULT_STARTING_MONEY,
         }
     }
 
@@ -124,5 +137,16 @@ pub struct PlayerCharacter {
             self.status = SocialStatus::random(&self.culture);
         }
         self
+    }
+
+    /// Builder for non-default base starting money.
+    pub fn with_starting_money(&mut self, base_money: f64) -> &mut Self {
+        self.starting_money = base_money.max(0.0);// 0.0 minimum so we don't not start with debt…
+        self
+    }
+
+    /// See how much moneys the character has… at start.
+    pub fn starting_money(&self) -> f64 {
+        self.starting_money * self.status.wealth().starting_money_mod()
     }
 }
