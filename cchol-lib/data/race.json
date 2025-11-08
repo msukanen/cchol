@@ -56,7 +56,8 @@
             ["High King","Grand Elder"],
             ["Chieftain","Matriarch of the Flock"],
             ["Subchieftain","Matriarch"]
-        ]
+        ],
+        "lineage_strictness": "CommunalOrMatriarchal"
     },
     {
         "name": "satyr",
@@ -64,7 +65,8 @@
         "max_culture": "Barbarian",
         "racial_events": "Monster",
         "beastman": true,
-        "forced_gender": "Male"
+        "forced_gender": "Male",
+        "lineage_strictness": "NotApplicable"
     },
     {
         "name": "goatman",
@@ -72,7 +74,8 @@
         "max_culture": "Barbarian",
         "racial_events": "Monster",
         "beastman": true,
-        "forced_gender": "Male"
+        "forced_gender": "Male",
+        "lineage_strictness": "NotApplicable"
     },
     {
         "name": "minotaur",
@@ -80,7 +83,8 @@
         "max_culture": "Barbarian",
         "racial_events": "Monster",
         "beastman": true,
-        "forced_gender": "Male"
+        "forced_gender": "Male",
+        "lineage_strictness": "NotApplicable"
     },
     // 20 sub 4..5 1d6
     {
@@ -112,7 +116,8 @@
         "name": "orc",
         "_cr_range": [4681,4704],
         "max_culture": "Barbarian",
-        "racial_events": "Monster"
+        "racial_events": "Monster",
+        "lineage_strictness": "NotApplicable"
     },
     // 20 sub 7..10
     {

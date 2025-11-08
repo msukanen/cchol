@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use rpgassist::{gender::{Gender, GenderBias, HasGenderBias}, ext::IsNamed};
 use serde::{Deserialize, Deserializer, Serialize, de};
 
-use crate::{events::RacialEvent, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges}, social::{culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}, nobility::Noble, status::SocialStatus}};
+use crate::{events::RacialEvent, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges}, social::{LineageStrictness, culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}, nobility::Noble, status::SocialStatus}};
 
 static RACE_FILE: &'static str = "./data/race.json";
 lazy_static! {
@@ -109,6 +109,7 @@ pub struct Race {
     #[serde(default)] reptilian: bool,
     #[serde(default, skip_serializing)] forced_gender: Option<Gender>,
     #[serde(default, skip_serializing)] convert_title: Vec<(String, String)>,
+    #[serde(default)] lineage_strictness: LineageStrictness,
 }
 
 impl HasGenderBias for Race {
@@ -273,5 +274,10 @@ impl Race {
         }
         
         ss
+    }
+
+    /// Get racial [lineage strictness][LineageStrictness].
+    pub fn lineage_strictness(&'static self) -> &'static LineageStrictness {
+        &self.lineage_strictness
     }
 }

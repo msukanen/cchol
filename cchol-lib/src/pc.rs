@@ -5,7 +5,7 @@ use cchol_pm::{Gendered, HasName};
 use rpgassist::{ext::IsNamed, gender::{Gender, HasGender}, stat::{Stat, StatBase}, serialize::serial_uf64::deserialize as uf64_deserialize};
 use serde::{Deserialize, Serialize};
 
-use crate::{racial::Race, social::{culture::Culture, status::SocialStatus}};
+use crate::{racial::Race, social::{birth::Birth, culture::Culture, status::SocialStatus}};
 
 /// Default starting money, be it $, €, credits, gold, or something else.
 static DEFAULT_STARTING_MONEY: f64 = 1_000.0;
@@ -90,19 +90,21 @@ pub struct PlayerCharacter {
     status: SocialStatus,
     #[serde(deserialize_with = "uf64_deserialize", default = "get_starting_money_default")]
     starting_money: f64,
+    birth: Birth,
 } impl PlayerCharacter {
     /// Generate a random PC.
     pub fn random(name: &str) -> Self {
         let race = Race::default();
         let culture = Culture::random(race.max_culture());
+        let gender = race.random_gender();
         Self {
             name: name.into(),
-            gender: race.random_gender(),
             stats: StatMap::default(),
-            race,
             status: SocialStatus::random(&culture),
-            culture,
             starting_money: DEFAULT_STARTING_MONEY,
+            birth: Birth::random(&gender, race, culture),
+
+            gender, race, culture,
         }
     }
 
