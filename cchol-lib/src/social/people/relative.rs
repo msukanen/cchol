@@ -2,6 +2,8 @@ use dicebag::DiceExt;
 use rpgassist::gender::{Gender, HasGender};
 use serde::{Deserialize, Serialize};
 
+use crate::racial::Race;
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum CousinDistance {
     First,
@@ -10,6 +12,60 @@ pub enum CousinDistance {
 } impl Default for CousinDistance {
     fn default() -> Self {
         Self::First
+    }
+} impl CousinDistance {
+    pub fn random() -> CousinDistance {
+        match 1.d6() {
+            ..=3 => Self::First,
+            4|5 => Self::Second,
+            _ => Self::Distant
+        }
+    }
+}
+
+pub enum RelationSubType {
+    Cousin,
+    Auncle,
+    GreatAuncle,
+    Grandparent,
+    GreatGrandparent,
+} impl RelationSubType {
+    pub fn random(subtype: RelationSubType, individual: Gender, side: Gender) -> Relation {
+        match subtype {
+            RelationSubType::Cousin => Relation::Cousin { distance: CousinDistance::random(), gender: individual, side },
+            RelationSubType::Auncle =>
+                if individual == Gender::Female {
+                    Relation::Aunt { side }
+                } else {
+                    Relation::Uncle { side }
+                },
+            RelationSubType::GreatAuncle =>
+                if individual == Gender::Female {
+                    Relation::GreatAunt { side }
+                } else {
+                    Relation::GreatUncle { side }
+                },
+            RelationSubType::Grandparent =>
+                if individual == Gender::Female {
+                    Relation::Grandmother { side }
+                } else {
+                    Relation::Grandfather { side }
+                },
+            RelationSubType::GreatGrandparent =>
+                if individual == Gender::Female {
+                    Relation::GreatGrandmother { side }
+                } else {
+                    Relation::GreatGrandfather { side }
+                },
+        }
+    }
+
+    pub fn random_sibling(race: &'static Race) -> Relation {
+        if race.random_gender() == Gender::Male {
+            Relation::Brother
+        } else {
+            Relation::Sister
+        }
     }
 }
 

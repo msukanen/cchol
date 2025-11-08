@@ -1,12 +1,12 @@
 pub mod birth;
 pub use birth::BiMod;
 pub mod birth_legitimacy;
-pub mod culture;
-pub use culture::CuMod;
+pub mod culture; pub use culture::CuMod;
+pub mod family;
+    mod lineage; pub use lineage::LineageStrictness;
 pub mod nobility;
 pub mod people;
-pub mod religion;
-pub use religion::Deity;
+    mod religion; pub use religion::Deity;
 pub mod status;
 pub mod wealth;
 

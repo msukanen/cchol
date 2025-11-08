@@ -1,5 +1,6 @@
 pub mod adventurer;
 pub mod govt_official;
+pub mod guardian;
 pub mod others;
 pub use others::OtherPeople;
 pub mod relative;
