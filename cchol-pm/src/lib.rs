@@ -36,11 +36,7 @@ pub fn derive_has_name(input: TokenStream) -> TokenStream {
     let name = &input.ident;
 
     TokenStream::from(quote! {
-        impl IsNamed for #name {
-            fn name(&self) -> &str {
-                &self.name
-            }
-        }
+        impl IsNamed for #name { fn name(&self) -> &str { &self.name }}
     })
 }
 
@@ -50,11 +46,8 @@ pub fn derive_has_solmod(input: TokenStream) -> TokenStream {
     let name = &input.ident;
 
     TokenStream::from(quote! {
-        impl SolMod for #name {
-            fn solmod(&self) -> i32 {
-                self.solmod
-            }
-        }
+        impl SolMod for #name { fn solmod(&self) -> i32 { self.solmod }}
+        impl SolMod for &#name { fn solmod(&self) -> i32 { self.solmod }}
     })
 }
 
@@ -64,11 +57,8 @@ pub fn derive_has_cumod(input: TokenStream) -> TokenStream {
     let name = &input.ident;
 
     TokenStream::from(quote! {
-        impl CuMod for #name {
-            fn cumod(&self) -> i32 {
-                self.cumod
-            }
-        }
+        impl CuMod for #name { fn cumod(&self) -> i32 { self.cumod }}
+        impl CuMod for &#name { fn cumod(&self) -> i32 { self.cumod }}
     })
 }
 
@@ -78,10 +68,7 @@ pub fn derive_has_timod(input: TokenStream) -> TokenStream {
     let name = &input.ident;
 
     TokenStream::from(quote! {
-        impl TiMod for #name {
-            fn timod(&self) -> i32 {
-                self.timod
-            }
-        }
+        impl TiMod for #name { fn timod(&self) -> i32 { self.timod }}
+        impl TiMod for &#name { fn timod(&self) -> i32 { self.timod }}
     })
 }
