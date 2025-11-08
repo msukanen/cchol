@@ -1,4 +1,8 @@
+pub mod birth;
+pub use birth::BiMod;
+pub mod birth_legitimacy;
 pub mod culture;
+pub use culture::CuMod;
 pub mod nobility;
 pub mod people;
 pub mod religion;
