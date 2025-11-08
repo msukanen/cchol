@@ -43,3 +43,45 @@ pub fn derive_has_name(input: TokenStream) -> TokenStream {
         }
     })
 }
+
+#[proc_macro_derive(HasSolMod)]
+pub fn derive_has_solmod(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    TokenStream::from(quote! {
+        impl SolMod for #name {
+            fn solmod(&self) -> i32 {
+                self.solmod
+            }
+        }
+    })
+}
+
+#[proc_macro_derive(HasCuMod)]
+pub fn derive_has_cumod(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    TokenStream::from(quote! {
+        impl CuMod for #name {
+            fn cumod(&self) -> i32 {
+                self.cumod
+            }
+        }
+    })
+}
+
+#[proc_macro_derive(HasTiMod)]
+pub fn derive_has_timod(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    TokenStream::from(quote! {
+        impl TiMod for #name {
+            fn timod(&self) -> i32 {
+                self.timod
+            }
+        }
+    })
+}
