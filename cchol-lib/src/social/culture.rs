@@ -44,6 +44,7 @@ lazy_static! {
 }
 
 /// Fixed "core types" for cultures.
+#[derive(Debug, PartialEq)]
 pub enum CultureCoreType {
     Primitive,
     Nomad,
