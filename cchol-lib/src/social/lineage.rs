@@ -16,6 +16,13 @@ pub enum LineageStrictness {
     /// Default state for races where rule hasn't been explicit specified.
     #[serde(other)]
     Unspecified
+} impl LineageStrictness {
+    pub fn illegitimacy_not_recognized_concept(&self) -> bool {
+        match self {
+            Self::StrictPatrilineal => false,
+            _ => true
+        }
+    }
 }
 
 impl Default for LineageStrictness {

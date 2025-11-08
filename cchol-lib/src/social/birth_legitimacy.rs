@@ -65,6 +65,10 @@ pub(crate) fn determine_illegitimacy(
         race: &'static Race,
         culture: &'static Culture
 ) -> Option<(i32, IllegitimacyReason)> {
+    if race.lineage_strictness().illegitimacy_not_recognized_concept() {
+        return None;
+    }
+
     let roll = 1.d20();
     if (culture.core_type() == &CultureCoreType::Primitive && roll == 20)
        || (culture.core_type() != &CultureCoreType::Primitive && roll + culture.cumod() >= 19)
@@ -73,4 +77,20 @@ pub(crate) fn determine_illegitimacy(
     }
 
     None
+}
+
+#[cfg(test)]
+mod birth_legitimacy_tests {
+    use rpgassist::ext::IsNamed;
+
+    use crate::{racial::race::RACES, social::{birth_legitimacy::determine_illegitimacy, culture::CULTURES}};
+
+    #[test]
+    fn illegitimacy_does_not_apply_for_faun() {
+        let race = RACES.iter().find(|r| r.name().to_lowercase() == "faun").unwrap();
+        let culture = CULTURES.iter().find(|c| c.name().to_lowercase() == "nomad").unwrap();
+        if let Some(e) = determine_illegitimacy(race, culture) {
+            panic!("Legitimacy check should be flagged off with race.lineage_strictness().illegitimacy_not_recognized_concept(), but: {e:?}")
+        }
+    }
 }
