@@ -9,7 +9,7 @@ use dicebag::{DiceExt, IsOne};
 use rpgassist::gender::Gender;
 use serde::{Deserialize, Serialize};
 
-use crate::{places::birthplace::PlaceOfBirth, racial::Race, social::{SolMod, birth_legitimacy::{IllegitimacyReason, LegitMod, SiblingLegit, determine_illegitimacy}, culture::Culture, family::FamilyStructure, people::relative::RelationSubType}};
+use crate::{places::birthplace::PlaceOfBirth, racial::Race, social::{SolMod, birth_legitimacy::{IllegitimacyReason, LegitMod, SiblingLegit, determine_illegitimacy}, culture::Culture, family::FamilyStructure, people::relative::RelationSubType}, events::UnusualBirthCircumstance};
 /// A trait for anything that gives out **BiMod**.
 pub trait BiMod {
     /// Get **BiMod** (birth modifier).
@@ -96,7 +96,7 @@ pub enum BirthOrder {
 
 impl Birth {
     pub fn random(gender: &Gender, race: &'static Race, culture: &'static Culture) -> Self {
-        let illegitimacy_info = determine_illegitimacy(race, culture);
+        let legit = determine_illegitimacy(race, culture);
         let family = FamilyStructure::random(culture);
         let siblings = {
             let mut siblings = vec![];
@@ -119,13 +119,26 @@ impl Birth {
             }
             siblings
         };
+        let place_of_birth = PlaceOfBirth::random(race, culture, &legit);
+        // determine number of unusual birth circumstances, if any.
+        let (ubc_pc, ubc_gm) = match 1.d100() + place_of_birth.bimod() {
+            ..=60 => (0,0),
+            ..=76 => (1,0),
+            ..=85 => (2,0),
+            ..=92 => (1,1),
+            ..=94 => (3,0),
+            ..=97 => { let ubc_gm = 1.d2(); (3-ubc_gm, ubc_gm)},
+            98 => (4,0),
+            _ => { let ubc_gm = 1.d3(); (4-ubc_gm, ubc_gm)}
+        };
+        let ubcs = (0..(ubc_pc+ubc_gm)).into_iter().map(|_| UnusualBirthCircumstance::random(&place_of_birth)).collect();
 
         Self {
             family,
             birth_order: BirthOrder::random(siblings.len()),
+            illegitimacy_info: legit,
             siblings,
-            place_of_birth: PlaceOfBirth::random(race, culture, &illegitimacy_info),
-            illegitimacy_info,
+            place_of_birth,
         }
     }
 
