@@ -182,6 +182,18 @@ impl Noble {
                 n.culture.contains(&culture.core_type().to_string())
             ).expect(format!("Some serious error with _cr_range in JSON - can't find an entry with '{}' for '{}'", *NOBLE_DICE, culture.name()).as_str())
     }
+
+    pub(crate) fn get_random_title_inclusive_between(start: &str, end: &str, culture: &Culture) -> Option<&'static NobleNote> {
+        None
+    }
+
+    /// Get specs of a specific `title`, if it exists for the given `culture`.
+    pub(crate) fn get_title_for_culture(title: &str, culture: &Culture) -> Option<&'static NobleNote> {
+        NOBLENOTES.iter()
+            .find(|n|
+                n.name().to_lowercase() == title &&
+                n.culture.contains(&culture.core_type().to_string()))
+    }
 }
 
 /// A simple (NPC) noble entry for simple purposes…
