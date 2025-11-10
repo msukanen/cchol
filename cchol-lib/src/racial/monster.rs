@@ -1,7 +1,7 @@
 //! 756: Monsters
 use std::fs;
 
-use cchol_pm::{Gendered, HasRollRange};
+use cchol_pm::{Gendered, HasName, HasRollRange};
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
 use rpgassist::{gender::{Gender, HasGender}, ext::IsNamed};
@@ -20,9 +20,8 @@ lazy_static! {
     static ref MONSTER_RANGE: RollRange = validate_cr_ranges("MONSTERS", &*MONSTERS, None);
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange, Gendered)]
+#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange, Gendered, HasName)]
 pub struct Monster {
-    #[serde(default)]
     name: String,
     #[serde(default, skip_serializing)]
     variants: Vec<String>,
