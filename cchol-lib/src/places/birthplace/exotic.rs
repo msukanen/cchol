@@ -95,10 +95,9 @@ pub struct EPOBAltChoice {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct EPOBAlt {
-    #[serde(deserialize_with = "dice_size_clamp")]
-    dice_size: usize,
-    #[serde(default, deserialize_with = "deserialize_epobalt_choicemap")]
-    choices: HashMap<usize, EPOBAltChoice>,
+    #[serde(deserialize_with = "dice_size_clamp")] dice_size: usize,
+    #[serde(default, deserialize_with = "deserialize_epobalt_choicemap")] choices: HashMap<usize, EPOBAltChoice>,
+    #[serde(default)] extends_base: bool,
 } impl EPOBAlt {
     pub fn random(&self) -> Option<&EPOBAltChoice> {
         self.choices.get(&1.d(self.dice_size))
@@ -112,7 +111,6 @@ pub struct ExoticPlaceOfBirth {
     alt: Option<EPOBAlt>,
     base_environment: NativeOf,
     #[serde(deserialize_with = "deserialize_fixed_cr_range")] _cr_range: RollRange,
-    #[serde(default)] alt_extends_base: bool,
     #[serde(default)] origin_hook: Option<String>,
     #[serde(default)] combined_with: Option<Box<ExoticPlaceOfBirth>>,
 } impl ExoticPlaceOfBirth {
@@ -136,7 +134,7 @@ pub struct ExoticPlaceOfBirth {
         // check for alt-variations
         if let Some(alt_data) = &self.alt {
             if let Some(alt) = alt_data.random() {
-                if self.alt_extends_base {
+                if alt_data.extends_base {
                     self.name = format!("{} {}", self.name, alt.name());
                 } else {
                     self.name = alt.name().into();

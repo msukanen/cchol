@@ -27,8 +27,8 @@
         "name": "In a brothel",
         "bimod": 2,
         "_cr_range": 4,
-        "alt_extends_base": true,
         "alt": {
+            "extends_base": true,
             "dice_size": 5,
             "choices": {
                 "1": {
@@ -54,9 +54,9 @@
     {
         "name": "In the palace of a powerful evil",
         "bimod": 15,
-        "alt_extends_base": true,
         "alt": {
             "dice_size": 3,
+            "extends_base": true,
             "choices": {
                 "1": "person",
                 "2": "ruler",
@@ -69,8 +69,8 @@
     {
         "name": "In",
         "bimod": 2,
-        "alt_extends_base": true,
         "alt": {
+            "extends_base": true,
             "dice_size": 3,
             "choices": {
                 "1": "a bar",
@@ -102,6 +102,25 @@
         "_cr_range": 10
     },
     {
-        "name": "In the home of friendly <Nonhuman:plural>"
+        "name": "In the home of friendly <Nonhuman:plural>",
+        "bimod": 2,
+        "base_environment": "Urban",
+        "alt": {
+            "dice_size": 4,
+            "extends_base": true,
+            "choices": {
+                "1": {"name":"in the woods", "base_environment":"Wilderness"},
+                "2": "at downtown",
+                "3": "in the suburbs",
+                "4": "in a small village"
+            }
+        },
+        "_cr_range": 11
+    },
+    {
+        "name": "GM#111",
+        "bimod": 25,
+        "base_environment": "Urban",
+        "al"
     }
 ]
