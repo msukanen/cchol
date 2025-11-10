@@ -113,6 +113,12 @@ pub struct Culture {
     incompatible_env: Option<Vec<NativeOf>>,
 }
 
+impl Display for Culture {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name())
+    }
+}
+
 impl PartialEq for Culture {
     fn eq(&self, other: &Self) -> bool {
         self.cumod == other.cumod
