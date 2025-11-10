@@ -43,6 +43,15 @@ impl LegitMod for Birth {
     }
 }
 
+impl LegitMod for Option<(i32, IllegitimacyReason)> {
+    fn legitmod(&self) -> i32 {
+        match self {
+            None => 0,
+            Some((legitmod,_)) => *legitmod
+        }
+    }
+}
+
 /// Some reasons for possible illegitimacy of birth.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum IllegitimacyReason {
