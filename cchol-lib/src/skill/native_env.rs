@@ -15,6 +15,7 @@ pub static NATIVE_ENV_WILDS_SKILL_NAME:&'static str = "Survival: Wilderness";
 /// Some native environments.
 #[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 pub enum NativeOf {
+    Air, Underground,
     Urban,
     Wilderness,
     /// Some cultures exist in any/all environments…
@@ -29,6 +30,8 @@ pub enum NativeOf {
 impl Display for NativeOf {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::Air => write!(f, "air"),
+            Self::Underground => write!(f, "underground"),
             Self::Urban => write!(f, "urban"),
             Self::Wilderness => write!(f, "wilderness"),
             Self::Choice {
@@ -79,6 +82,21 @@ impl<'de> Deserialize<'de> for NativeOf {
     }
 }
 
+impl From<&str> for NativeOf {
+    fn from(value: &str) -> Self {
+        match value.to_lowercase().as_str() {
+            "air" => Self::Air,
+            "underground" => Self::Underground,
+            "urban" => Self::Urban,
+            "wilderness"|
+            "wilds" => Self::Wilderness,
+            _ => panic!("Environmental damage! '{value}' is not among the recognized ones of '{}', '{}', '{}' or '{}'!",
+                NativeOf::Air, NativeOf::Underground, NativeOf::Urban, NativeOf::Wilderness
+            )
+        }
+    }
+}
+
 impl NativeOf {
     /// Get primary [NativeOf].
     pub fn primary(&self) -> NativeOf {
@@ -99,25 +117,28 @@ impl NativeOf {
     /// Get the "polar opposite" of primary [NativeOf].
     pub fn opposite(&self) -> NativeOf {
         match self {
+            Self::Air => Self::Underground,
+            Self::Underground => Self::Air,
             Self::Urban => Self::Wilderness,
             Self::Wilderness => Self::Urban,
             Self::Choice { primary, .. } => primary.opposite()
         }
     }
 
-    /// Return a [Skill] representation of this [NativeOf].
-    pub fn as_skill(&self, ranked: &impl IsRanked) -> Skill {
+    /// Return a [Skill] representation of this [NativeOf], if possible.
+    pub fn as_skill(&self, ranked: &impl IsRanked) -> Option<Skill> {
         // Skill name has to be properly set…
         let skill_name = match self {
             Self::Urban => NATIVE_ENV_URBAN_SKILL_NAME,
             Self::Wilderness => NATIVE_ENV_WILDS_SKILL_NAME,
-            Self::Choice { primary,..} => return primary.as_skill(ranked)
+            Self::Choice { primary,..} => return primary.as_skill(ranked),
+            _ => return None
         };
         
-        Skill::from((
+        Some(Skill::from((
             SkillBase::from(skill_name),
             ranked.rank().clone()
-        ))
+        )))
     }
 
     /// Replace e.g. <NativeOf> with the actual environment name.
