@@ -17,19 +17,19 @@ lazy_static! {
                 &fs::read_to_string(EXOTIC_LOCATIONS_FILE).expect(format!("Error with '{EXOTIC_LOCATIONS_FILE}'?!").as_str())
             ).expect("JSON error");
         
-        // ensure that all the wee EPOBAltChoice entries have a proper name in case EPOBAlt.extends_base is false.
+        // ensure that all the wee EPOBAltChoice entries have a proper name in case EPOBAlt.extends_base is `false`.
         // TODO: as a local function here now, but might have use elsewhere later as a generic… shall see.
         fn validate_full_name_presence(locations: &Vec<ExoticPlaceOfBirth>) {
             for location in locations {
                 if let Some(alt_data) = &location.alt {
-                    // Rule: If extends_base is FALSE, all choices must have a name.
+                    // RULE: if extends_base is `false`, all choices *must* have a proper non-empty name.
                     if !alt_data.extends_base {
                         for (roll, choice) in &alt_data.choices {
-                            // Check if the name is None OR if the name is an empty string
+                            // Check if the name is `None` or if the name is an empty string…
                             if choice.name.is_none() || choice.name.as_ref().is_some_and(|s| s.is_empty()) {
                                 panic!(
-                                    "DATA ERROR: Choice '{}' for '{}' MUST have a name when 'extends_base' is false (otherwise the name becomes blank).",
-                                    roll, location.name
+                                    "DATA ERROR: Choice '{roll}' for '{}' MUST have a name when 'extends_base' is `false` or omitted; otherwise the name becomes blank.",
+                                    location.name
                                 );
                             }
                         }
