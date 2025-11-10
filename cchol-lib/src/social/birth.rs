@@ -9,7 +9,7 @@ use dicebag::{DiceExt, IsOne};
 use rpgassist::gender::Gender;
 use serde::{Deserialize, Serialize};
 
-use crate::{racial::Race, social::{SolMod, birth_legitimacy::{IllegitimacyReason, LegitMod, SiblingLegit, determine_illegitimacy}, culture::Culture, family::FamilyStructure, people::relative::RelationSubType}};
+use crate::{places::birthplace::PlaceOfBirth, racial::Race, social::{SolMod, birth_legitimacy::{IllegitimacyReason, LegitMod, SiblingLegit, determine_illegitimacy}, culture::Culture, family::FamilyStructure, people::relative::RelationSubType}};
 /// A trait for anything that gives out **BiMod**.
 pub trait BiMod {
     /// Get **BiMod** (birth modifier).
@@ -22,12 +22,13 @@ pub struct Birth {
     //place_of_birth: PlaceOfBirth,
     siblings: Vec<SiblingLegit>,
     family: FamilyStructure,
-    birth_order: BirthOrder
+    birth_order: BirthOrder,
+    place_of_birth: PlaceOfBirth,
 }
 
 impl BiMod for Birth {
     fn bimod(&self) -> i32 {
-        0//self.place_of_birth.bimod()
+        self.place_of_birth.bimod()
     }
 }
 
@@ -120,10 +121,11 @@ impl Birth {
         };
 
         Self {
-            illegitimacy_info,
             family,
             birth_order: BirthOrder::random(siblings.len()),
             siblings,
+            place_of_birth: PlaceOfBirth::random(race, culture, &illegitimacy_info),
+            illegitimacy_info,
         }
     }
 
