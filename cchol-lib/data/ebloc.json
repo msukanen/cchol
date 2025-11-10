@@ -1,0 +1,107 @@
+[
+    {
+        "name": "In temple of a (likely) good deity, <Deity>",
+        "bimod": 15,
+        "base_environment": "Urban",
+        "_cr_range": 1
+    },
+    {
+        "name": "Among camp followers near a battlefield",
+        "alt": {
+            "dice_size": 6,
+            "choices": {
+                "6": "On a battlefield"
+            }
+        },
+        "bimod": 8,
+        "base_environment": "Wilderness",
+        "_cr_range": 2
+    },
+    {
+        "name": "In an alley",
+        "bimod": 5,
+        "_cr_range": 3,
+        "base_environment": "Urban"
+    },
+    {
+        "name": "In a brothel",
+        "bimod": 2,
+        "_cr_range": 4,
+        "alt_extends_base": true,
+        "alt": {
+            "dice_size": 5,
+            "choices": {
+                "1": {
+                    "name": "where mother was a prostitute",
+                    "bimod+": 3
+                }
+            }
+        },
+        "base_environment": "Urban"
+    },
+    {
+        "name": "In manor of a local ruler, <Noble:Baron..Duke>",
+        "bimod": 2,
+        "base_environment": "Urban",
+        "_cr_range": 5
+    },
+    {
+        "name": "In the palace of the ruler of the country",
+        "bimod": 5,
+        "base_environment": "Urban",
+        "_cr_range": 6
+    },
+    {
+        "name": "In the palace of a powerful evil",
+        "bimod": 15,
+        "alt_extends_base": true,
+        "alt": {
+            "dice_size": 3,
+            "choices": {
+                "1": "person",
+                "2": "ruler",
+                "3": { "name":"<Monster>", "base_environment":"Wilderness" }
+            }
+        },
+        "base_environment": "Urban",
+        "_cr_range": 7
+    },
+    {
+        "name": "In",
+        "bimod": 2,
+        "alt_extends_base": true,
+        "alt": {
+            "dice_size": 3,
+            "choices": {
+                "1": "a bar",
+                "2": "a tavern",
+                "3": "an alehouse"
+            }
+        },
+        "base_environment":"Urban",
+        "_cr_range": 8
+    },
+    {
+        "name": "In the sewers",
+        "bimod": 10,
+        "base_environment":"Urban",
+        "_cr_range": 9
+    },
+    {
+        "name": "In a thieves den",
+        "bimod": 5,
+        "base_environment": "Urban",
+        "alt": {
+            "dice_size":3,
+            "choices": {
+                "1": "in a shady part of town",
+                "2": { "name": "in the woods", "base_environment": "Wilderness"},
+                "3": "in the basement of a wealthy manor"
+            }
+        },
+        "_cr_range": 10
+    },
+    {
+        "name": "In the home of friendly <Nonhuman:plural>"
+    }
+]

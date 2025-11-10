@@ -57,7 +57,8 @@
             ["Chieftain","Matriarch of the Flock"],
             ["Subchieftain","Matriarch"]
         ],
-        "lineage_strictness": "CommunalOrMatriarchal"
+        "lineage_strictness": "CommunalOrMatriarchal",
+        "incompatible_env": "Urban"
     },
     {
         "name": "satyr",
