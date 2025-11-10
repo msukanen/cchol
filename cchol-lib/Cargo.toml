@@ -1,6 +1,6 @@
 [package]
 name = "cchol-lib"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 authors = ["Markku Sukanen <markku.sukanen@gmail.com>"]
 repository = "https://github.com/msukanen/cchol.git"
@@ -20,6 +20,7 @@ cchol-pm = { path = "../cchol-pm" }
 chrono = "0.4.42"
 bitflags = { version = "2.10", features = ["serde"] }
 strum = { version = "0.27.2", features = ["derive"] }
+regex = "1.12.2"
 
 [badges]
 maintenance = { status = "experimental"}
