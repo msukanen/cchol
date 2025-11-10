@@ -121,6 +121,13 @@
         "name": "GM#111",
         "bimod": 25,
         "base_environment": "Urban",
-        "al"
+        "alt": {
+            "extends_base": true,
+            "dice_size": 2,
+            "choices": {
+                "1": {"base_environment":"Wilderness"},
+                "2": {"base_environment":"Air"}
+            }
+        }
     }
 ]

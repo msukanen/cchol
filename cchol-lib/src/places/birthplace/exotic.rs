@@ -72,7 +72,7 @@ where D: Deserializer<'de>
                     })?,
                     // choice between single string or a more complex object…
                     match map.next_value::<EPOBAltChoiceHalp>()? {
-                        EPOBAltChoiceHalp::S(name) => EPOBAltChoice { name, bimod: 0, base_environment: None },
+                        EPOBAltChoiceHalp::S(name) => EPOBAltChoice { name: Some(name), bimod: 0, base_environment: None },
                         EPOBAltChoiceHalp::C(epobc) => epobc
                     }
                 );
@@ -84,13 +84,21 @@ where D: Deserializer<'de>
     deserializer.deserialize_map(NumKeyVisitor)
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, HasName, HasBiMod)]
+#[derive(Debug, Deserialize, Serialize, Clone, HasBiMod)]
 pub struct EPOBAltChoice {
-    name: String,
-    #[serde(rename = "bimod+", default)]
-    bimod: i32,
-    #[serde(default)]
-    base_environment: Option<NativeOf>,
+    #[serde(default)] name: Option<String>,
+    #[serde(rename = "bimod+", default)] bimod: i32,
+    #[serde(default)] base_environment: Option<NativeOf>,
+}
+
+impl IsNamed for EPOBAltChoice {
+    fn name(&self) -> &str {
+        if let Some(n) = &self.name {
+            n.as_str()
+        } else {
+            ""
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -134,7 +142,8 @@ pub struct ExoticPlaceOfBirth {
         // check for alt-variations
         if let Some(alt_data) = &self.alt {
             if let Some(alt) = alt_data.random() {
-                if alt_data.extends_base {
+                // no point in appending nonexisting or empty string…
+                if (alt.name.is_some() && !alt.name().is_empty()) && alt_data.extends_base {
                     self.name = format!("{} {}", self.name, alt.name());
                 } else {
                     self.name = alt.name().into();
