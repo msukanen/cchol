@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use rpgassist::ext::IsNamed;
 
-use crate::{serialize::{deserialize_fixed_cr_range, validate_cr_ranges}, skill::{IsLiteracySource, native_env::{IsNativeOf, NativeOf}}, roll_range::*};
+use crate::{serialize::{deserialize_fixed_cr_range, validate_cr_ranges, deserialize_nativeofs_to_vec}, skill::{IsLiteracySource, native_env::{IsNativeOf, NativeOf}}, roll_range::*};
 
 /// FYI: all data files oughta reside within `./data/`.
 static CULTURE_FILE: &'static str = "./data/culture.json";
@@ -109,6 +109,8 @@ pub struct Culture {
     #[serde(default)] _default_max: bool,
     #[serde(default)] provides_skills: Option<Vec<(String, i32)>>,
     #[serde(default)] literacy_chance: Option<Vec<(String, i32)>>,
+    #[serde(default, deserialize_with = "deserialize_nativeofs_to_vec")]
+    incompatible_env: Option<Vec<NativeOf>>,
 }
 
 impl PartialEq for Culture {
@@ -167,6 +169,12 @@ impl Culture {
     /// Get a list of skills the [Culture] provides, if any.
     pub fn provides_skills(&self) -> Option<&Vec<(String, i32)>> {
         self.provides_skills.as_ref()
+    }
+
+    /// Check if the culture is incompatible with the given `environment`.
+    pub fn incompatible_with_env(&self, environment: &NativeOf) -> bool {
+        self.incompatible_env.as_ref()
+            .is_some_and(|e| e.contains(environment))
     }
 }
 
@@ -258,5 +266,28 @@ mod culture_tests {
             }
         });
         assert_eq!(rounds, suitable_found);
+    }
+
+    #[test]
+    fn primitive_is_incompatible_with_urban() {
+        let env = NativeOf::Urban;
+        let c = CULTURES.iter().find(|c| c.name().to_lowercase() == "primitive").unwrap();
+        assert!(c.incompatible_with_env(&env))
+    }
+
+    #[test]
+    fn bogus_is_incompatible_with_many() {
+        let bogus_culture = r#"{
+            "name": "Primitive",
+            "cumod": -3,
+            "native_of": "Wilderness",
+            "_cr_range": 1,
+            "provides_skills": [["Survival: Wilderness", 5], ["Survival: Urban", 1]],
+            "literacy_chance": [["Other Culture", 5]],
+            "incompatible_env": ["Urban", "Air"]
+        }"#;
+        let c: Culture = serde_jsonc::from_str(bogus_culture).unwrap();
+        assert!(c.incompatible_with_env(&NativeOf::Air));
+        assert!(c.incompatible_with_env(&NativeOf::Urban));
     }
 }
