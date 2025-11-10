@@ -2,10 +2,10 @@
 
 use std::fs;
 
-use cchol_pm::{Gendered, HasRollRange};
+use cchol_pm::{Gendered, HasName, HasRollRange};
 use dicebag::DiceExt;
 use lazy_static::lazy_static;
-use rpgassist::{gender::{Gender, GenderBias, HasGender}, resolve::resolve_in_place::ResolveInPlace, serialize::serial_strings::deserialize_strings_to_vec};
+use rpgassist::{ext::IsNamed, gender::{Gender, GenderBias, HasGender}, resolve::resolve_in_place::ResolveInPlace, serialize::serial_strings::deserialize_strings_to_vec};
 use serde::{Deserialize, Serialize};
 use crate::{modifier::CuMod, roll_range::{UseRollRange, RollRange}, serialize::deserialize_cr_range, traits::personality::{AffectsAlignment, Alignment}};
 
@@ -40,7 +40,7 @@ lazy_static! {
     ).expect("JSON error");
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange, Gendered)]
+#[derive(Debug, Deserialize, Serialize, Clone, HasRollRange, Gendered, HasName)]
 pub struct Deity {
     name: String,
     #[serde(default, deserialize_with = "deserialize_strings_to_vec")]
@@ -86,6 +86,8 @@ pub struct Deity {
 impl ResolveInPlace for Deity {
     fn resolve(&mut self) {
         self.gender.resolve_biased(self.gender_bias);
+
+        // resolve potential alt-name
         let roll = 1.d(self.alt.len() + 1) as i32 - 2;
         if roll >= 0 {
             self.name = self.alt[roll as usize].clone()
