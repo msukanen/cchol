@@ -92,7 +92,7 @@
         "bimod": 5,
         "base_environment": "Urban",
         "alt": {
-            "dice_size":3,
+            "dice_size": 3,
             "choices": {
                 "1": "in a shady part of town",
                 "2": { "name": "in the woods", "base_environment": "Wilderness"},
@@ -123,11 +123,81 @@
         "base_environment": "Urban",
         "alt": {
             "extends_base": true,
-            "dice_size": 2,
+            "dice_size": 3,
             "choices": {
                 "1": {"base_environment":"Wilderness"},
                 "2": {"base_environment":"Air"}
+                //3: uses base
+            }
+        },
+        "_cr_range": 12
+    },
+    {
+        "name": "In the temple of an evil/malignant deity, <Deity>",
+        "bimod": 20,
+        "_cr_range": 13,
+        "base_environment": "Urban",
+        "alt": {
+            "extends_base": true,
+            "dice_size": 3,
+            "choices": {
+                "1": {"base_environment": "Wilderness"}
+                //2-3: uses base
             }
         }
+    },
+    {
+        "name": "On another plane of reality",
+        "bimod": 15,
+        "_cr_range": 14,
+        "base_environment": "Urban",
+        "alt": {
+            "extends_base": true,
+            "dice_size": 1,
+            "choices": {
+                // just Wilderness, for now …
+                "1": {"base_environment": "Wilderness"}
+            }
+        }
+    },
+    {
+        "name": "In another time period",
+        "bimod": 10,
+        "_cr_range": 15,
+        "base_environment": "Urban",
+        "alt": {
+            "extends_base": true,
+            "dice_size": 1,
+            "choices": {
+                // just Wilderness, for now …
+                "1": {"base_environment": "Wilderness"}
+            }
+        }
+    },
+    {
+        "name": "On a ship at sea",
+        "base_environment": "ship",
+        "bimod": 2,
+        "_cr_range": 16
+    },
+    {
+        "name": "In a prison cell",
+        "base_environment": "Urban",
+        "bimod": 9,
+        "_cr_range": 17,
+        "alt": {
+            "dice_size": 3,
+            "choices": {
+                "1": {"name":"while mother was imprisoned", "bimod+": 1},
+                "2": {"name":"while mother was visiting a prisoner", "bimod+": -4},
+                "3": "because it was the safest place right there and then"
+            }
+        }
+    },
+    {
+        "name": "In a wizard's laboratory",
+        "base_environment": "Urban",
+        "bimod": 20,
+        "_cr_range": 18
     }
 ]
