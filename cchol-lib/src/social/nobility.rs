@@ -183,8 +183,41 @@ impl Noble {
             ).expect(format!("Some serious error with _cr_range in JSON - can't find an entry with '{}' for '{}'", *NOBLE_DICE, culture.name()).as_str())
     }
 
+    /// Get a random title between `start` and `end`, inclusive.
     pub(crate) fn get_random_title_inclusive_between(start: &str, end: &str, culture: &Culture) -> Option<&'static NobleNote> {
-        None
+        let start_title = Self::get_title_for_culture(start, culture);
+        let end_title = Self::get_title_for_culture(end, culture);
+
+        // log missing bits and bobs… if any.
+        if start_title.is_none() && end_title.is_some() {
+            log::error!("Impossible range, {start}..{end}; '{start}' missing for '{culture}");
+            return None;
+        }
+        if start_title.is_some() && end_title.is_none() {
+            log::error!("Impossible range, {start}..{end}; '{end}' missing for '{culture}'");
+            return None;
+        }
+        if start_title.is_none() && end_title.is_none() {
+            log::error!("Impossible range, both '{start}' and '{end}' are missing for '{culture}'");
+            return None;
+        }
+
+        // make a tight inclusive roll range
+        let start_cr = *end_title.unwrap().roll_range().start();
+        let end_cr = *start_title.unwrap().roll_range().end();
+        let range = if start_cr < end_cr {
+            start_cr..=end_cr
+        } else {
+            end_cr..=start_cr
+        };
+        let roll = range.random_of();
+
+        // …crossing fingers that we find something…
+        NOBLENOTES.iter()
+            .find(|note| {
+                note.culture.contains(&culture.core_type().to_string()) &&
+                note.roll_range().contains(&roll)
+            })
     }
 
     /// Get specs of a specific `title`, if it exists for the given `culture`.
