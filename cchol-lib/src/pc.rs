@@ -1,11 +1,9 @@
 //! # **Player Character**
-use std::collections::HashMap;
-
 use cchol_pm::{Gendered, HasName};
-use rpgassist::{ext::IsNamed, gender::{Gender, HasGender}, stat::{Stat, StatBase}, serialize::serial_uf64::deserialize as uf64_deserialize};
+use rpgassist::{ext::IsNamed, gender::{Gender, HasGender}, serialize::serial_uf64::deserialize as uf64_deserialize};
 use serde::{Deserialize, Serialize};
 
-use crate::{racial::Race, social::{birth::Birth, culture::Culture, status::SocialStatus}};
+use crate::{StatMap, racial::Race, social::{birth::Birth, culture::Culture, status::SocialStatus}};
 
 /// Default starting money, be it $, €, credits, gold, or something else.
 static DEFAULT_STARTING_MONEY: f64 = 1_000.0;
@@ -51,27 +49,6 @@ mod serial_pc_culture {
     pub(super) fn serialize<S>(culture: &&'static Culture, serializer: S) -> Result<S::Ok, S::Error>
     where S: Serializer {
         serializer.serialize_str(culture.name())
-    }
-}
-
-/// [Stat] map for e.g. [PlayerCharacter] etc.
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct StatMap(HashMap<StatBase, Stat>);
-
-impl Default for StatMap {
-    /// Generate default [StatMap] with more or less sensible default values for each stat present.
-    fn default() -> Self {
-        let mut map = HashMap::new();
-        map.insert(StatBase::Age, StatBase::Age.default());
-        map.insert(StatBase::App, StatBase::App.default());
-        map.insert(StatBase::Cha, StatBase::Cha.default());
-        map.insert(StatBase::Con, StatBase::Con.default());
-        map.insert(StatBase::Dex, StatBase::Dex.default());
-        map.insert(StatBase::Int, StatBase::Int.default());
-        map.insert(StatBase::Mag, StatBase::Mag.default());
-        map.insert(StatBase::Str, StatBase::Str.default());
-        map.insert(StatBase::Will, StatBase::Will.default());
-        Self(map)
     }
 }
 
