@@ -13,42 +13,7 @@ use std::ops::RangeInclusive;
 
 use serde::{Deserialize, Deserializer};
 
-use crate::roll_range::UseRollRange;
-
-/// Deserializer for `_cr_range` field.
-/// 
-/// # `_cr_range` in JSON
-/// * `i32` — singular choice value.
-/// * `[i32, i32]` — inclusive range.
-/// * `{ "upto": i32 }` — an inclusive "anything upto X" range's cap.
-/// * `{ "ge": i32 }` — anything greater-or-equal…
-pub(crate) fn deserialize_cr_range<'de, D>(deserializer: D) -> Result<std::ops::RangeInclusive<i32>, D::Error>
-where D: Deserializer<'de> {
-    #[derive(Deserialize)]
-    struct UptoX {
-        upto: i32
-    }
-    #[derive(Deserialize)]
-    struct GtOrEq {
-        ge: i32
-    }
-    // A helper for dual format input:
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    enum RangeHalp {
-        S(i32),
-        P((i32,i32)),
-        U(UptoX),
-        G(GtOrEq),
-    }
-
-    match RangeHalp::deserialize(deserializer)? {
-        RangeHalp::S(v) => Ok(v..=v),
-        RangeHalp::P((a,b)) => Ok(a..=b),
-        RangeHalp::U(x) => Ok(i32::MIN..=x.upto),
-        RangeHalp::G(x) => Ok(x.ge..=i32::MAX),
-    }
-}
+use crate::{roll_range::UseRollRange, skill::native_env::NativeOf};
 
 /// Deserializer for fixed-end `_cr_range`.
 /// 
@@ -71,6 +36,38 @@ where D: Deserializer<'de> {
     }
 }
 
+#[derive(Deserialize)]
+struct UptoX { upto: i32 }
+#[derive(Deserialize)]
+struct GtOrEq { ge: i32 }
+
+// Quad format input helper:
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum RangeHalp {
+    S(i32),
+    P((i32,i32)),
+    U(UptoX),
+    G(GtOrEq),
+}
+
+/// Deserializer for `_cr_range` field.
+/// 
+/// # `_cr_range` in JSON
+/// * `i32` — singular choice value.
+/// * `[i32, i32]` — inclusive range.
+/// * `{ "upto": i32 }` — an inclusive "anything upto X" range's cap.
+/// * `{ "ge": i32 }` — anything greater-or-equal…
+pub(crate) fn deserialize_cr_range<'de, D>(deserializer: D) -> Result<std::ops::RangeInclusive<i32>, D::Error>
+where D: Deserializer<'de> {
+    match RangeHalp::deserialize(deserializer)? {
+        RangeHalp::S(v) => Ok(v..=v),
+        RangeHalp::P((a,b)) => Ok(a..=b),
+        RangeHalp::U(x) => Ok(i32::MIN..=x.upto),
+        RangeHalp::G(x) => Ok(x.ge..=i32::MAX),
+    }
+}
+
 /// Deserializer for optional `_cr_range` field.
 /// 
 /// # `_cr_range` in JSON
@@ -81,27 +78,7 @@ where D: Deserializer<'de> {
 pub(crate) fn deserialize_optional_cr_range<'de, D>(deserializer: D)
     -> Result<Option<std::ops::RangeInclusive<i32>>, D::Error>
 where D: Deserializer<'de> {
-    #[derive(Deserialize)]
-    struct UptoX {
-        upto: i32
-    }
-    #[derive(Deserialize)]
-    struct GtOrEq {
-        ge: i32
-    }
-    // A helper for dual format input:
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    enum RangeHalp {
-        S(i32),
-        P((i32,i32)),
-        U(UptoX),
-        G(GtOrEq),
-    }
-
-    let maybe_halp = Option::<RangeHalp>::deserialize(deserializer)?;
-
-    match maybe_halp {
+    match Option::<RangeHalp>::deserialize(deserializer)? {
         Some(RangeHalp::S(v)) => Ok(Some(v..=v)),
         Some(RangeHalp::P((a,b))) => Ok(Some(a..=b)),
         Some(RangeHalp::U(x)) => Ok(Some(i32::MIN..=x.upto)),
@@ -198,4 +175,21 @@ pub(crate) fn validate_cr_ranges(
     log::debug!("{vecname} ranges successfully validated: 1..={}", *ranges.last().unwrap().end());
 
     start..=*end
+}
+
+/// Deserialize a single NativeOf or an array of NativeOf into Vec<NativeOf>
+pub(crate) fn deserialize_nativeofs_to_vec<'de, D>(deserializer: D) -> Result<Option<Vec<NativeOf>>, D::Error>
+where D: Deserializer<'de>
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    pub enum EnvHalp {
+        S(String),
+        M(Vec<String>),
+    }
+
+    match EnvHalp::deserialize(deserializer)? {
+        EnvHalp::S(s) => Ok(Some(vec![NativeOf::from(s.as_str())])),
+        EnvHalp::M(v) => Ok(Some(v.iter().map(|s| NativeOf::from(s.as_str())).collect()))
+    }
 }
