@@ -72,3 +72,14 @@ pub fn derive_has_timod(input: TokenStream) -> TokenStream {
         impl TiMod for &#name { fn timod(&self) -> i32 { self.timod }}
     })
 }
+
+#[proc_macro_derive(HasBiMod)]
+pub fn derive_has_bimod(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    TokenStream::from(quote! {
+        impl BiMod for #name { fn bimod(&self) -> i32 { self.bimod }}
+        impl BiMod for &#name { fn bimod(&self) -> i32 { self.bimod }}
+    })
+}
