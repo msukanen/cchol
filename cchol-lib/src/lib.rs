@@ -12,3 +12,4 @@ pub(crate) mod serialize;
 pub mod skill;
 pub mod social;
 mod traits;
+pub(crate) mod string_manip;
