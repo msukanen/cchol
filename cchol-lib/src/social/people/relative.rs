@@ -2,7 +2,7 @@ use dicebag::DiceExt;
 use rpgassist::gender::{Gender, HasGender};
 use serde::{Deserialize, Serialize};
 
-use crate::racial::Race;
+use crate::Workpad;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum CousinDistance {
@@ -23,6 +23,7 @@ pub enum CousinDistance {
     }
 }
 
+/// Relation subtypes — these are not for storing as-is.
 pub enum RelationSubType {
     Cousin,
     Auncle,
@@ -60,8 +61,8 @@ pub enum RelationSubType {
         }
     }
 
-    pub fn random_sibling(race: &'static Race) -> Relation {
-        if race.random_gender() == Gender::Male {
+    pub fn random_sibling(workpad: &Workpad) -> Relation {
+        if workpad.race().random_gender() == Gender::Male {
             Relation::Brother
         } else {
             Relation::Sister

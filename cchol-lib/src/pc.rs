@@ -3,7 +3,7 @@ use cchol_pm::{Gendered, HasName};
 use rpgassist::{ext::IsNamed, gender::{Gender, HasGender}, serialize::serial_uf64::deserialize as uf64_deserialize};
 use serde::{Deserialize, Serialize};
 
-use crate::{StatMap, racial::Race, social::{birth::Birth, culture::Culture, status::SocialStatus}};
+use crate::{StatMap, Workpad, racial::Race, social::{birth::Birth, culture::Culture, status::SocialStatus}, traits::HasCulture};
 
 /// Default starting money, be it $, €, credits, gold, or something else.
 static DEFAULT_STARTING_MONEY: f64 = 1_000.0;
@@ -69,19 +69,16 @@ pub struct PlayerCharacter {
     starting_money: f64,
     birth: Birth,
 } impl PlayerCharacter {
-    /// Generate a random PC.
-    pub fn random(name: &str) -> Self {
-        let race = Race::default();
-        let culture = Culture::random(race.max_culture());
-        let gender = race.random_gender();
+    pub fn create(workpad: &mut Workpad) -> Self {
         Self {
-            name: name.into(),
-            stats: StatMap::default(),
-            status: SocialStatus::random(&culture),
-            starting_money: DEFAULT_STARTING_MONEY,
-            birth: Birth::random(&gender, race, culture),
-
-            gender, race, culture,
+            name: workpad.name().into(),
+            stats: workpad.get_statmap().clone(),
+            status: workpad.get_social_status().clone(),
+            starting_money: workpad.get_social_status().starting_money() as f64,
+            birth: workpad.get_birth().clone(),
+            gender: workpad.gender(),
+            race: workpad.race(),
+            culture: workpad.culture()
         }
     }
 
@@ -100,8 +97,8 @@ pub struct PlayerCharacter {
         self.race = race;
         self.gender = self.race.adjust_gender(self.gender);
         self.culture = self.race.shift_culture_if_needed(&self.culture);
-        if !self.status.is_compatible_with(&self.culture) {
-            self.status = SocialStatus::random(&self.culture);
+        if !self.status.is_compatible_with(self.culture) {
+            self.status = SocialStatus::random(self.culture);
         }
         self
     }
@@ -112,22 +109,15 @@ pub struct PlayerCharacter {
     pub fn with_culture(&mut self, culture: &'static Culture) -> &mut Self {
         self.culture = culture;
         self.culture = self.race.shift_culture_if_needed(&self.culture);
-        if !self.status.is_compatible_with(&self.culture) {
-            self.status = SocialStatus::random(&self.culture);
+        if !self.status.is_compatible_with(self.culture) {
+            self.status = SocialStatus::random(self.culture);
         }
-        self
-    }
-
-    /// Builder for non-default base starting money.
-    pub fn with_starting_money(&mut self, base_money: f64) -> &mut Self {
-        self.starting_money = base_money.max(0.0);// 0.0 minimum so we don't not start with debt…
         self
     }
 
     /// See how much moneys the character has… at start.
     pub fn starting_money(&self) -> f64 {
-        self.starting_money
-        * self.status.wealth().starting_money_mod()
+        self.status.starting_money()
         * self.birth.starting_money_mod()
     }
 }

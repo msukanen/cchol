@@ -1,6 +1,6 @@
 //! `StatMap` for e.g. [PlayerCharacter], etc.
 
-use std::{collections::HashMap, ops::AddAssign};
+use std::{collections::HashMap, ops::{AddAssign, SubAssign}};
 
 use rpgassist::stat::{Stat, StatBase};
 use serde::{Deserialize, Serialize};
@@ -48,5 +48,25 @@ impl AddAssign<Stat> for StatMap {
     fn add_assign(&mut self, rhs: Stat) {
         self.set_modified_by(rhs.clone())
             .expect(format!("INTERNAL ERROR: Stat '{rhs:?}' is not compatible with this particular StatMap!").as_str())
+    }
+}
+
+impl AddAssign<i32> for StatMap {
+    /// += for each base attribute in the map, excluding modifier kinds.
+    fn add_assign(&mut self, rhs: i32) {
+        // These are both modifiers, but…
+        self.0.entry(StatBase::App).and_modify(|e| *e += rhs );
+        self.0.entry(StatBase::Cha).and_modify(|e| *e += rhs );
+        // The core stats:
+        self.0.entry(StatBase::Con).and_modify(|e| *e += rhs );
+        self.0.entry(StatBase::Dex).and_modify(|e| *e += rhs );
+        self.0.entry(StatBase::Int).and_modify(|e| *e += rhs );
+        self.0.entry(StatBase::Str).and_modify(|e| *e += rhs );
+    }
+}
+
+impl SubAssign<i32> for StatMap {
+    fn sub_assign(&mut self, rhs: i32) {
+        (*self) += -(rhs)
     }
 }

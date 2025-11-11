@@ -4,9 +4,9 @@
 
 use std::{cell::Cell, marker::PhantomData, ops::AddAssign};
 
-use rpgassist::{gender::{Gender, HasGender}, stat::Stat};
+use rpgassist::{ext::IsNamed, gender::{Gender, HasGender}, stat::Stat};
 
-use crate::{StatMap, racial::Race, social::{BiMod, CuMod, SolMod, birth::Birth, birth_legitimacy::LegitMod, culture::Culture, nobility::TiMod, status::SocialStatus}};
+use crate::{StatMap, modifier::{BiMod, CuMod, LegitMod, SolMod, TiMod}, racial::Race, social::{birth::Birth, culture::{Culture, CultureCoreType}, status::SocialStatus}, traits::{HasCulture, HasCultureCoreType}};
 
 /// All values in the Workpad are Option<> and accessors will panic if/when
 /// accessing something out of preordained sequence.
@@ -55,15 +55,9 @@ pub struct Workpad {
     // A bunch of getters …
     //
     /// Get [Race]
-    pub fn get_race(&self) -> &'static Race {
+    pub fn race(&self) -> &'static Race {
         self.race.as_ref()
             .expect("`Race` not yet determined!")
-    }
-
-    /// Get [Culture]
-    pub fn get_culture(&self) -> &'static Culture {
-        self.culture.as_ref()
-            .expect("No can do, `Culture` is still a mystery… Figure that out first, ok?")
     }
 
     /// Get [SocialStatus]
@@ -76,6 +70,24 @@ pub struct Workpad {
     pub fn get_statmap(&self) -> &StatMap {
         &self.statmap
     }
+
+    /// Get [Birth]
+    pub fn get_birth(&self) -> &Birth {
+        self.birth.as_ref()
+            .expect("`Birth` hasn't happened yet!")
+    }
+
+    //---------------------------------
+    //
+    // "Boosters"
+    //
+    /// One-shot boost to **BiMod** — lasts until next call to `.bimod()`.
+    /// 
+    /// **NOTE** that `boost_bimod()` is chainable.
+    pub fn boost_bimod(&mut self, by: i32) -> &mut Self {
+        self.temp_bimod = by.into();
+        self
+    }
 }
 
 impl HasGender for Workpad {
@@ -84,18 +96,21 @@ impl HasGender for Workpad {
             .expect("`Gender` not yet determined!")
             .clone()
     }
-}
+} impl HasGender for &mut Workpad {/*delegate*/fn gender(&self) -> Gender {(**self).gender()}}
 
 impl BiMod for Workpad {
     fn bimod(&self) -> i32 {
         let base_bimod = self.birth.as_ref()
             .and_then(|b| Some(b.bimod()))
             .expect("`Birth` not yet happened!");
+        
+        // one-shot temporary booster, used e.g. for UBO rerolls for higher rerolled value…
         let temp_boost = self.temp_bimod.get();
         self.temp_bimod.set(0);
+
         base_bimod + temp_boost
     }
-}
+} impl BiMod for &mut Workpad {/*delegate*/fn bimod(&self) -> i32 {(**self).bimod()}}
 
 impl CuMod for Workpad {
     fn cumod(&self) -> i32 {
@@ -103,7 +118,7 @@ impl CuMod for Workpad {
             .and_then(|c| Some(c.cumod()))
             .expect("`Culture` not yet set! Such an uncultured brat…")
     }
-}
+} impl CuMod for &mut Workpad {/*delegate*/fn cumod(&self) -> i32 {(**self).cumod()}}
 
 impl LegitMod for Workpad {
     fn legitmod(&self) -> i32 {
@@ -111,7 +126,7 @@ impl LegitMod for Workpad {
             .and_then(|b| Some(b.legitmod()))
             .expect("`Birth` not yet happened!")
     }
-}
+} impl LegitMod for &mut Workpad {/*delegate*/fn legitmod(&self) -> i32 {(**self).legitmod()}}
 
 impl SolMod for Workpad {
     fn solmod(&self) -> i32 {
@@ -119,7 +134,7 @@ impl SolMod for Workpad {
             .and_then(|s| Some(s.solmod()))
             .expect("`SocialStatus` undefined! Would not matter if we were generating a wild animal, but…")
     }
-}
+} impl SolMod for &mut Workpad {/*delegate*/fn solmod(&self) -> i32 {(**self).solmod()}}
 
 impl TiMod for Workpad {
     fn timod(&self) -> i32 {
@@ -129,48 +144,75 @@ impl TiMod for Workpad {
             .and_then(|n| Some(n.timod()))
             .unwrap_or(0)
     }
-}
+} impl TiMod for &mut Workpad {/*delegate*/fn timod(&self) -> i32 {(**self).timod()}}
 
+//-------------------------------------
 /// Workpad += Stat
 impl AddAssign<Stat> for Workpad {
     fn add_assign(&mut self, rhs: Stat) {
         self.statmap += rhs
     }
-}
-/// Workpad += Stat
-impl AddAssign<Stat> for &mut Workpad {
-    fn add_assign(&mut self, rhs: Stat) {(**self) += rhs}
-}
+} impl AddAssign<Stat> for &mut Workpad {/*delegate*/fn add_assign(&mut self, rhs: Stat) {**self += rhs}}
 
+//-------------------------------------
 /// Workpad += Gender
 impl AddAssign<Gender> for Workpad {
     fn add_assign(&mut self, rhs: Gender) {
         self.gender = Some(rhs)
     }
-}
-/// Workpad += Gender
-impl AddAssign<Gender> for &mut Workpad {
-    fn add_assign(&mut self, rhs: Gender) {(**self) += rhs;}
-}
+} impl AddAssign<Gender> for &mut Workpad {/*delegate*/fn add_assign(&mut self, rhs: Gender) {**self += rhs;}}
 
+//-------------------------------------
 /// Workpad += Culture
 impl AddAssign<&'static Culture> for Workpad {
     fn add_assign(&mut self, rhs: &'static Culture) {
         self.culture = Some(rhs)
     }
-}
-/// Workpad += Culture
-impl AddAssign<&'static Culture> for &mut Workpad {
-    fn add_assign(&mut self, rhs: &'static Culture) {(**self) += rhs;}
-}
+} impl AddAssign<&'static Culture> for &mut Workpad {/*delegate*/fn add_assign(&mut self, rhs: &'static Culture) {**self += rhs;}}
 
+//-------------------------------------
 /// Workpad += Race
 impl AddAssign<&'static Race> for Workpad {
     fn add_assign(&mut self, rhs: &'static Race) {
         self.race = Some(rhs)
     }
-}
-/// Workpad += Race
-impl AddAssign<&'static Race> for &mut Workpad {
-    fn add_assign(&mut self, rhs: &'static Race) {(**self) += rhs;}
-}
+} impl AddAssign<&'static Race> for &mut Workpad {/*delegate*/fn add_assign(&mut self, rhs: &'static Race) {**self += rhs;}}
+
+//-------------------------------------
+/// Workpad += SocialStatus
+impl AddAssign<SocialStatus> for Workpad {
+    fn add_assign(&mut self, rhs: SocialStatus) {
+        self.status = Some(rhs)
+    }
+} impl AddAssign<SocialStatus> for &mut Workpad {/*delegate*/fn add_assign(&mut self, rhs: SocialStatus) {**self += rhs}}
+
+//-------------------------------------
+/// Workpad += Birth
+impl AddAssign<Birth> for Workpad {
+    fn add_assign(&mut self, rhs: Birth) {
+        self.birth = Some(rhs)
+    }
+} impl AddAssign<Birth> for &mut Workpad {/*delegate*/fn add_assign(&mut self, rhs: Birth) {**self += rhs}}
+
+impl IsNamed for Workpad {
+    fn name(&self) -> &str {
+        self.name.as_ref()
+            .expect("No `name` set yet! Go get a name for yourself!")
+    }
+} impl IsNamed for &mut Workpad {/*delegate*/fn name(&self) -> &str {(**self).name()}}
+
+//
+// Culture related stuff.
+//
+impl HasCulture for Workpad {
+    fn culture(&self) -> &'static Culture {
+        self.culture.as_ref()
+            .expect("No can do, `Culture` is still a mystery… Figure that out first, ok?")
+    }
+} impl HasCulture for &mut Workpad {/*delegate*/fn culture(&self) -> &'static Culture {(**self).culture()}}
+
+impl HasCultureCoreType for Workpad {
+    fn core_type(&self) -> &'static CultureCoreType {
+        self.culture().core_type()
+    }
+} impl HasCultureCoreType for &mut Workpad {/*delegate*/fn core_type(&self) -> &'static CultureCoreType {(**self).core_type()}}

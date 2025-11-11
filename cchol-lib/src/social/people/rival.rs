@@ -5,7 +5,7 @@ use dicebag::{DiceExt, IsOne};
 use rpgassist::{gender::{Gender, GenderBias, HasGender}, serialize::serial_ordering, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 
-use crate::{racial::Race, social::{Deity, culture::Culture, people::{OtherPeople, Relation}}};
+use crate::{racial::Race, social::{Deity, people::{OtherPeople, Relation}}, traits::HasCulture};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 /// Who exactly is the rival?
@@ -26,7 +26,7 @@ pub enum RivalWho {
     Sibling { gender: Gender,
         #[serde(with = "serial_ordering")]
         relative_age: Ordering },
-    Stranger(OtherPeople),
+    Stranger(Box<OtherPeople>),
 } impl HasGender for RivalWho {
     fn gender(&self) -> Gender {
         match self {
@@ -43,7 +43,7 @@ pub enum RivalWho {
         }
     }
 } impl RivalWho {
-    fn random(culture: &Culture, potential_deity: bool) -> Self {
+    fn random(culture: &impl HasCulture, potential_deity: bool) -> Self {
         match 1.d10() {
             ..=1 => Self::FormerLover { gender: Gender::random_biased(GenderBias::Female23) },
             2 => Self::FamilyMember(Relation::random()),
@@ -51,7 +51,7 @@ pub enum RivalWho {
                 let race = Race::random_nonhuman();
                 let gender = race.random_gender();
                 Self::Nonhuman { race: race.name().into(), gender }},
-            4 => Self::Stranger(OtherPeople::random(culture)),
+            4 => Self::Stranger(Box::new(OtherPeople::random(culture))),
             5 => Self::FormerFriend { gender: Gender::random() },
             6 => Self::EnemyOfFamily { gender: Gender::random() },
             7 => Self::ProfessionRival { gender: Gender::random() },
@@ -128,7 +128,7 @@ pub struct Rival {
         self.who.gender()
     }
 } impl Rival {
-    pub fn random(culture: &Culture) -> Self {
+    pub fn random(culture: &impl HasCulture) -> Self {
         Self {
             who: RivalWho::random(culture, false),
             why: RivalWhy::random(),

@@ -7,7 +7,7 @@
 use dicebag::{DiceExt, lo, HiLo};
 use serde::{Deserialize, Serialize};
 
-use crate::{places::birthplace::exotic::ExoticPlaceOfBirth, racial::Race, social::{BiMod, CuMod, birth_legitimacy::LegitMod, culture::{Culture, CultureCoreType, HasCultureCoreType}}};
+use crate::{Workpad, modifier::{BiMod, CuMod, LegitMod}, places::birthplace::exotic::ExoticPlaceOfBirth, social::culture::{CultureCoreType}, traits::{HasCulture, HasCultureCoreType}};
 mod exotic;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -43,23 +43,23 @@ impl BiMod for PlaceOfBirth {
 }
 
 impl PlaceOfBirth {
-    pub fn random(race: &'static Race, culture: &'static Culture, legit: &impl LegitMod) -> Self {
-        match 1.d20() + legit.legitmod() + culture.cumod() {
+    pub fn random(workpad: &mut Workpad) -> Self {
+        match 1.d20() + workpad.legitmod() + workpad.cumod() {
             ..=6 => Self::FamilyHome,
-            ..=9 => match culture.core_type() {
+            ..=9 => match workpad.culture().core_type() {
                 CultureCoreType::Primitive |
                 CultureCoreType::Nomad     => Self::AtHealer,
                 CultureCoreType::Barbarian => if lo!() {Self::AtHealer} else {Self::AtHealersGuildhall},
                 _ => if lo!() {Self::AtHealersGuildhall} else {Self::AtHospital}
             },
             10 => Self::CarriageWhileTraveling,
-            11 => match culture.core_type() {
+            11 => match workpad.culture().core_type() {
                 CultureCoreType::Primitive |
                 CultureCoreType::Nomad     => Self::Cave,
                 _ => Self::CommonBarn
             },
-            12|13 => Self::ForeignLand(Box::new(Self::random(race, culture, legit))),
-            14 => match culture.core_type() {
+            12|13 => Self::ForeignLand(Box::new(Self::random(workpad))),
+            14 => match workpad.culture().core_type() {
                 CultureCoreType::Barbarian |
                 CultureCoreType::Civilized |
                 CultureCoreType::Decadent  => Self::CaveNPrim,
@@ -67,7 +67,7 @@ impl PlaceOfBirth {
             },
             15 => Self::MiddleOfField,
             16 => Self::Forest,
-            _  => Self::Exotic(ExoticPlaceOfBirth::random(race, culture, legit))
+            _  => Self::Exotic(ExoticPlaceOfBirth::random(workpad))
         }
     }
 }

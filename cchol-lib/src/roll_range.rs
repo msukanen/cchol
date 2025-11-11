@@ -14,7 +14,6 @@ pub(crate) trait RollInRollRange<T> {
 impl <T> RollInRollRange<T> for Vec<T>
 where
     T: UseRollRange,
-    T: Clone,
 {
     fn get_random_in_range(&self, range: &RollRange) -> &T {
         let roll = range.random_of();

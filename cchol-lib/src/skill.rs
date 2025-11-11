@@ -13,16 +13,6 @@ mod literacy;
 pub use literacy::LitMod;
 pub use literacy::IsLiteracySource;
 
-/// A trait for anything that gives out some survival modifier.
-pub trait SurvivalMod {
-    /// Get associated survival mod.
-    /// 
-    /// # Returns
-    /// 
-    /// Zero if not otherwise specified.
-    fn survival_mod(&self) -> i32 {0}
-}
-
 pub trait IsSkill : IsRanked + IsNamed + HasDescription {}
 
 static SKILL_FILE: &'static str = "./data/skill.json";

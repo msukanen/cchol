@@ -4,7 +4,7 @@ use dicebag::{DiceExt, IsOne};
 use rpgassist::{gender::Gender, stat::Stat};
 use serde::{Deserialize, Serialize};
 
-use crate::{body::Birthmark, StatMap, racial::Race, social::{BiMod, culture::Culture}, traits::personality::DLNTrait};
+use crate::{StatMap, Workpad, body::Birthmark, racial::Race, social::{BiMod, culture::Culture}, traits::personality::DLNTrait};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum Ubc3941 {
@@ -94,8 +94,8 @@ pub enum UnusualBirthCircumstance {
         deity: Deity,
     }
 } impl UnusualBirthCircumstance {
-    pub fn random(gender: &Gender, race: &Race, culture: &Culture, bimod_src: &impl BiMod) -> Self {
-        let roll = 1.d100() + bimod_src.bimod();
+    pub fn random(workpad: &mut Workpad) -> Self {
+        let roll = 1.d100() + workpad.bimod();
         match roll {
             ..=5 => Self::UbcNe05,
             ..=10 => Self::Ubc0610,
@@ -130,7 +130,7 @@ pub enum UnusualBirthCircumstance {
                 
                 if n < 42 {Self::Ubc3941(ubc3941s)} else {Self::Ubc4244(ubc3941s)}
             },
-            ..=48 => Self::Ubc4548 { curse: Curse::random(culture) },
+            ..=48 => Self::Ubc4548 { curse: Curse::random(workpad) },
             ..=50 => Self::Ubc4950( match 1.d10() {
                 ..=6 => Ubc4950::E01,
                 ..=9 => Ubc4950::E02,
@@ -141,25 +141,30 @@ pub enum UnusualBirthCircumstance {
             56 => Self::Ubc56nn,
             57 => Self::Ubc57nn,
             ..=62 => Self::Ubc5862,
-            ..=64 => Self::Ubc6364 { tragedy: Tragedy::random(culture) },
+            ..=64 => Self::Ubc6364 { tragedy: Tragedy::random(workpad) },
             ..=69 => Self::Ubc6569 { birthmark: Birthmark::random() },
-            ..=75 => Self::Ubc7075 { curse: Curse::random(culture) },
-            ..=81 => Self::Ubc7681 { blessing: Blessing::random(culture) },
+            ..=75 => Self::Ubc7075 { curse: Curse::random(workpad) },
+            ..=81 => Self::Ubc7681 { blessing: Blessing::random(workpad) },
             ..=85 => Self::Ubc8285 { gender: Gender::random() },
             86 => Self::Ubc86nn,
             ..=88 => Self::Ubc8788 { prophesy: DeathSituation::random() },
-            ..=93 => Self::Ubc8993 { affliction: PhysicalAffliction::random(gender) },
-            94 => Self::Ubc94nn { psi: PsionicAbility::random(race) },
-            ..=99 => Self::Ubc9599 { gift: gifts_n_legacies::random(culture) },
+            ..=93 => Self::Ubc8993 { affliction: PhysicalAffliction::random(workpad) },
+            94 => Self::Ubc94nn { psi: PsionicAbility::random(workpad) },
+            ..=99 => Self::Ubc9599 { gift: gifts_n_legacies::random(workpad) },
             100 => {
-                struct BogusBim {val: i32}
-                let bimod_src = BogusBim { val: bimod_src.bimod() + 20 };
-                impl BiMod for BogusBim { fn bimod(&self) -> i32 {self.val}}
-                let ubc1 = Box::new(Self::random(gender, race, culture, &bimod_src));
-                let ubc2 = Box::new(Self::random(gender, race, culture, &bimod_src));
+                workpad.boost_bimod(20);
+                let ubc1 = Box::new(Self::random(workpad));
+                workpad.boost_bimod(20);
+                let ubc2 = Box::new(Self::random(workpad));
                 Self::Ubc100 { ubc1, ubc2 }
             },
-            ..=105 => Ubc101105,
+            ..=105 => Self::Ubc101105,
+            ..=110 => Self::Ubc106110 {
+                stats: (),
+                affliction: (),
+                curse: (),
+                dln: ()
+            }
         }
     }
 }

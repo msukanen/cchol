@@ -2,13 +2,13 @@
 //! 758: Nobles
 
 use std::fs;
-use cchol_pm::{Gendered, HasRollRange, HasTiMod};
+use cchol_pm::{Gendered, HasRollRange};
 use lazy_static::lazy_static;
 use rpgassist::{gender::{Gender, GenderBias, HasGender}, ext::IsNamed, serialize::serial_strings::deserialize_strings_to_vec};
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, InclusiveRandomRange, percentage_chance_of};
 
-use crate::{misc::ConditionalExec, roll_range::*, serialize::{deserialize_cr_range, deserialize_string_w_optional}, social::culture::{Culture, CultureCoreType, HasCultureCoreType}};
+use crate::{Workpad, misc::ConditionalExec, modifier::TiMod, roll_range::*, serialize::{deserialize_cr_range, deserialize_string_w_optional}, social::culture::CultureCoreType, traits::{HasCulture, HasCultureCoreType}};
 
 static TIMOD_HARD_CAP: usize = 100;
 static NOBLENOTES_FILE: &'static str = "./data/nobility.json";
@@ -49,11 +49,9 @@ struct NobleTitleParts {
     part1: Vec<String>,
     part2: Vec<String>,
     part3: Vec<String>
-}
-
-impl NobleTitleParts {
+} impl NobleTitleParts {
     /// Create a single noble special/land title.
-    fn create_title(&self) -> String {
+    fn random(&self) -> String {
         let r = 1.d(self.part1.len());
         let p1 = &self.part1[r-1];
         let r = 1.d(10 + self.part2.len());
@@ -63,12 +61,6 @@ impl NobleTitleParts {
         let r2 = 1.d(self.part3.len());
         format!("{p1} of the {} {}", self.part2[r-11], self.part3[r2-1])
     }
-}
-
-/// A trait for anything that deals with **TiMod**.
-pub trait TiMod {
-    /// Get **TiMod**.
-    fn timod(&self) -> i32;
 }
 
 /// PC/NPC noble entry.
@@ -100,7 +92,7 @@ impl From<&'static NobleNote> for Noble {
             name: note.name.clone(),
             timod: note.timod.random(),
             land_titles: (0..note.land_titles.random())
-                .map(|_| NOBLE_TITLE_PARTS.create_title())
+                .map(|_| NOBLE_TITLE_PARTS.random())
                 .collect(),
             land_size: note.land_holdings.if_p(|| note.land_size.random()).unwrap_or_default(),
             _cr_range: note._cr_range.clone(),
@@ -110,9 +102,9 @@ impl From<&'static NobleNote> for Noble {
 
 impl Noble {
     /// Generate a random culture-appropriate [Noble] entry.
-    pub fn random(culture_core: &impl HasCultureCoreType) -> Self {
+    pub fn random(culture_src: &impl HasCultureCoreType) -> Self {
         let r = 1.d(*NOBLE_DICE);
-        let c = culture_core.core_type().to_string();
+        let c = culture_src.core_type().to_string();
         let note = NOBLENOTES.iter()
             .find(|n| n.culture.contains(&c) && n.roll_range().contains(&r))
             .expect(format!("No suitable NobleNote found for '{}' with roll of '{}'", c, r).as_str());
@@ -152,20 +144,20 @@ impl Noble {
     }
 
     /// See if the [Noble] entry is compatible with the given [Culture].
-    pub fn is_compatible_with(&self, culture: &Culture) -> bool {
+    pub fn is_compatible_with(&self, culture: &impl HasCulture) -> bool {
         NOBLENOTES.iter()
             .find(|n|
                 n.name() == self.name() &&
-                n.culture.contains(&culture.core_type().to_string())
+                n.culture.contains(&culture.culture().core_type().to_string())
             ).is_some()
     }
 
     /// Find next higher rank in noble hierarchy, if any.
-    pub(in crate::social) fn get_next_higher_rank(&self, culture: &Culture) -> Option<&'static NobleNote> {
+    pub(in crate::social) fn get_next_higher_rank(&self, culture_src: &impl HasCulture) -> Option<&'static NobleNote> {
         let note = NOBLENOTES.iter()
             .find(|n|
                 n.roll_range().contains(&(self._cr_range.start() - 1)) &&
-                n.culture.contains(&culture.core_type().to_string())
+                n.culture.contains(&culture_src.culture().core_type().to_string())
             );
         if let Some(_) = note {
             return note;
@@ -175,30 +167,32 @@ impl Noble {
     }
 
     /// Find the lowest rung in the noble hierarchy. Usually something like 'hetman' or 'knight', etc.
-    pub(in crate::social) fn get_lowest_rank(culture: &Culture) -> &'static NobleNote {
+    pub(in crate::social) fn get_lowest_rank(culture_src: &impl HasCulture) -> &'static NobleNote {
         NOBLENOTES.iter()
             .find(|n|
                 n.roll_range().contains(&(*NOBLE_DICE as i32)) &&
-                n.culture.contains(&culture.core_type().to_string())
-            ).expect(format!("Some serious error with _cr_range in JSON - can't find an entry with '{}' for '{}'", *NOBLE_DICE, culture.name()).as_str())
+                n.culture.contains(&culture_src.culture().core_type().to_string())
+            ).expect(format!("Some serious error with _cr_range in JSON - can't find an entry with '{}' for '{}'",
+                *NOBLE_DICE,
+                culture_src.culture().name()).as_str())
     }
 
     /// Get a random title between `start` and `end`, inclusive.
-    pub(crate) fn get_random_title_inclusive_between(start: &str, end: &str, culture: &Culture) -> Option<&'static NobleNote> {
-        let start_title = Self::get_title_for_culture(start, culture);
-        let end_title = Self::get_title_for_culture(end, culture);
+    pub(crate) fn get_random_title_inclusive_between(start: &str, end: &str, workpad: &Workpad) -> Option<&'static NobleNote> {
+        let start_title = Self::get_title_for_culture(start, workpad);
+        let end_title = Self::get_title_for_culture(end, workpad);
 
         // log missing bits and bobs… if any.
         if start_title.is_none() && end_title.is_some() {
-            log::error!("Impossible range, {start}..{end}; '{start}' missing for '{culture}");
+            log::error!("Impossible range, {start}..{end}; '{start}' missing for '{}", workpad.culture().name());
             return None;
         }
         if start_title.is_some() && end_title.is_none() {
-            log::error!("Impossible range, {start}..{end}; '{end}' missing for '{culture}'");
+            log::error!("Impossible range, {start}..{end}; '{end}' missing for '{}'", workpad.culture().name());
             return None;
         }
         if start_title.is_none() && end_title.is_none() {
-            log::error!("Impossible range, both '{start}' and '{end}' are missing for '{culture}'");
+            log::error!("Impossible range, both '{start}' and '{end}' are missing for '{}'", workpad.culture().name());
             return None;
         }
 
@@ -215,17 +209,17 @@ impl Noble {
         // …crossing fingers that we find something…
         NOBLENOTES.iter()
             .find(|note| {
-                note.culture.contains(&culture.core_type().to_string()) &&
+                note.culture.contains(&workpad.culture().core_type().to_string()) &&
                 note.roll_range().contains(&roll)
             })
     }
 
     /// Get specs of a specific `title`, if it exists for the given `culture`.
-    pub(crate) fn get_title_for_culture(title: &str, culture: &Culture) -> Option<&'static NobleNote> {
+    pub(crate) fn get_title_for_culture(title: &str, workpad: &Workpad) -> Option<&'static NobleNote> {
         NOBLENOTES.iter()
             .find(|n|
                 n.name().to_lowercase() == title &&
-                n.culture.contains(&culture.core_type().to_string()))
+                n.culture.contains(&workpad.culture().core_type().to_string()))
     }
 }
 

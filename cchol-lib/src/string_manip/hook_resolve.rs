@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use rpgassist::ext::IsNamed;
 
-use crate::{racial::{Monster, Race}, social::{Deity, culture::Culture, nobility::Noble}, string_manip::pluralize::Pluralizer};
+use crate::{Workpad, racial::{Monster, Race}, social::{Deity, nobility::Noble}, string_manip::pluralize::Pluralizer, traits::HasCulture};
 
 lazy_static! {
     static ref RX_TAG_NAME: Regex = Regex::new(r"<(\w+)>").expect("Regex made a booboo with '<X>' for some reason!");
@@ -12,14 +12,14 @@ lazy_static! {
 }
 
 /// Resolve a variety of "hooks" into contained names.
-pub(crate) fn resolve_name_hooks(candidate_name: &str, culture: &Culture) -> String {
+pub(crate) fn resolve_name_hooks(candidate_name: &str, workpad: &Workpad) -> String {
     let mut resolved = candidate_name.to_string();
     
     // <Foobar> tags first…
     resolved = RX_TAG_NAME.replace_all(&resolved, |caps:&regex::Captures|{
         let tag = caps.get(1).unwrap().as_str();
         match tag {
-            "Deity" => Deity::random(culture).name().to_string(),
+            "Deity" => Deity::random(workpad).name().to_string(),
             "Monster" => Monster::random().name().to_string(),
             "Nonhuman" => Race::random_nonhuman().name().to_string(),
             _ => unimplemented!("Unspecified tag '{tag}' encountered!")
@@ -34,10 +34,10 @@ pub(crate) fn resolve_name_hooks(candidate_name: &str, culture: &Culture) -> Str
 
         match tag {
             "Noble" => {
-                if let Some(note) = Noble::get_random_title_inclusive_between(scope_start, scope_end, culture) {
+                if let Some(note) = Noble::get_random_title_inclusive_between(scope_start, scope_end, workpad) {
                     note.name().into()
                 } else {
-                    log::warn!("No suitable NobleNote found in '{scope_start}'..'{scope_end}' for '{}'", culture.name());
+                    log::warn!("No suitable NobleNote found in '{scope_start}'..'{scope_end}' for '{}'", workpad.culture().name());
                     // range failure — fall back to original name …
                     resolved.clone()
                 }
@@ -64,10 +64,10 @@ pub(crate) fn resolve_name_hooks(candidate_name: &str, culture: &Culture) -> Str
         match tag {
             // For nobles, the 'specifier' means rank/title.
             "Noble" => {
-                if let Some(note) = Noble::get_title_for_culture(specifier, culture) {
+                if let Some(note) = Noble::get_title_for_culture(specifier, workpad) {
                     note.name().into()
                 } else {
-                    log::warn!("'{specifier}' was not a valid entry for '{}'", culture.name());
+                    log::warn!("'{specifier}' was not a valid entry for '{}'", workpad.culture().name());
                     resolved.clone()
                 }
             },

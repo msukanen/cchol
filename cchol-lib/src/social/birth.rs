@@ -6,24 +6,21 @@
 //!   unusual birth circumstances,
 //! etc.
 use dicebag::{DiceExt, IsOne};
-use rpgassist::gender::Gender;
 use serde::{Deserialize, Serialize};
 
-use crate::{places::birthplace::PlaceOfBirth, racial::Race, social::{SolMod, birth_legitimacy::{IllegitimacyReason, LegitMod, SiblingLegit, determine_illegitimacy}, culture::Culture, family::FamilyStructure, people::relative::RelationSubType}, events::UnusualBirthCircumstance};
-/// A trait for anything that gives out **BiMod**.
-pub trait BiMod {
-    /// Get **BiMod** (birth modifier).
-    fn bimod(&self) -> i32;
-}
+use crate::{Workpad, events::UnusualBirthCircumstance, modifier::{BiMod, SolMod, LegitMod}, places::birthplace::PlaceOfBirth, social::{birth_legitimacy::{IllegitimacyReason, SiblingLegit, determine_illegitimacy}, family::FamilyStructure, people::relative::RelationSubType}};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Birth {
     pub(in crate::social) illegitimacy_info: Option<(i32, IllegitimacyReason)>,
     //place_of_birth: PlaceOfBirth,
+    #[serde(default)]
     siblings: Vec<SiblingLegit>,
     family: FamilyStructure,
     birth_order: BirthOrder,
     place_of_birth: PlaceOfBirth,
+    #[serde(default)]
+    unusual_birth_circumstances: Vec<UnusualBirthCircumstance>,
 }
 
 impl BiMod for Birth {
@@ -95,9 +92,9 @@ pub enum BirthOrder {
 }
 
 impl Birth {
-    pub fn random(gender: &Gender, race: &'static Race, culture: &'static Culture) -> Self {
-        let legit = determine_illegitimacy(race, culture);
-        let family = FamilyStructure::random(culture);
+    pub fn random(workpad: &mut Workpad) -> Self {
+        let legit = determine_illegitimacy(workpad);
+        let family = FamilyStructure::random(workpad);
         let siblings = {
             let mut siblings = vec![];
             let mut i = 1;
@@ -114,12 +111,12 @@ impl Birth {
                         (1.d3(), 0)
                     }
                 };
-                (0..il).for_each(|_| siblings.push(SiblingLegit::Illegit(RelationSubType::random_sibling(race))));
-                (0..le).for_each(|_| siblings.push(SiblingLegit::Legit(RelationSubType::random_sibling(race))));
+                (0..il).for_each(|_| siblings.push(SiblingLegit::Illegit(RelationSubType::random_sibling(workpad))));
+                (0..le).for_each(|_| siblings.push(SiblingLegit::Legit(RelationSubType::random_sibling(workpad))));
             }
             siblings
         };
-        let place_of_birth = PlaceOfBirth::random(race, culture, &legit);
+        let place_of_birth = PlaceOfBirth::random(workpad);
         // determine number of unusual birth circumstances, if any.
         let (ubc_pc, ubc_gm) = match 1.d100() + place_of_birth.bimod() {
             ..=60 => (0,0),
@@ -131,7 +128,7 @@ impl Birth {
             98 => (4,0),
             _ => { let ubc_gm = 1.d3(); (4-ubc_gm, ubc_gm)}
         };
-        let ubcs = (0..(ubc_pc+ubc_gm)).into_iter().map(|_| UnusualBirthCircumstance::random(&place_of_birth)).collect();
+        let ubcs: Vec<UnusualBirthCircumstance> = (0..(ubc_pc+ubc_gm)).into_iter().map(|_| UnusualBirthCircumstance::random(workpad)).collect();
 
         Self {
             family,
@@ -139,6 +136,7 @@ impl Birth {
             illegitimacy_info: legit,
             siblings,
             place_of_birth,
+            unusual_birth_circumstances: ubcs,
         }
     }
 

@@ -4,7 +4,7 @@ use dicebag::{DiceExt, IsOne};
 use rpgassist::gender::{Gender, HasGender};
 use serde::{Deserialize, Serialize};
 
-use crate::{skill::SurvivalMod, social::{CuMod, culture::{Culture, CultureCoreType, HasCultureCoreType}, people::{Relation, guardian::Guardian, relative::{CousinDistance, RelationSubType}}, wealth::Wealth}};
+use crate::{Workpad, modifier::{CuMod, SurvivalMod}, traits::{HasCulture, HasCultureCoreType}, social::{culture::CultureCoreType, people::{Relation, guardian::Guardian, relative::{CousinDistance, RelationSubType}}}};
 
 /// Family structure.
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -48,10 +48,10 @@ pub enum FamilyStructure {
     }
 
     /// Generate random [FamilyStructure].
-    pub fn random(culture: &Culture) -> Self {
-        match 1.d20() + culture.cumod() {
+    pub fn random(workpad: &mut Workpad) -> Self {
+        match 1.d20() + workpad.cumod() {
             ..=8 => Self::MotherAndFather,
-            ..=12 => match culture.core_type() {
+            ..=12 => match workpad.culture().core_type() {
                 CultureCoreType::Primitive |
                 CultureCoreType::Nomad => Self::Clan {
                     primary_mother_figure: 1.d2().is_one(),
@@ -75,7 +75,7 @@ pub enum FamilyStructure {
             16 => Self::AuntOrUncle { specs: RelationSubType::random(RelationSubType::Auncle, Gender::random(), Gender::random())},
             ..=18 => Self::SingleParent { gender: Gender::Female }/* mom, obviously */,
             19 => Self::SingleParent { gender: Gender::Male }/* dad, ditto */,
-            20 => unimplemented!("Self::Guardian(Guardian::random(culture))"),
+            20 => unimplemented!("Self::Guardian(Guardian::random(workpad))"),
             ..=24 => Self::StreetKid { survival_mod: 1.d3() },
             _ => Self::Orphanage
         }

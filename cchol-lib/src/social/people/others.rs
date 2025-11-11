@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use rpgassist::{gender::{Gender, GenderBias, HasGender}, ext::IsNamed};
 use serde::{Deserialize, Serialize};
 
-use crate::{misc::OccupationPerformance, racial::{Monster, Race}, social::{culture::HasCultureCoreType, nobility::SimpleNobleNPC, people::{Relation, adventurer::Adventurer, govt_official::{self, GovtOfficial}}}};
+use crate::{misc::OccupationPerformance, racial::{Monster, Race}, social::{nobility::SimpleNobleNPC, people::{Relation, Rival, adventurer::Adventurer, govt_official::{self, GovtOfficial}}}, traits::HasCulture};
 
 static CRIMINAL_TYPES_FILE: &'static str = "./data/criminals.json";
 lazy_static! {
@@ -73,13 +73,13 @@ pub enum OtherPeople {
     Outcast { r#type: OutcastType, gender: Gender },
     Prostitute,
     Relative { relation: Relation },
+    Rival { specs: Rival },
     Thief { gender: Gender },
     WielderOfMagic { r#type: WOMType, gender: Gender },
-    //TODO: some common(ish) animal types.
-    WildAnimal { gender: Gender },
+    WildAnimal { gender: Gender },//TODO: some common(ish) animal types.
 } impl OtherPeople {
     /// Generate some random peep(s).
-    pub fn random(culture: &impl HasCultureCoreType) -> Self {
+    pub fn random(culture: &impl HasCulture) -> Self {
         match 1.d20() {
             ..=1 => Self::GovtOfficial(govt_official::random()),
             2 => Self::Friend { gender: Gender::random() },
@@ -101,7 +101,7 @@ pub enum OtherPeople {
                 deg_of_involvement: 1.d20() },
             16 => Self::Adventurer(Adventurer::random()),
             17 => Self::Relative { relation: Relation::random() },
-            18 => unimplemented!("TODO 762"),
+            18 => Self::Rival { specs: Rival::random(culture) },
             19 => Self::Nonhuman { race: Race::random_nonhuman().name().into(), gender: Gender::random() },
             _ => {// lets make a 2-3 combo variant
                 let mut cmb = vec![Box::new(Self::random(culture))];
@@ -120,12 +120,12 @@ impl HasGender for OtherPeople {
             // Combined is… combined. Find the gender(s) via other means.
             Self::Combined(_) => Gender::Unspecified,
 
-            Self::Adventurer(a) => a.gender(),
-            Self::GovtOfficial(g) => g.gender(),
-            Self::Prostitute => Gender::Female,
+            Self::Adventurer(a)       => a.gender(),
+            Self::GovtOfficial(g)   => g.gender(),
             Self::Noble { specs } => specs.gender(),
-            Self::Monster(m) => m.gender(),
+            Self::Monster(m)             => m.gender(),
             Self::Relative { relation } => relation.gender(),
+            Self::Rival { specs }          => specs.gender(),
             //--- ones with a direct 'gender' field:
             Self::CommonSoldier { gender }       |
             Self::Criminal { gender,.. }         |
@@ -140,7 +140,8 @@ impl HasGender for OtherPeople {
             Self::WielderOfMagic { gender,.. }   |
             Self::WildAnimal { gender }          => *gender,
             //--- the ones with fixed gender…:
-            Self::Invader => Gender::Male,
+            Self::Prostitute => Gender::Female,
+            Self::Invader    => Gender::Male,
         }
     }
 }

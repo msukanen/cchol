@@ -9,7 +9,7 @@ use rpgassist::{resolve::resolve_in_place::ResolveInPlace, ext::IsNamed, seriali
 use serde::{Deserialize, Serialize};
 use dicebag::{DiceExt, DiceT};
 
-use crate::{modifier::{CuMod, SolMod}, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}, social::culture::Culture, misc::defaults::f64::one_f64};
+use crate::{misc::{NO_RANGE, defaults::f64::one_f64}, modifier::{CuMod, SolMod}, roll_range::*, serialize::{deserialize_dicet, deserialize_optional_cr_range}, traits::HasCulture};
 
 /// Wealth specs.
 #[derive(Debug, Deserialize, Serialize, Clone, HasName, HasSolMod)]
@@ -32,6 +32,8 @@ pub struct Wealth {
     cultures: Vec<String>,
     #[serde(rename = "starting$", deserialize_with = "uf64_deserialize", default = "one_f64")]
     starting_money_mod: f64,
+    #[serde(default)]
+    base_starting_money: u32,
 }
 
 impl Wealth {
@@ -50,14 +52,19 @@ impl Wealth {
     }
 
     /// Check if current [Wealth] level is compatible with the given [`culture`][Culture]'s specs.
-    pub fn is_compatible_with(&self, culture: &Culture) -> bool {
+    pub fn is_compatible_with(&self, culture: &impl HasCulture) -> bool {
         self.cultures.contains(&"all".into()) ||
         self.cultures.iter().find(|name| name.to_lowercase() == culture.name().to_lowercase()).is_some()
     }
 
-    /// Get starting money modifier.
-    pub fn starting_money_mod(&self) -> f64 {
-        self.starting_money_mod
+    /// Set base starting money.
+    pub fn set_base_starting_money(&mut self, amount: u32) {
+        self.base_starting_money = amount
+    }
+
+    /// Get effective starting money.
+    pub fn starting_money(&self) -> f64 {
+        (self.base_starting_money as f64 * self.starting_money_mod).max(0.0)
     }
 }
 
@@ -69,8 +76,6 @@ impl ResolveInPlace for Wealth {
     }
 }
 
-/// A range that is nigh impossible to roll with dice. Used for stuff that needs _cr_range to be present but are not in basic roll tables.
-static NO_RANGE: std::ops::RangeInclusive<i32> = i32::MIN..=i32::MIN;
 impl UseRollRange for Wealth {
     fn roll_range(&self) -> &std::ops::RangeInclusive<i32> {
         self._cr_range.as_ref().unwrap_or_else(|| &NO_RANGE)

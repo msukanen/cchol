@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use rpgassist::{gender::{Gender, GenderBias, HasGenderBias}, ext::IsNamed};
 use serde::{Deserialize, Deserializer, Serialize, de};
 
-use crate::{events::RacialEvent, roll_range::*, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges, deserialize_nativeofs_to_vec}, skill::native_env::NativeOf, social::{LineageStrictness, culture::{CULTURE_DEFAULT_MAX, CULTURES, CuMod, Culture}, nobility::Noble, status::SocialStatus}};
+use crate::{events::RacialEvent, roll_range::*, modifier::CuMod, serialize::{default_pc_save_cr_range, deserialize_fixed_cr_range, validate_cr_ranges, deserialize_nativeofs_to_vec}, skill::native_env::NativeOf, social::{LineageStrictness, culture::{CULTURE_DEFAULT_MAX, CULTURES, Culture}, nobility::Noble, status::SocialStatus}};
 
 static RACE_FILE: &'static str = "./data/race.json";
 lazy_static! {
@@ -188,7 +188,11 @@ impl Race {
     /// Get a race by `name`.
     /// 
     /// **FYI:** We *intentionally* panic if `value` is not found.
-    pub fn from(name: &str) -> &'static Self {
+    pub fn from(name: Option<&str>) -> &'static Self {
+        if name.is_none() {
+            return Self::random();
+        }
+        let name = name.unwrap();
         RACES.iter()
             .find(|r| r.name().to_lowercase() == name.to_lowercase())
             .expect(format!("No race called '{name}' found!").as_str())
@@ -199,7 +203,7 @@ impl Race {
     /// If no name is provided (`None`), then we hand out the default race.
     pub fn from_opt(name: Option<String>) -> &'static Self {
         if let Some(name) = name {
-            Self::from(name.as_str())
+            Self::from(Some(name.as_str()))
         } else {
             Self::random()
         }

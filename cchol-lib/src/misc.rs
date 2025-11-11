@@ -41,3 +41,6 @@ impl ConditionalExec for usize {
         }
     }
 }
+
+/// A range that is nigh impossible to roll with dice. Used for stuff that needs _cr_range to be present but are not in basic roll tables.
+pub static NO_RANGE: std::ops::RangeInclusive<i32> = i32::MIN..=i32::MIN;

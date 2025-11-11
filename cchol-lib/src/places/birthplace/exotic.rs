@@ -8,7 +8,7 @@ use lazy_static::lazy_static;
 use rpgassist::ext::IsNamed;
 use serde::{Deserialize, Deserializer, Serialize, de::{self, Visitor}};
 
-use crate::{racial::Race, roll_range::{RollRange, UseRollRange}, serialize::{deserialize_fixed_cr_range, validate_cr_ranges}, skill::native_env::NativeOf, social::{BiMod, CuMod, birth_legitimacy::LegitMod, culture::Culture}, string_manip::resolve_name_hooks};
+use crate::{Workpad, modifier::{BiMod, CuMod, LegitMod}, roll_range::{RollRange, UseRollRange}, serialize::{deserialize_fixed_cr_range, validate_cr_ranges}, skill::native_env::NativeOf, string_manip::resolve_name_hooks, traits::HasCulture};
 
 static EXOTIC_LOCATIONS_FILE: &'static str = "./data/ebloc.json";
 lazy_static! {
@@ -148,23 +148,23 @@ pub struct ExoticPlaceOfBirth {
     #[serde(default)] origin_hook: Option<String>,
     #[serde(default)] combined_with: Option<Box<ExoticPlaceOfBirth>>,
 } impl ExoticPlaceOfBirth {
-    pub fn random(race: &'static Race, culture: &'static Culture, legit: &impl LegitMod) -> Self {
-        let roll = (EXOTIC_RANGE.random_of() + culture.cumod() - legit.legitmod())
+    pub fn random(workpad: &mut Workpad) -> Self {
+        let roll = (EXOTIC_RANGE.random_of() + workpad.cumod() - workpad.legitmod())
             .max(*EXOTIC_RANGE.start())
             .min(*EXOTIC_RANGE.end());
         EXOTIC_LOCATIONS.iter()
             .filter(|place| {
-                !race.incompatible_with_env(&place.base_environment) &&
-                !culture.incompatible_with_env(&place.base_environment)
+                !workpad.race().incompatible_with_env(&place.base_environment) &&
+                !workpad.culture().incompatible_with_env(&place.base_environment)
             })
             .find(|place| place.roll_range().contains(&roll))
-            .expect(format!("Err, no suitable exotic location found for '{}' with roll of '{roll}'", race.name()).as_str())
+            .expect(format!("Err, no suitable exotic location found for '{}' with roll of '{roll}'", workpad.race().name()).as_str())
             .clone()
-            .resolve(race, culture, legit)
+            .resolve(workpad)
     }
 
     /// Resolve various things in place…
-    fn resolve(mut self, race: &'static Race, culture: &'static Culture, legit: &impl LegitMod) -> Self {
+    fn resolve(mut self, workpad: &mut Workpad) -> Self {
         // check for alt-variations
         if let Some(alt_data) = &self.alt {
             if let Some(alt) = alt_data.random() {
@@ -184,13 +184,13 @@ pub struct ExoticPlaceOfBirth {
         }
 
         // Sort out e.g. <Deity> and other such hooks/tags.
-        self.name = resolve_name_hooks(self.name(), culture);
+        self.name = resolve_name_hooks(self.name(), workpad);
 
         // 10% chance to be a combined place with…
         if 1.d10().is_one() {
             self.bimod += 5;
             // …another exotic place!
-            self.combined_with = Some(Box::new(ExoticPlaceOfBirth::random(race, culture, legit)))
+            self.combined_with = Some(Box::new(ExoticPlaceOfBirth::random(workpad)))
         }
 
         self
@@ -199,7 +199,7 @@ pub struct ExoticPlaceOfBirth {
 
 #[cfg(test)]
 mod exotic_birthplace_tests {
-    use crate::{places::birthplace::exotic::{EXOTIC_LOCATIONS, ExoticPlaceOfBirth}, racial::Race, roll_range::UseRollRange, social::{BiMod, birth_legitimacy::LegitMod, culture::Culture}};
+    use crate::{Workpad, places::birthplace::exotic::{EXOTIC_LOCATIONS, ExoticPlaceOfBirth}, racial::Race, roll_range::UseRollRange, social::culture::Culture, modifier::BiMod};
 
     #[test]
     fn exotic_place_of_birth_data_integrity() {
@@ -225,17 +225,16 @@ mod exotic_birthplace_tests {
             "base_environment": "Urban"
         }"#;
         let epob: ExoticPlaceOfBirth = serde_jsonc::from_str(json).unwrap();
-        let race = Race::random();
-        let culture = Culture::random(race.max_culture());
+        let mut workpad = Workpad::new();
+        workpad += Race::random();
+        workpad += Culture::random_max_bound(workpad.race().max_culture());
         struct Foobar;
-        impl LegitMod for Foobar { fn legitmod(&self) -> i32 {0}}
-        let legit = Foobar;
         let _ = env_logger::try_init();
         let mut i = 0;
         loop {
             i += 1;
             log::debug!("EPOB attempt #{i}");
-            let epob = epob.clone().resolve(race, culture, &legit);
+            let epob = epob.clone().resolve(&mut workpad);
             if 5 == epob.bimod() {
                 break;
             }
